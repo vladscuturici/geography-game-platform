@@ -1,0 +1,17 @@
+<h1 class="title">Guess the daily country</h1>
+<p class="subtitle">One country a day · five clues per guess</p>
+
+@if (solved) {
+  <div class="solved-banner">
+    <span>🎉</span>
+    <span>You guessed today's country!</span>
+  </div>
+}
+
+<app-guess-round
+  [countries$]="countries$"
+  [targetCountry$]="dailyCountry$"
+  [guessedCountries]="guessedCountries"
+  [solved]="solved"
+  (guessMade)="onGuessMade($event)"
+/>

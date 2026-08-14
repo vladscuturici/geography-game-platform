@@ -1,0 +1,64 @@
+:host {
+  display: block;
+}
+
+.mode-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem 0;
+  font-family: 'Spectral', Georgia, serif;
+}
+
+.mode-tabs a {
+  padding: 0.65rem 2rem;
+  color: var(--muted, #d9b8b8);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(20, 33, 61, 0.55);
+  border: 1px solid rgba(201, 162, 75, 0.35);
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease,
+              border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.mode-tabs a:hover {
+  color: var(--brass-bright, #e8c876);
+  background: rgba(20, 33, 61, 0.85);
+  border-color: var(--brass, #c9a24b);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.4);
+}
+
+.mode-tabs a:active {
+  transform: translateY(0);
+}
+
+.mode-tabs a.active {
+  color: var(--ink, #14213d);
+  background: var(--brass, #c9a24b);
+  border-color: var(--brass, #c9a24b);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.mode-tabs a.active:hover {
+  color: var(--ink, #14213d);
+  background: var(--brass-bright, #e8c876);
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .mode-tabs {
+    gap: 0.5rem;
+    padding: 1.25rem 1rem 0;
+  }
+  .mode-tabs a {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.8rem;
+  }
+}

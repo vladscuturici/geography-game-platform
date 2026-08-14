@@ -1,0 +1,20 @@
+<h1 class="title">Guess the country - Unlimited</h1>
+<p class="subtitle">One country · five clues per guess · Repeatable</p>
+
+@if (justSolved) {
+  <div class="solved-banner">
+    <span>🎉</span>
+    <span>You guessed the country!</span>
+    <button class="next-country-tile" (click)="nextCountry()">
+      New country →
+    </button>
+  </div>
+}
+
+<app-guess-round
+  [countries$]="countries$"
+  [targetCountry$]="randomCountry$"
+  [guessedCountries]="guessedCountries"
+  [solved]="justSolved"
+  (guessMade)="onGuessMade($event)"
+/>

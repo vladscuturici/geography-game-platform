@@ -6,3 +6,44 @@ body {
               #460000;
   background-attachment: fixed;
 }
+
+table {
+  width: 100%;
+  max-width: 760px;
+  border-collapse: collapse;
+  background: var(--parchment);
+  border: 1px solid var(--brass);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+thead th {
+  text-align: left;
+  padding: 0.9rem 1.1rem;
+  background: var(--ink);
+  color: var(--brass-bright);
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+tbody tr {
+  animation: reveal 0.4s ease-out;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--parchment-dim);
+}
+
+tbody td {
+  padding: 0.85rem 1.1rem;
+  border-top: 1px solid var(--line);
+  color: var(--text);
+  white-space: nowrap;
+  vertical-align: top;
+}

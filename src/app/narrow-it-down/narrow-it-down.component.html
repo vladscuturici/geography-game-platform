@@ -1,0 +1,102 @@
+<h1 class="title">Narrow It Down</h1>
+<p class="subtitle">The narrower your range, the more points you score</p>
+<p class="warning-text">If the actual number falls outside your range, you score 0</p>
+
+<h2 class="country-prompt" *ngIf="randomCountry$ | async as randomCountry">
+  Estimate the population of {{ randomCountry.name }}
+</h2>
+
+<div class="range-picker">
+  <div class="range-inputs">
+    <mat-form-field appearance="fill">
+      <mat-label>Min</mat-label>
+      <input
+        matInput
+        type="text"
+        inputmode="numeric"
+        [value]="minDisplay"
+        (focus)="onMinFocus()"
+        (input)="onMinInput($any($event.target).value)"
+        (blur)="onMinBlur()"
+      />
+    </mat-form-field>
+
+    <span class="range-separator">—</span>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Max</mat-label>
+      <input
+        matInput
+        type="text"
+        inputmode="numeric"
+        [value]="maxDisplay"
+        (focus)="onMaxFocus()"
+        (input)="onMaxInput($any($event.target).value)"
+        (blur)="onMaxBlur()"
+      />
+    </mat-form-field>
+  </div>
+
+  <div class="range-slider-wrap">
+    <mat-slider
+        class="range-slider"
+        [min]="sliderMin"
+        [max]="sliderMax"
+        [step]="sliderStep"
+        [displayWith]="sliderLabelFormat"
+        [discrete]="true"
+    >
+        <input
+          matSliderStartThumb
+          [formControl]="sliderMinControl"
+          (input)="onSliderMinChanged($any($event.target).value)"
+        />
+        <input
+          matSliderEndThumb
+          [formControl]="sliderMaxControl"
+          (input)="onSliderMaxChanged($any($event.target).value)"
+        />
+    </mat-slider>
+  </div>
+
+  <button mat-raised-button class="guess-button" (click)="onGuess()">
+    Lock in range
+  </button>
+
+  @if (hasGuessed && currentCountry) {
+    <div class="result-banner">
+      <span>You got {{ currentScore }} points!</span>
+      <span>The population is {{ formatDots(currentCountry.population) }}</span>
+      <button mat-raised-button class="next-country-tile" (click)="nextCountry()">
+        Next country →
+      </button>
+    </div>
+  }
+</div>
+
+@if (guessHistory.length > 0) {
+  <aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Country</th>
+          <th>Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of guessHistory; track entry.gameNumber) {
+        <tr [style.background-color]="toGreenSaturation(entry.points)">
+          <td>{{ entry.gameNumber }}</td>
+          <td>{{ entry.countryName }}</td>
+          <td class="score-cell">{{ entry.points }}</td>
+        </tr>
+      }
+      </tbody>
+    </table>
+    <div class="history-average">
+      Average: <strong>{{ averageScore }}</strong> pts/guess
+    </div>
+  </aside>
+}

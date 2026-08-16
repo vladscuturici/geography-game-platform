@@ -42,4 +42,14 @@ export class GameService {
             languages: this.getLanguageScore(country_correct.languages, country_compared.languages)
         }
     }
+
+    public narrowItDownScore(correct: number, range_a: number, range_b: number): number {
+        if (correct < range_a || correct > range_b) return 0;
+
+        const k = 2.2; 
+        const logWidth = Math.log10(range_b) - Math.log10(range_a);
+        const score = 100 * (1 / (1 + k * logWidth));
+
+        return Math.floor(score);
+    }
 }

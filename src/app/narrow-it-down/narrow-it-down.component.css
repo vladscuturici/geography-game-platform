@@ -1,0 +1,461 @@
+@import url('https://fonts.googleapis.com/css2?family=Spectral:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:host {
+  --ink: #14213d;
+  --parchment: #f2efe6;
+  --parchment-dim: #e8e3d4;
+  --brass: #c9a24b;
+  --brass-bright: #e8c876;
+  --text: #241f1a;
+  --muted: #d9b8b8;
+  --line: #ddd6c4;
+  --match: #6fae5e;
+  --match-bg: #d9ecd0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 4rem 1.5rem 6rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.0625rem;
+  color: var(--text);
+}
+
+.header {
+  width: 100%;
+  max-width: 760px;
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.title {
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 2.75rem;
+  letter-spacing: 0.01em;
+  color: var(--brass-bright);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  margin: 0 0 1.1rem;
+}
+
+.subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  margin: 0 0 2.1rem;
+}
+
+.header::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 2px;
+  background: var(--brass);
+  margin: 1.25rem auto 0;
+  opacity: 0.7;
+}
+
+/* --- Country prompt: like .title, but white and a touch smaller --- */
+.country-prompt {
+  width: 100%;
+  max-width: 1040px;
+  text-align: center;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 2.1rem;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  margin: 0 0 2rem;
+}
+
+/* --- Warning text: notice, not error --- */
+.warning-text {
+  width: 100%;
+  max-width: 760px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(20, 33, 61, 0.94);
+  color: var(--brass-bright);
+  border-left: 4px solid var(--brass);
+  padding: 0.85rem 1.2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  border-radius: 3px;
+  margin: 0 0 2rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.warning-text::before {
+  content: '⚠';
+  color: var(--brass);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* --- Result banner: shown after "Lock in range" --- */
+.result-banner {
+  width: 100%;
+  max-width: 1040px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  background: rgba(20, 33, 61, 0.94);
+  color: var(--parchment);
+  border-left: 4px solid var(--brass);
+  padding: 1.5rem 2rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.3rem;
+  border-radius: 3px;
+  margin: 0 0 2rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.result-banner span:first-child {
+  color: var(--brass-bright);
+  font-weight: 700;
+}
+
+.result-banner span:nth-child(2) {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  color: var(--parchment);
+  opacity: 0.9;
+}
+
+.next-country-tile {
+  margin-left: auto;
+  height: 44px;
+  padding: 0 1.5rem;
+  background-color: var(--brass) !important;
+  color: var(--ink) !important;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.next-country-tile:hover {
+  background-color: var(--brass-bright) !important;
+}
+
+.next-country-tile:active {
+  transform: scale(0.97);
+}
+
+/* --- Range picker container --- */
+/* Widened from 760px so the (now bigger) slider has more room to breathe. */
+.range-picker {
+  width: 100%;
+  max-width: 1040px;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.range-separator {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--brass-bright);
+  font-size: 1.2rem;
+  padding-top: 0.5rem;
+}
+
+::ng-deep .range-inputs .mat-mdc-form-field {
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+}
+
+::ng-deep .range-inputs .mat-mdc-text-field-wrapper {
+  background: var(--parchment);
+}
+
+::ng-deep .range-inputs .mat-mdc-form-field-flex {
+  background: var(--parchment);
+  border-radius: 4px 4px 0 0;
+}
+
+::ng-deep .range-inputs .mdc-line-ripple::before {
+  border-bottom-color: rgba(0, 0, 0, 0.35);
+}
+
+::ng-deep .range-inputs .mdc-line-ripple::after {
+  border-bottom-color: var(--brass);
+}
+
+::ng-deep .range-inputs .mat-mdc-floating-label {
+  font-family: 'Spectral', Georgia, serif;
+  color: var(--text);
+}
+
+::ng-deep .range-inputs .mat-mdc-input-element {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+/* --- Slider: same height as original, wider via the widened .range-picker container --- */
+.range-slider-wrap {
+  padding: 1.5rem 0.5rem 2.5rem;
+  width: 100%;
+}
+
+.range-slider {
+  display: block;
+  width: 100%;
+}
+
+::ng-deep .range-slider.mdc-slider {
+  height: 48px;
+}
+
+/* Outer track: fixed-width container for both segments + the single ruler overlay */
+::ng-deep .range-slider .mdc-slider__track {
+  height: 8px !important;
+  border-radius: 4px;
+  position: relative !important;
+  overflow: hidden;
+}
+
+/* Inactive segments: cream/dim color. Positioned via top/height:100% (relative
+   to the 8px parent) rather than a hardcoded px height, so it always fills its
+   parent's actual box exactly instead of vertically mismatching it. */
+::ng-deep .range-slider .mdc-slider__track--inactive {
+  top: 0 !important;
+  height: 100% !important;
+  border-radius: 4px;
+  background-color: var(--parchment-dim) !important;
+  background-image: none !important;
+  opacity: 1 !important;
+}
+
+/* IMPORTANT: do NOT put a background on the active *wrapper* element
+   (.mdc-slider__track--active). That wrapper is the positioning container
+   MDC uses to place the actual fill; styling it directly caused it to visually
+   cover more/less than the true selected range and made the whole ruler look
+   uniformly brass. Only the inner --active_fill element (sized via transform:
+   scaleX by MDC) should carry the gold color. */
+::ng-deep .range-slider .mdc-slider__track--active {
+  background: none !important;
+  background-image: none !important;
+  top: 0 !important;
+  height: 100% !important;
+}
+
+/* Same top/height:100% fix here — this element was previously forced to a
+   fixed 8px which didn't match the parent's actual rendered box, causing the
+   "top half colored, bottom half not" artifact. */
+::ng-deep .range-slider .mdc-slider__track--active_fill {
+  top: 0 !important;
+  height: 100% !important;
+  border-radius: 4px;
+  border-color: transparent !important;
+  background-color: var(--brass) !important;
+  background-image: linear-gradient(to right, var(--brass) 0%, var(--brass-bright) 100%) !important;
+  box-shadow: 0 0 12px rgba(232, 200, 118, 0.5);
+}
+
+/* Single continuous ruler overlay, drawn once on the outer track (which
+   always spans the full slider width and never moves). Blended on top so
+   ticks stay perfectly still and simply change color under the fill. */
+::ng-deep .range-slider .mdc-slider__track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--ink) 0,
+    var(--ink) 2px,
+    transparent 2px,
+    transparent 24px
+  );
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Thumbs */
+::ng-deep .range-slider .mdc-slider__thumb-knob {
+  width: 24px !important;
+  height: 24px !important;
+  background-color: var(--brass-bright) !important;
+  border: 3px solid var(--ink) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55) !important;
+}
+
+::ng-deep .range-slider .mdc-slider__thumb:hover .mdc-slider__thumb-knob,
+::ng-deep .range-slider .mdc-slider__thumb--focused .mdc-slider__thumb-knob {
+  background-color: var(--brass) !important;
+  box-shadow: 0 0 0 8px rgba(232, 200, 118, 0.18), 0 3px 10px rgba(0, 0, 0, 0.55) !important;
+}
+
+::ng-deep .range-slider .mdc-slider__thumb-knob::before,
+::ng-deep .range-slider .mdc-slider__thumb-knob::after {
+  display: none !important;
+}
+
+/* Ripple / focus ring color cleanup */
+::ng-deep .range-slider .mat-mdc-slider-visual-thumb .mat-ripple-element {
+  background-color: rgba(232, 200, 118, 0.25) !important;
+}
+
+/* Value label bubble — colors/typography ONLY, no transform overrides;
+   MDC needs its own transform/rotation logic to position this correctly */
+::ng-deep .range-slider .mdc-slider__value-indicator {
+  background-color: var(--ink) !important;
+}
+
+::ng-deep .range-slider .mdc-slider__value-indicator::before {
+  border-top-color: var(--ink) !important;
+}
+
+::ng-deep .range-slider .mdc-slider__value-indicator-text {
+  color: var(--parchment) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+}
+
+/* --- Button --- */
+.guess-button {
+  height: 56px;
+  padding: 0 1.75rem;
+  background-color: var(--brass) !important;
+  color: var(--ink) !important;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+  align-self: flex-start;
+}
+
+@media (max-width: 600px) {
+  .range-inputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .range-separator {
+    display: none;
+  }
+  .guess-button {
+    width: 100%;
+  }
+  .result-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .next-country-tile {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* --- Session history sidebar --- */
+/* Fixed positioning so it floats on the right without affecting the
+   normal document flow / shifting the main content when it appears. */
+.history-sidebar {
+  position: fixed;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%);
+  width: 220px;
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(20, 33, 61, 0.94);
+  border-left: 4px solid var(--brass);
+  border-radius: 3px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  color: var(--parchment);
+  z-index: 5;
+}
+
+.history-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.history-table th {
+  text-align: left;
+  font-weight: 600;
+  color: #14213d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  padding: 0 0.4rem 0.5rem;
+  border-bottom: 1px solid rgba(217, 214, 196, 0.25);
+  background: transparent;
+}
+
+.history-table th:nth-child(1) { width: 22px; }
+.history-table th:nth-child(3),
+.history-table td:nth-child(3) { width: 42px; text-align: right; }
+
+/* Row background carries the score color; cells stay transparent so the
+   row color shows through uninterrupted across all three columns. */
+.history-table tbody tr {
+  border-radius: 2px;
+}
+
+.history-table tbody td {
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px solid rgba(217, 214, 196, 0.12);
+  color: #14213d;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+}
+
+.history-table tbody tr:hover {
+  filter: brightness(0.96);
+}
+
+.history-average {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(217, 214, 196, 0.25);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--parchment);
+}
+
+.history-average strong {
+  font-family: 'Spectral', Georgia, serif;
+  color: var(--brass-bright);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 1100px) {
+  .history-sidebar {
+    display: none;
+  }
+}

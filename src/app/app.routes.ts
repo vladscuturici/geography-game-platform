@@ -4,6 +4,7 @@ import { GuessTheCountryShellComponent } from './guess-the-country/guess-the-cou
 import { DailyCountryComponent } from './guess-the-country/daily-country/daily-country.component';
 import { UnlimitedComponent } from './guess-the-country/unlimited/unlimited.component';
 import { GuessDailyCountryComponent } from './guess-daily-country/guess-daily-country.component';
+import { NarrowItDownComponent } from './narrow-it-down/narrow-it-down.component';
 
 export const routes: Routes = [
     {
@@ -35,7 +36,7 @@ export const routes: Routes = [
         ]
     },
     {
-        path: 'g',
-        component: GuessDailyCountryComponent
+        path: 'narrow-it-down',
+        component: NarrowItDownComponent
     },
 ];

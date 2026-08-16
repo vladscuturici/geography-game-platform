@@ -5,6 +5,7 @@ import { DailyCountryComponent } from './guess-the-country/daily-country/daily-c
 import { UnlimitedComponent } from './guess-the-country/unlimited/unlimited.component';
 import { GuessDailyCountryComponent } from './guess-daily-country/guess-daily-country.component';
 import { NarrowItDownComponent } from './narrow-it-down/narrow-it-down.component';
+import { LocateTheCityComponent } from './locate-the-city/locate-the-city.component';
 
 export const routes: Routes = [
     {
@@ -38,5 +39,9 @@ export const routes: Routes = [
     {
         path: 'narrow-it-down',
         component: NarrowItDownComponent
+    },
+    {
+        path: 'locate-the-city',
+        component: LocateTheCityComponent
     },
 ];

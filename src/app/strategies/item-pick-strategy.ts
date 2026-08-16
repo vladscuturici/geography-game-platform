@@ -1,3 +1,4 @@
+import { City } from "../models/cities.model";
 import { Country } from "../models/countries.model";
 
 export interface RoundPicker<T> {
@@ -6,6 +7,12 @@ export interface RoundPicker<T> {
 
 export class RandomCountryPicker implements RoundPicker<Country> {
     pick(items: Country[]): Country {
+        return items[Math.floor(Math.random()*items.length)];
+    }
+}
+
+export class RandomCityPicker implements RoundPicker<City> {
+    pick(items: City[]): City {
         return items[Math.floor(Math.random()*items.length)];
     }
 }

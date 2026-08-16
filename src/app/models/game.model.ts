@@ -11,3 +11,8 @@ export interface CountryGuessColors {
 export interface GuessRow extends CountryGuessColors {
   country: Country;
 }
+
+export interface LocateCityScoreDetails {
+  distance: number;
+  score: number;
+}

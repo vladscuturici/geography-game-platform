@@ -1,0 +1,53 @@
+<h1 class="title">Locate the city</h1>
+<p class="subtitle">How accurate can you point the city on the map?</p>
+
+<h2 class="city-prompt" *ngIf="randomCity$ | async as randomCity">
+  Point {{ randomCity.name }} on the map
+</h2>
+
+<div class="map-card">
+  <h2 class="map-title">Locate the City</h2>
+  <div #mapContainer class="map"></div>
+</div>
+
+<div class="guess-row">
+  <button mat-raised-button class="guess-button" (click)="onLockInGuess()" [disabled]="hasGuessed || !currentCity">
+    Lock in guess
+  </button>
+
+  @if (hasGuessed) {
+    <div class="result-banner">
+      <span>You were {{ currentDistance | number: '1.0-1' }} km away — {{ currentScore }} points!</span>
+      <button mat-raised-button class="next-country-tile" (click)="nextCity()">
+        Next city →
+      </button>
+    </div>
+  }
+</div>
+
+@if (guessHistory.length > 0) {
+  <aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>City</th>
+          <th>Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of guessHistory; track entry.gameNumber) {
+          <tr [style.background-color]="toGreenSaturation(entry.points)">
+            <td>{{ entry.gameNumber }}</td>
+            <td>{{ entry.cityName }}</td>
+            <td class="score-cell">{{ entry.points }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <div class="history-average">
+      Average: <strong>{{ averageScore }}</strong> pts/guess
+    </div>
+  </aside>
+}

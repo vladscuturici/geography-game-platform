@@ -1,6 +1,8 @@
-import { Service } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { Country, CountryLanguage } from '../models/countries.model';
-import { CountryGuessColors } from '../models/game.model';
+import { CountryGuessColors, LocateCityScoreDetails } from '../models/game.model';
+import { HttpClient } from '@angular/common/http';
+import { map, mapTo, Observable } from 'rxjs';
 
 //answer will be a number between 0 and 100 representing the percentage of saturation
 // gray - incorrect, green - correct, shades inbetween - partial answer
@@ -13,6 +15,11 @@ import { CountryGuessColors } from '../models/game.model';
 
 @Service()
 export class GameService {
+    //http injection
+    private _httpClient = inject(HttpClient);
+
+    private _apiUrl = 'https://countries.dev';
+
     private getPopulationScore(population_correct: number, population_compared: number): number {
         const difference = Math.abs(population_correct - population_compared);
         const score = 100 - (difference / population_correct) * 100;
@@ -51,5 +58,31 @@ export class GameService {
         const score = 100 * (1 / (1 + k * logWidth));
 
         return Math.floor(score);
+    }
+
+    public getDistance(lat1: number, lng1: number, lat2: number, lng2: number): Observable<{ distanceKm: number; distanceMiles: number }> {
+        return this._httpClient.get<{ distanceKm: number; distanceMiles: number }>(
+            `https://countries.dev/distance?lat1=${lat1}&lng1=${lng1}&lat2=${lat2}&lng2=${lng2}`
+        );
+    }
+
+    public locateCityScore(
+        correctLat: number,
+        correctLong: number,
+        guessLat: number,
+        guessLong: number
+        ): Observable<LocateCityScoreDetails> {
+        return this.getDistance(correctLat, correctLong, guessLat, guessLong).pipe(
+            map((result) => {
+                const distance = result.distanceKm;
+                const k = 3; 
+                const score = distance > 2000 ? 0 : (Math.floor(100 * Math.exp(-k * (distance / 2000))));
+
+                return {
+                    distance,
+                    score,
+                };
+            })
+        );
     }
 }

@@ -287,3 +287,21 @@
     width: 100%;
   }
 }
+
+::ng-deep .actual-city-marker-icon {
+  filter: hue-rotate(150deg) saturate(4);
+}
+
+::ng-deep .distance-label {
+  background: rgba(20, 33, 61, 0.94);
+  color: var(--parchment);
+  border: 1px solid var(--brass);
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}

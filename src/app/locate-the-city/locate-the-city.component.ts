@@ -67,6 +67,11 @@ export class LocateTheCityComponent implements OnInit, AfterViewInit {
   private guessLatLng: L.LatLng | null = null;
   private guessMarker: L.Marker | null = null;
 
+  private actualCityMarker: L.Marker | null = null;
+  private actualCityIcon!: L.Icon;
+  private distanceLine: L.Polyline | null = null;
+  private distanceLabel: L.Marker | null = null;
+
   @ViewChild('mapContainer', { static: true })
   private mapContainer!: ElementRef<HTMLDivElement>;
 
@@ -82,6 +87,24 @@ export class LocateTheCityComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
+      iconUrl: 'leaflet/marker-icon.png',
+      shadowUrl: 'leaflet/marker-shadow.png',
+    });
+
+    this.actualCityIcon = L.icon({
+      iconUrl: 'leaflet/marker-icon.png',
+      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
+      shadowUrl: 'leaflet/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+      className: 'actual-city-marker-icon',
+    });
+
     this.map = L.map(this.mapContainer.nativeElement, {
       center: [20, 0],
       zoom: 2,
@@ -143,6 +166,34 @@ export class LocateTheCityComponent implements OnInit, AfterViewInit {
         this.currentScore = result.score;
         this.currentDistance = result.distance;
         this.hasGuessed = true;
+
+        const actualLatLng: [number, number] = [
+          this.currentCity!.latitude,
+          this.currentCity!.longitude,
+        ];
+
+        this.actualCityMarker = L.marker(actualLatLng, {
+          icon: this.actualCityIcon,
+        }).addTo(this.map);
+
+        this.distanceLine = L.polyline([this.guessLatLng!, actualLatLng], {
+          color: '#c9a24b',
+          weight: 3,
+          dashArray: '6, 8',
+        }).addTo(this.map);
+
+        const midLat = (this.guessLatLng!.lat + actualLatLng[0]) / 2;
+        const midLng = (this.guessLatLng!.lng + actualLatLng[1]) / 2;
+
+        this.distanceLabel = L.marker([midLat, midLng], {
+          icon: L.divIcon({
+            className: 'distance-label',
+            html: `${result.distance.toFixed(1)} km`,
+            iconSize: undefined,
+          }),
+          interactive: false,
+        }).addTo(this.map);
+
         this._cdr.markForCheck();
       });
   }
@@ -171,6 +222,21 @@ export class LocateTheCityComponent implements OnInit, AfterViewInit {
     if (this.guessMarker) {
       this.map.removeLayer(this.guessMarker);
       this.guessMarker = null;
+    }
+
+    if (this.actualCityMarker) {
+      this.map.removeLayer(this.actualCityMarker);
+      this.actualCityMarker = null;
+    }
+
+    if (this.distanceLine) {
+      this.map.removeLayer(this.distanceLine);
+      this.distanceLine = null;
+    }
+
+    if (this.distanceLabel) {
+      this.map.removeLayer(this.distanceLabel);
+      this.distanceLabel = null;
     }
 
     this._reroll$.next();

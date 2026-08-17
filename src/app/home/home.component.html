@@ -1,1 +1,23 @@
-<p>{{ countries?.length }}</p>
+<div class="home">
+  <header class="home__header">
+    <div class="home__brand">
+      <img class="home__logo" src="128.png" alt="" />
+      <div class="home__wordmark">
+        <span class="home__eyebrow">According to the</span>
+        <h1 class="home__name">Legend</h1>
+      </div>
+    </div>
+    <p class="home__tagline">Pick a pin. Every game lives somewhere on the map.</p>
+  </header>
+
+  <div class="home__map-wrap">
+    <div #mapContainer class="home__map" [class.home__map--ready]="isMapReady"></div>
+    <!-- <svg #pathLayer class="home__paths"></svg> -->
+
+    @if (!isMapReady) {
+      <div class="home__loading">
+        <span class="home__loading-text">Charting the atlas…</span>
+      </div>
+    }
+  </div>
+</div>

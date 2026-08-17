@@ -1,0 +1,268 @@
+@import url('https://fonts.googleapis.com/css2?family=Spectral:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:host {
+  --ink: #14213d;
+  --parchment: #f2efe6;
+  --parchment-dim: #e8e3d4;
+  --brass: #c9a24b;
+  --brass-bright: #e8c876;
+  --text: #241f1a;
+  --muted: #d9b8b8;
+  --line: #ddd6c4;
+  --match: #6fae5e;
+  --match-bg: #d9ecd0;
+
+  display: block;
+  min-height: 100vh;
+  background: var(--ink);
+  font-family: 'Spectral', Georgia, serif;
+  color: var(--parchment);
+}
+
+.home {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ---------- Header ---------- */
+
+.home__header {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(201, 162, 75, 0.14), transparent 55%),
+    var(--ink);
+  border-bottom: 1px solid rgba(201, 162, 75, 0.35);
+}
+
+.home__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.home__logo {
+  /* Logo asset: 128x128 source, displayed at 56x56, transparent background. */
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.home__wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.18;
+  text-align: left;
+}
+
+.home__eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+.home__name {
+  margin: 0;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 2.1rem;
+  color: var(--brass-bright);
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.home__tagline {
+  margin: 0.35rem 0 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+/* ---------- Map ---------- */
+
+.home__map-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.home__map {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  border: 1px solid rgba(201, 162, 75, 0.4);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.35);
+  background: var(--ink);
+  cursor: default;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.home__map--ready {
+  opacity: 1;
+}
+
+
+.home__loading {
+  position: absolute;
+  inset: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--ink);
+  border: 1px solid rgba(201, 162, 75, 0.4);
+  pointer-events: none;
+}
+
+.home__loading-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  opacity: 0.75;
+}
+
+/* SVG overlay for the curved connector paths between tiles. Sits directly
+   on top of the map, inside the same padded wrapper so coordinates line up
+   with Leaflet's own container-point calculations. */
+.home__paths {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  width: calc(100% - 2rem);
+  height: calc(100% - 2rem);
+  pointer-events: none;
+  z-index: 400;
+}
+
+::ng-deep .game-path {
+  fill: none;
+  stroke: var(--brass);
+  stroke-width: 2;
+  stroke-dasharray: 6, 6;
+  opacity: 0.6;
+}
+
+/* ---------- Game tiles (rendered by Leaflet as raw HTML, so styles must
+   be unscoped via ::ng-deep — they never pass through Angular's template
+   compiler and won't otherwise pick up the component's style attribute) ---------- */
+
+::ng-deep .game-tile-marker {
+  /* Leaflet wraps our HTML in a div with default marker sizing/anchoring;
+     neutralize that so our own tile controls its own box. */
+  background: transparent !important;
+  border: none !important;
+}
+
+::ng-deep .game-tile {
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1.1rem 1rem 1.2rem;
+  background: rgba(20, 33, 61, 0.92);
+  border: 2px solid var(--brass);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+::ng-deep .game-tile:hover {
+  transform: translateY(-3px);
+  border-color: var(--brass-bright);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
+}
+
+::ng-deep .game-tile__icon {
+  font-size: 2.8rem;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+
+::ng-deep .game-tile__name {
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: var(--brass-bright);
+  line-height: 1.25;
+}
+
+::ng-deep .game-tile__desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--parchment);
+  opacity: 0.85;
+}
+
+::ng-deep .game-tile--locked {
+  cursor: default;
+  border-style: dashed;
+  border-color: rgba(201, 162, 75, 0.45);
+  opacity: 0.7;
+}
+
+::ng-deep .game-tile--locked:hover {
+  transform: none;
+  border-color: rgba(201, 162, 75, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+::ng-deep .game-tile__badge {
+  margin-top: 0.2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 640px) {
+  .home__wordmark {
+    text-align: left;
+  }
+
+  .home__name {
+    font-size: 1.6rem;
+  }
+
+  ::ng-deep .game-tile {
+    width: 170px;
+    padding: 0.8rem 0.65rem 0.9rem;
+    gap: 0.35rem;
+  }
+
+  ::ng-deep .game-tile__icon {
+    font-size: 2.1rem;
+  }
+
+  ::ng-deep .game-tile__name {
+    font-size: 1.1rem;
+  }
+
+  ::ng-deep .game-tile__desc {
+    display: none;
+  }
+}

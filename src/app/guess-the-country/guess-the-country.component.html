@@ -45,7 +45,7 @@
           {{ guess.country.subregion }}
         </td>
         <td [style.background-color]="toGreenSaturation(guess.population)">
-          {{ guess.country.population }}
+          {{ formatPopulation(guess.country.population) }}
         </td>
         <td [style.background-color]="toGreenSaturation(guess.languages)">
           @for (lang of guess.country.languages; track lang.iso639_1) {

@@ -71,4 +71,8 @@ export class GuessTheCountryComponent implements OnInit {
     const lightness = 100 - (score / 100) * 60;
     return `hsl(120, 70%, ${lightness}%)`;
   }
+ 
+  public formatPopulation(value: number): string {
+    return Number(value).toLocaleString('en-US').replace(/,/g, '.');
+  }
 }

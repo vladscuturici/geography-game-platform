@@ -75,6 +75,11 @@
   border-radius: 3px;
   margin-bottom: 2rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  min-height: 76px; /* reserve space so layout doesn't shift when it appears */
+}
+
+.solved-banner--hidden {
+  visibility: hidden;
 }
 
 .guess-form {

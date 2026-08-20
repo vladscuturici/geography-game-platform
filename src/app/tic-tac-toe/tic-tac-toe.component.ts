@@ -26,6 +26,7 @@ export class TicTacToeComponent {
 
   public countries$ = this._countriesService.getAllCountries().pipe(shareReplay(1));
   public cellsBgImage = "url('/bg1.png')";
+  public cornerLogo = './128.png';
 
   public rowConditions: (ConditionRecord | null)[] = [null, null, null];
   public columnConditions: (ConditionRecord | null)[] = [null, null, null];

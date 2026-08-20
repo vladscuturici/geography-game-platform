@@ -1,0 +1,31 @@
+<!-- condition-picker/condition-picker.component.html -->
+<div class="picker-backdrop" (click)="onBackdropClick()">
+  <div class="picker" (click)="stopPropagation($event)">
+    <div class="picker__tabs">
+      @for (category of categories; track category) {
+        <button
+          type="button"
+          class="picker__tab"
+          [class.is-active]="category === activeCategory"
+          (click)="selectCategory(category)"
+        >
+          {{ categoryLabels[category] }}
+        </button>
+      }
+    </div>
+
+    <div class="picker__grid">
+      @for (record of visibleRecords; track record.id) {
+        <button
+          type="button"
+          class="picker__tile"
+          [disabled]="isDisabled(record)"
+          (click)="choose(record)"
+        >
+          <img class="picker__symbol" [src]="record.symbol" alt="" />
+          <span class="picker__label">{{ record.label }}</span>
+        </button>
+      }
+    </div>
+  </div>
+</div>

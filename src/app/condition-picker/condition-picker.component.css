@@ -1,0 +1,110 @@
+/* condition-picker/condition-picker.component.css */
+:host {
+  --ink: #14213d;
+  --brass: #c9a24b;
+  --brass-bright: #e8c876;
+  --parchment: #f2efe6;
+  --text: #241f1a;
+}
+
+.picker-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 10, 0.6);
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.picker {
+  width: 100%;
+  max-width: 640px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ink);
+  border: 1.5px solid var(--brass);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.picker__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid rgba(201, 162, 75, 0.35);
+}
+
+.picker__tab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brass);
+  background: transparent;
+  border: 1px solid rgba(201, 162, 75, 0.45);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.picker__tab:hover {
+  background: rgba(201, 162, 75, 0.15);
+}
+
+.picker__tab.is-active {
+  background: var(--brass);
+  color: var(--ink);
+  border-color: var(--brass);
+}
+
+.picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.65rem;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.picker__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  background: var(--ink);
+  border: 1px solid var(--brass);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.picker__tile:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.picker__tile:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.picker__symbol {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.picker__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--brass);
+  text-align: center;
+  line-height: 1.3;
+}

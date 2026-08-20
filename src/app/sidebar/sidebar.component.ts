@@ -30,16 +30,28 @@ export class SidebarComponent {
       hint: 'II',
     },
     {
+      label: 'TicTacToe',
+      route: '/tic-tac-toe',
+      glyph: 'globe',
+      hint: 'III',
+    },
+    {
       label: 'Narrow It Down',
       route: '/narrow-it-down',
       glyph: 'compass',
-      hint: 'III',
+      hint: 'IV',
     },
     {
       label: 'Locate the City',
       route: '/locate-the-city',
       glyph: 'pin',
-      hint: 'IV',
+      hint: 'V',
+    },
+    {
+      label: 'Guess the Language',
+      route: '/guess-the-language',
+      glyph: 'language',
+      hint: 'VI',
     },
   ];
 }

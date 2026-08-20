@@ -6,6 +6,8 @@ import { UnlimitedComponent } from './guess-the-country/unlimited/unlimited.comp
 import { GuessDailyCountryComponent } from './guess-daily-country/guess-daily-country.component';
 import { NarrowItDownComponent } from './narrow-it-down/narrow-it-down.component';
 import { LocateTheCityComponent } from './locate-the-city/locate-the-city.component';
+import { GuessTheLanguageComponent } from './guess-the-language/guess-the-language.component';
+import { TicTacToeComponent } from './tic-tac-toe/tic-tac-toe.component';
 
 export const routes: Routes = [
     {
@@ -43,5 +45,13 @@ export const routes: Routes = [
     {
         path: 'locate-the-city',
         component: LocateTheCityComponent
+    },
+    {
+        path: 'guess-the-language',
+        component: GuessTheLanguageComponent
+    },
+    {
+        path: 'tic-tac-toe',
+        component: TicTacToeComponent
     },
 ];

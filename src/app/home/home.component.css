@@ -13,16 +13,40 @@
   --match-bg: #d9ecd0;
 
   display: block;
-  min-height: 100vh;
-  background: var(--ink);
   font-family: 'Spectral', Georgia, serif;
   color: var(--parchment);
 }
 
+/* ---------- Viewport wrapper ----------
+   This is the actual 100vw/100vh box. It never resizes its children — it
+   just centers the fixed-size `.home` canvas and clips any overflow that
+   the scale transform would otherwise spill outside the screen. */
+
+.home-viewport {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+}
+
+/* ---------- Fixed-size design canvas ----------
+   `.home` is always laid out at its native design resolution (see
+   DESIGN_WIDTH/DESIGN_HEIGHT in the component) — its width/height are set
+   inline from the component so this stylesheet doesn't need to know the
+   numbers. The `scale` transform (also bound inline) shrinks or grows the
+   whole canvas uniformly to fit whatever viewport it's shown in, so every
+   font size, padding, and — critically — every Leaflet pin position stays
+   in the same proportion to everything else at any screen size. */
+
 .home {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  flex-shrink: 0;
+  transform-origin: center center;
+  background: var(--ink);
 }
 
 /* ---------- Header ---------- */
@@ -245,7 +269,13 @@
   color: var(--muted);
 }
 
-/* ---------- Responsive ---------- */
+/* ---------- Responsive ----------
+   Note: with the fixed-canvas + scale approach above, breakpoints here are
+   no longer strictly needed — the canvas already scales uniformly at every
+   size. This media query is kept only as a deliberate exception: below
+   640px "true" pixels, the whole poster would otherwise shrink so far that
+   tile text becomes unreadably small, so instead of continuing to scale
+   down we swap to a more compact tile layout at that design width. */
 
 @media (max-width: 640px) {
   .home__wordmark {

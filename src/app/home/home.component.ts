@@ -1,4 +1,12 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 
@@ -33,7 +41,21 @@ const GLYPH_PATHS = {
   updown: `<path d="M7 10l5-5 5 5" /><path d="M7 15l5 5 5-5" />`,
   // Irregular blob suggesting a country border/silhouette, for the outline-guessing game.
   outline: `<path d="M5 8.5c.6-1.8 2-2.7 3.4-2.3 1-1.4 3-1.7 4-.4 1.7-.6 3.4.3 3.6 1.9 1.7.3 2.6 1.8 2 3.3.9 1.1.7 2.6-.5 3.3.2 1.6-1 2.9-2.5 2.7-.6 1.5-2.4 2.1-3.7 1.2-1.3 1-3.1.8-4-.5-1.7.2-3-1-2.9-2.6-1.5-.5-2.1-2.1-1.3-3.5-.8-1.1-.5-2.7.9-3.1Z" />`,
+  // Ascending ranking bars for the Sort it Out ordering game.
+  sort: `<path d="M4 18h4M4 13h8M4 8h12" /><path d="M17 5v13M17 5l-3 3M17 5l3 3" />`,
 } as const;
+
+/**
+ * The home screen is a fixed-layout "poster" (map + geographically placed
+ * pins) rather than flowing content — pin positions come from lat/lng math,
+ * not CSS, so they can't reflow at different viewport sizes the way normal
+ * layout does. Instead of fighting that per breakpoint, we design it once at
+ * a fixed canvas size and uniformly scale the whole canvas to fit whatever
+ * viewport it's shown in. Everything inside (fonts, padding, tile sizes)
+ * stays in fixed proportion to everything else, at any screen size.
+ */
+const DESIGN_WIDTH = 1600;
+const DESIGN_HEIGHT = 900;
 
 @Component({
   selector: 'app-home',
@@ -62,6 +84,14 @@ export class HomeComponent implements AfterViewInit {
   // fetch .catch fallback) can never add them twice.
   private tilesAdded = false;
 
+  public readonly designWidth = DESIGN_WIDTH;
+  public readonly designHeight = DESIGN_HEIGHT;
+
+  /** Uniform scale factor applied to the fixed-size canvas to fit the viewport. */
+  public scale = 1;
+
+  private _resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+
   // Coordinates are spread across a rough 3-row x world-wide grid so every
   // continent — including the Americas on the left edge — gets at least one
   // tile. Reposition freely; nothing here is tied to real game geography.
@@ -70,7 +100,7 @@ export class HomeComponent implements AfterViewInit {
       title: 'Guess the Country',
       description: 'Can you guess the daily/unlimited country based on clues?',
       route: '/guess-the-country/daily-country',
-      lat: 72,
+      lat: 69,
       lng: -160,
       glyph: 'globe',
     },
@@ -78,8 +108,8 @@ export class HomeComponent implements AfterViewInit {
       title: 'Wavelength',
       description: 'Coming soon...',
       route: null,
-      lat: 50,
-      lng: 110,
+      lat: 45,
+      lng: 80,
       glyph: 'unknown',
     },
     {
@@ -102,17 +132,17 @@ export class HomeComponent implements AfterViewInit {
       title: 'Locate the City',
       description: 'Drop a pin where you think a city is and see how close you got.',
       route: '/locate-the-city',
-      lat: 74,
-      lng: 60,
+      lat: 72,
+      lng: 68,
       glyph: 'pin',
     },
     {
       title: 'Sort it out',
       description: 'Order 5 countries based on the given criteria.',
       route: '/sort-it-out',
-      lat: -25,
+      lat: -18,
       lng: -101,
-      glyph: 'unknown',
+      glyph: 'sort',
     },
     {
       title: 'Guess the Language',
@@ -126,15 +156,15 @@ export class HomeComponent implements AfterViewInit {
       title: 'Narrow it Down',
       description: 'Bracket a hidden number with a shrinking range for points.',
       route: '/narrow-it-down',
-      lat: 20,
-      lng: -30,
+      lat: 10,
+      lng: -12,
       glyph: 'target',
     },
     {
       title: 'Higher Lower',
       description: 'Which country has the bigger population?',
       route: '/higher-lower',
-      lat: 74.5,
+      lat: 72,
       lng: -78,
       glyph: 'updown',
     },
@@ -151,6 +181,34 @@ export class HomeComponent implements AfterViewInit {
   ];
 
   public isMapReady = true; // should be false but there are some sync issues so for now it s true always
+
+  constructor() {
+    // Set an initial scale synchronously so the very first paint (before
+    // ngAfterViewInit even runs) is already correctly sized instead of
+    // flashing at 1:1 scale for a frame.
+    this._updateScale();
+  }
+
+  @HostListener('window:resize')
+  protected _onWindowResize(): void {
+    // Debounce: resize fires rapidly while dragging a window edge, and each
+    // call forces a style recalculation — no need to do that dozens of
+    // times a second.
+    if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
+    this._resizeTimeout = setTimeout(() => {
+      this._updateScale();
+      this._cdr.markForCheck();
+    }, 60);
+  }
+
+  private _updateScale(): void {
+    const scaleX = window.innerWidth / DESIGN_WIDTH;
+    const scaleY = window.innerHeight / DESIGN_HEIGHT;
+    // Fit-to-viewport ("contain"): never crop either dimension. Swap for
+    // Math.min(scaleX, scaleY, 1) instead if you'd rather cap at 1:1 and
+    // letterbox on very large monitors rather than upscale past design size.
+    this.scale = Math.min(scaleX, scaleY);
+  }
 
   ngAfterViewInit(): void {
     console.log('[home] ngAfterViewInit fired');

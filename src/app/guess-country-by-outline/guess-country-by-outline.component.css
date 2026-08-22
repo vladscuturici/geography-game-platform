@@ -1,0 +1,351 @@
+@import url('https://fonts.googleapis.com/css2?family=Spectral:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:host {
+  --ink: #14213d;
+  --parchment: #f2efe6;
+  --parchment-dim: #e8e3d4;
+  --brass: #c9a24b;
+  --brass-bright: #e8c876;
+  --text: #241f1a;
+  --muted: #d9b8b8;
+  --line: #ddd6c4;
+  --match: #6fae5e;
+  --match-bg: #d9ecd0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 4rem 1.5rem 6rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.0625rem;
+  color: var(--text);
+}
+
+.header,
+.title,
+.subtitle {
+  width: 100%;
+  max-width: 760px;
+  text-align: center;
+}
+
+.title {
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 2.75rem;
+  letter-spacing: 0.01em;
+  color: var(--brass-bright);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  margin: 0 0 1.1rem;
+}
+
+.subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  margin: 0 0 2.1rem;
+}
+
+.city-prompt {
+  width: 100%;
+  max-width: 1040px;
+  text-align: center;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 2.1rem;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  color: #fde3e3;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  margin: 0 0 0.75rem;
+}
+
+.map-card {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 0.75rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  background: var(--parchment);
+  border: 1px solid var(--brass);
+}
+
+.map-title {
+  margin: 0;
+  padding: 0.9rem 1.5rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.03em;
+  color: var(--parchment);
+  background: rgba(20, 33, 61, 0.94);
+  border-bottom: 4px solid var(--brass);
+}
+
+.map {
+  width: 100%;
+  height: 500px;
+  /* Plain parchment background, not an ocean-blue basemap colour — there's
+     no basemap layer here, just the silhouette, so this should read as
+     "paper", not "sea". */
+  background-color: var(--parchment);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* --- Guess row --- */
+
+.guess-row {
+  width: 100%;
+  max-width: 1040px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 0;
+  flex-wrap: wrap;
+}
+
+.autocomplete {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+
+.autocomplete .guess-input {
+  width: 100%;
+}
+
+.autocomplete__list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.4rem;
+  list-style: none;
+  background: var(--parchment);
+  border: 1px solid var(--brass);
+  border-radius: 4px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  z-index: 10;
+}
+
+.autocomplete__option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 0.98rem;
+  cursor: pointer;
+}
+
+.autocomplete__option:hover,
+.autocomplete__option:focus-visible {
+  background: var(--parchment-dim);
+  outline: none;
+}
+
+.guess-input {
+  flex: 1;
+  min-width: 220px;
+  height: 56px;
+  padding: 0 1.1rem;
+  border-radius: 4px;
+  border: 1px solid var(--brass);
+  background: var(--parchment);
+  color: var(--text);
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.05rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.guess-input:focus {
+  outline: none;
+  border-color: var(--brass-bright);
+  box-shadow: 0 0 0 2px rgba(232, 200, 118, 0.4);
+}
+
+.guess-input:disabled {
+  opacity: 0.6;
+}
+
+.guess-button {
+  height: 56px;
+  padding: 0 2.25rem;
+  border-radius: 999px;
+  background-color: var(--brass) !important;
+  color: var(--ink) !important;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+  flex-shrink: 0;
+}
+
+/* --- Result banner --- */
+
+.result-banner {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  background: rgba(20, 33, 61, 0.94);
+  color: var(--parchment);
+  border-left: 4px solid var(--brass);
+  padding: 1.5rem 2rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.3rem;
+  border-radius: 3px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.result-banner--correct {
+  border-left-color: var(--match);
+}
+
+.result-banner--wrong {
+  border-left-color: #c96a4b;
+}
+
+.next-country-tile {
+  margin-left: auto;
+  height: 44px;
+  padding: 0 1.5rem;
+  background-color: var(--brass) !important;
+  color: var(--ink) !important;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.next-country-tile:hover {
+  background-color: var(--brass-bright) !important;
+}
+
+.next-country-tile:active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 600px) {
+  .guess-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .guess-button {
+    width: 100%;
+  }
+  .result-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .next-country-tile {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* --- Session history sidebar --- */
+
+.history-sidebar {
+  position: fixed;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%);
+  width: 220px;
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(20, 33, 61, 0.94);
+  border-left: 4px solid var(--brass);
+  border-radius: 3px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  color: var(--parchment);
+  z-index: 5;
+}
+
+.history-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.history-table th {
+  text-align: left;
+  font-weight: 600;
+  color: #14213d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  padding: 0 0.4rem 0.5rem;
+  border-bottom: 1px solid rgba(217, 214, 196, 0.25);
+  background: transparent;
+}
+
+.history-table th:nth-child(1) { width: 22px; }
+.history-table th:nth-child(3),
+.history-table td:nth-child(3) { width: 42px; text-align: right; }
+
+.history-table tbody tr {
+  border-radius: 2px;
+}
+
+.history-table tbody td {
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px solid rgba(217, 214, 196, 0.12);
+  color: #14213d;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+}
+
+.history-table tbody tr:hover {
+  filter: brightness(0.96);
+}
+
+.history-average {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(217, 214, 196, 0.25);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--parchment);
+}
+
+.history-average strong {
+  font-family: 'Spectral', Georgia, serif;
+  color: var(--brass-bright);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 1100px) {
+  .history-sidebar {
+    display: none;
+  }
+}

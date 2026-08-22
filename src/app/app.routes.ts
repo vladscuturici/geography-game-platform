@@ -8,6 +8,9 @@ import { NarrowItDownComponent } from './narrow-it-down/narrow-it-down.component
 import { LocateTheCityComponent } from './locate-the-city/locate-the-city.component';
 import { GuessTheLanguageComponent } from './guess-the-language/guess-the-language.component';
 import { TicTacToeComponent } from './tic-tac-toe/tic-tac-toe.component';
+import { GuessCountryByOutlineComponent } from './guess-country-by-outline/guess-country-by-outline.component';
+import { HigherLowerComponent } from './higher-lower/higher-lower.component';
+import { SortItOutComponent } from './sort-it-out/sort-it-out.component';
 
 export const routes: Routes = [
     {
@@ -53,5 +56,17 @@ export const routes: Routes = [
     {
         path: 'tic-tac-toe',
         component: TicTacToeComponent
+    },
+    {
+        path: 'guess-country-by-outline',
+        component: GuessCountryByOutlineComponent
+    },
+    {
+        path: 'higher-lower',
+        component: HigherLowerComponent
+    },
+    {
+        path: 'sort-it-out',
+        component: SortItOutComponent
     },
 ];

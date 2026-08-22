@@ -32,13 +32,13 @@ export class SidebarComponent {
     {
       label: 'TicTacToe',
       route: '/tic-tac-toe',
-      glyph: 'globe',
+      glyph: 'grid',
       hint: 'III',
     },
     {
       label: 'Narrow It Down',
       route: '/narrow-it-down',
-      glyph: 'compass',
+      glyph: 'target',
       hint: 'IV',
     },
     {
@@ -52,6 +52,24 @@ export class SidebarComponent {
       route: '/guess-the-language',
       glyph: 'language',
       hint: 'VI',
+    },
+    {
+      label: 'Guess Country by Outline',
+      route: '/guess-country-by-outline',
+      glyph: 'outline',
+      hint: 'VII',
+    },
+    {
+      label: 'Higher Lower',
+      route: 'higher-lower',
+      glyph: 'updown',
+      hint: 'VIII',
+    },
+    {
+      label: 'Sort it Out',
+      route: 'sort-it-out',
+      glyph: 'updown',
+      hint: 'IX',
     },
   ];
 }

@@ -166,6 +166,7 @@ export const latinScriptCountries: string[] = [
     'BR', 'AR', 'CL', 'CO', 'PE', 'MX',
     'CA', 'AU', 'NZ', 'ID', 'PH', 'VN', 'TR', 'ZA', 'KE', 'NG',
     'GH', 'SN', 'CM', 'CI', 'UG', 'TZ', 'ZM', 'ZW', 'AO', 'MZ',
+    'TL', // Timor-Leste — Portuguese (official) uses Latin script
 ];
 
 // Countries where Cyrillic script is used officially (may overlap with other scripts)

@@ -1,0 +1,120 @@
+<!-- sort-it-out.component.html -->
+<h1 class="title">Sort it Out</h1>
+<p class="subtitle">Drag the countries into order</p>
+
+@if (isLoading) {
+  <p class="loading-msg">Loading countries…</p>
+} @else if (category && tiles.length === 5) {
+  <div class="scoreboard">
+    <div class="score-chip">
+      <span class="score-chip__label">Streak</span>
+      <span class="score-chip__value">{{ streak }}</span>
+    </div>
+    <div class="score-chip">
+      <span class="score-chip__label">Best</span>
+      <span class="score-chip__value">{{ bestStreak }}</span>
+    </div>
+    <div class="score-chip">
+      <span class="score-chip__label">Rounds</span>
+      <span class="score-chip__value">{{ round }}</span>
+    </div>
+    <button type="button" class="reset-btn" (click)="restart()" title="Reset session">↺ Reset</button>
+  </div>
+
+  <p class="category-prompt">
+    Order these countries by <strong>{{ category.label }}</strong>
+  </p>
+
+  <div class="sort-rail">
+    <span class="rail-label rail-label--low">{{ category.lowLabel }}</span>
+
+    <div class="tile-row">
+      @for (tile of tiles; track tile.country.name; let i = $index) {
+        <div
+          class="tile"
+          [class.is-dragging-over]="dragOverIndex === i"
+          [class.is-locked]="isRevealed"
+          [class.is-correct]="isRevealed && tileCorrectness[i]"
+          [class.is-wrong]="isRevealed && !tileCorrectness[i]"
+          [attr.draggable]="!isRevealed"
+          (dragstart)="onDragStart(i)"
+          (dragover)="onDragOver($event, i)"
+          (dragleave)="onDragLeave(i)"
+          (drop)="onDrop(i)"
+          (dragend)="onDragEnd()"
+        >
+          <span class="tile__position">{{ i + 1 }}</span>
+          <img class="tile__flag" [src]="tile.country.flags.svg" alt="" />
+          <span class="tile__name">{{ tile.country.name }}</span>
+
+          @if (isRevealed) {
+            <span class="tile__value">{{ formatValue(tile.value) }}</span>
+          } @else {
+            <span class="tile__handle">⠿</span>
+          }
+        </div>
+      }
+    </div>
+
+    <span class="rail-label rail-label--high">{{ category.highLabel }}</span>
+  </div>
+
+  @if (!isRevealed) {
+    <div class="submit-actions">
+      <button type="button" class="submit-btn" (click)="onSubmit()">
+        Lock in order
+      </button>
+    </div>
+  } @else {
+    <div class="result-banner" [class.result-banner--correct]="isCorrect" [class.result-banner--wrong]="!isCorrect">
+      @if (isCorrect) {
+        <span>Correct order!</span>
+      } @else {
+        <span>Not quite — the correct order is highlighted above.</span>
+      }
+      <button type="button" class="continue-btn" (click)="nextRound()">
+        Next round →
+      </button>
+    </div>
+
+    @if (!isCorrect) {
+      <div class="answer-key">
+        @for (tile of correctOrder; track tile.country.name; let i = $index) {
+          <div class="answer-key__item">
+            <span class="answer-key__rank">{{ i + 1 }}</span>
+            <img class="answer-key__flag" [src]="tile.country.flags.svg" alt="" />
+            <span class="answer-key__name">{{ tile.country.name }}</span>
+            <span class="answer-key__value">{{ formatValue(tile.value) }}</span>
+          </div>
+        }
+      </div>
+    }
+  }
+}
+
+@if (guessHistory.length > 0) {
+  <aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Category</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of guessHistory; track entry.round) {
+          <tr [style.background-color]="entry.correct ? 'var(--match-bg)' : '#f2d9d9'">
+            <td>{{ entry.round }}</td>
+            <td>{{ entry.category }}</td>
+            <td class="score-cell">{{ entry.correct ? '✓' : '✗' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <div class="history-average">
+      Accuracy: <strong>{{ accuracyPct }}%</strong>
+    </div>
+  </aside>
+}

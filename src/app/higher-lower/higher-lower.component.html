@@ -1,0 +1,102 @@
+<!-- higher-lower.component.html -->
+<h1 class="title">Higher or Lower</h1>
+<p class="subtitle">Which country has the bigger population?</p>
+
+@if (isLoading) {
+  <p class="loading-msg">Loading countries…</p>
+} @else if (champion && challenger) {
+  <div class="scoreboard">
+    <div class="score-chip">
+      <span class="score-chip__label">Streak</span>
+      <span class="score-chip__value">{{ streak }}</span>
+    </div>
+    <div class="score-chip">
+      <span class="score-chip__label">Best</span>
+      <span class="score-chip__value">{{ bestStreak }}</span>
+    </div>
+    <div class="score-chip">
+      <span class="score-chip__label">Rounds</span>
+      <span class="score-chip__value">{{ roundsPlayed }}</span>
+    </div>
+  </div>
+
+  <div class="arena">
+    <div class="card card--champion">
+      <span class="card__eyebrow">Reigning</span>
+      <img class="card__flag" [src]="champion.flags.svg" alt="" />
+      <h2 class="card__name">{{ champion.name }}</h2>
+      <p class="card__population">{{ formatPopulation(champion.population) }}</p>
+      <span class="card__caption">population</span>
+    </div>
+
+    <div class="vs-divider">
+      <span class="vs-divider__label">VS</span>
+    </div>
+
+    <div class="card card--challenger" [class.is-revealed]="isRevealed">
+      <span class="card__eyebrow">Challenger</span>
+      <img class="card__flag" [src]="challenger.flags.svg" alt="" />
+      <h2 class="card__name">{{ challenger.name }}</h2>
+
+      @if (isRevealed) {
+        <p class="card__population">{{ formatPopulation(challenger.population) }}</p>
+        <span class="card__caption">population</span>
+      } @else {
+        <p class="card__population card__population--hidden">?????</p>
+        <span class="card__caption">higher or lower?</span>
+      }
+    </div>
+  </div>
+
+  @if (!isRevealed) {
+    <div class="guess-actions">
+      <button type="button" class="guess-btn guess-btn--lower" (click)="onGuess('lower')">
+        ▼ Lower
+      </button>
+      <button type="button" class="guess-btn guess-btn--higher" (click)="onGuess('higher')">
+        ▲ Higher
+      </button>
+    </div>
+  } @else if (!isGameOver) {
+    <div class="result-banner result-banner--correct">
+      <span>Correct — {{ challenger.name }} takes the throne!</span>
+      <button type="button" class="continue-btn" (click)="onContinue()">
+        Next round →
+      </button>
+    </div>
+  } @else {
+    <div class="result-banner result-banner--wrong">
+      <span>Wrong! Your streak ended at {{ streak }}.</span>
+      <button type="button" class="continue-btn" (click)="restart()">
+        Play again ↺
+      </button>
+    </div>
+  }
+}
+
+@if (guessHistory.length > 0) {
+  <aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Country</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of guessHistory; track entry.round) {
+          <tr [style.background-color]="entry.correct ? 'var(--match-bg)' : '#f2d9d9'">
+            <td>{{ entry.round }}</td>
+            <td>{{ entry.country }}</td>
+            <td class="score-cell">{{ entry.correct ? '✓' : '✗' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <div class="history-average">
+      Accuracy: <strong>{{ accuracyPct }}%</strong>
+    </div>
+  </aside>
+}

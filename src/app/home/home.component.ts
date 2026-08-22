@@ -10,9 +10,30 @@ interface GameTile {
   /** Roughly where to pin the tile on the world map. */
   lat: number;
   lng: number;
-  /** Emoji or short glyph shown on the tile. Swap for an <img> if you get real icons later. */
-  icon: string;
+  /** Key into GLYPH_PATHS — same line-art icon style used in the sidebar. */
+  glyph: keyof typeof GLYPH_PATHS;
 }
+
+/**
+ * Inner SVG markup for each glyph, mirroring sidebar.component.html.
+ * Duplicated here (rather than reused directly) because Leaflet markers are
+ * built from raw HTML strings, not Angular templates — there's nothing to
+ * bind an @switch against.
+ */
+const GLYPH_PATHS = {
+  globe: `<circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" />`,
+  target: `<circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.5" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3" />`,
+  pin: `<path d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" />`,
+  map: `<path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z" /><path d="M9 3v16M15 5v16" />`,
+  language: `<path d="M4 4h13a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H10l-4 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" /><path d="M7 9h9M7 12.5h6" />`,
+  grid: `<rect x="3" y="3" width="18" height="18" rx="1.5" /><path d="M9 3v18M15 3v18M3 9h18M3 15h18" /><path d="M10.3 10.3l3.4 3.4M13.7 10.3l-3.4 3.4" />`,
+  // Placeholder "?" glyph for locked / "Coming Soon" tiles.
+  unknown: `<circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" /><circle cx="12" cy="17" r="0.1" fill="currentColor" stroke-width="2.4" />`,
+  // Stacked chevrons for the Higher/Lower comparison game.
+  updown: `<path d="M7 10l5-5 5 5" /><path d="M7 15l5 5 5-5" />`,
+  // Irregular blob suggesting a country border/silhouette, for the outline-guessing game.
+  outline: `<path d="M5 8.5c.6-1.8 2-2.7 3.4-2.3 1-1.4 3-1.7 4-.4 1.7-.6 3.4.3 3.6 1.9 1.7.3 2.6 1.8 2 3.3.9 1.1.7 2.6-.5 3.3.2 1.6-1 2.9-2.5 2.7-.6 1.5-2.4 2.1-3.7 1.2-1.3 1-3.1.8-4-.5-1.7.2-3-1-2.9-2.6-1.5-.5-2.1-2.1-1.3-3.5-.8-1.1-.5-2.7.9-3.1Z" />`,
+} as const;
 
 @Component({
   selector: 'app-home',
@@ -51,31 +72,31 @@ export class HomeComponent implements AfterViewInit {
       route: '/guess-the-country/daily-country',
       lat: 72,
       lng: -160,
-      icon: '🗓️',
+      glyph: 'globe',
     },
     {
-      title: 'Coming Soon',
-      description: 'A new game might be here...',
+      title: 'Wavelength',
+      description: 'Coming soon...',
       route: null,
       lat: 50,
       lng: 110,
-      icon: '❔',
+      glyph: 'unknown',
     },
     {
-      title: 'Coming Soon',
-      description: 'A new game might be here...',
-      route: null,
+      title: 'TicTacToe',
+      description: 'A geographic twist on the classic game.',
+      route: '/tic-tac-toe',
       lat: 55,
       lng: -8,
-      icon: '❔',
+      glyph: 'grid',
     },
     {
-      title: 'Coming Soon',
-      description: 'A new game might be here...',
-      route: null,
+      title: 'Guess Country by Outline',
+      description: 'Idenfiy countries by their outline on the map.',
+      route: '/guess-country-by-outline',
       lat: 40,
       lng: -118,
-      icon: '❔',
+      glyph: 'outline',
     },
     {
       title: 'Locate the City',
@@ -83,15 +104,15 @@ export class HomeComponent implements AfterViewInit {
       route: '/locate-the-city',
       lat: 74,
       lng: 60,
-      icon: '📍',
+      glyph: 'pin',
     },
     {
-      title: 'Coming Soon',
-      description: 'A new game might be here...',
-      route: null,
+      title: 'Sort it out',
+      description: 'Order 5 countries based on the given criteria.',
+      route: '/sort-it-out',
       lat: -25,
       lng: -101,
-      icon: '❔',
+      glyph: 'unknown',
     },
     {
       title: 'Guess the Language',
@@ -99,7 +120,7 @@ export class HomeComponent implements AfterViewInit {
       route: '/guess-the-language',
       lat: -5,
       lng: 105,
-      icon: '💬',
+      glyph: 'language',
     },
     {
       title: 'Narrow it Down',
@@ -107,15 +128,15 @@ export class HomeComponent implements AfterViewInit {
       route: '/narrow-it-down',
       lat: 20,
       lng: -30,
-      icon: '🎯',
+      glyph: 'target',
     },
     {
-      title: 'Coming Soon',
-      description: 'A new game might be here...',
-      route: null,
+      title: 'Higher Lower',
+      description: 'Which country has the bigger population?',
+      route: '/higher-lower',
       lat: 74.5,
       lng: -78,
-      icon: '❔',
+      glyph: 'updown',
     },
   ];
 
@@ -246,12 +267,15 @@ export class HomeComponent implements AfterViewInit {
 
   private addGameTile(game: GameTile): void {
     const locked = !game.route;
+    const glyphMarkup = GLYPH_PATHS[game.glyph] ?? GLYPH_PATHS.unknown;
 
     const icon = L.divIcon({
       className: 'game-tile-marker',
       html: `
         <div class="game-tile ${locked ? 'game-tile--locked' : ''}">
-          <div class="game-tile__icon">${game.icon}</div>
+          <div class="game-tile__icon">
+            <svg viewBox="0 0 24 24" class="game-tile__glyph" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${glyphMarkup}</svg>
+          </div>
           <div class="game-tile__name">${game.title}</div>
           <div class="game-tile__desc">${game.description}</div>
           ${locked ? '<div class="game-tile__badge">Coming soon</div>' : ''}

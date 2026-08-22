@@ -194,9 +194,17 @@
 }
 
 ::ng-deep .game-tile__icon {
-  font-size: 2.8rem;
   line-height: 1;
   margin-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+::ng-deep .game-tile__glyph {
+  width: 34px;
+  height: 34px;
+  color: var(--brass-bright);
 }
 
 ::ng-deep .game-tile__name {
@@ -254,8 +262,9 @@
     gap: 0.35rem;
   }
 
-  ::ng-deep .game-tile__icon {
-    font-size: 2.1rem;
+  ::ng-deep .game-tile__glyph {
+    width: 26px;
+    height: 26px;
   }
 
   ::ng-deep .game-tile__name {

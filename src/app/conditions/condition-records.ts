@@ -35,7 +35,7 @@ export const CONDITION_RECORDS: ConditionRecord[] = [
   { id: 'pop-gt-10m', label: 'Population above 10,000,000', category: ConditionCategory.Population, symbol: './o10m.png' },
   { id: 'pop-lt-10m', label: 'Population under 10,000,000', category: ConditionCategory.Population, symbol: './u10m.png' },
   { id: 'pop-lt-5m', label: 'Population under 5,000,000', category: ConditionCategory.Population, symbol: './u5m.png' },
-  { id: 'pop-lt-1m', label: 'Population under 1,000,000', category: ConditionCategory.Population, symbol: './u10m.png' },
+  { id: 'pop-lt-1m', label: 'Population under 1,000,000', category: ConditionCategory.Population, symbol: './u1m.png' },
 
   // region
   { id: 'region-africa', label: 'From Africa', category: ConditionCategory.Region, symbol: './reg.png' },

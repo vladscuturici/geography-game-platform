@@ -121,9 +121,9 @@ export class HomeComponent implements AfterViewInit {
       glyph: 'grid',
     },
     {
-      title: 'Guess Country by Outline',
+      title: 'Country Silhouette',
       description: 'Idenfiy countries by their outline on the map.',
-      route: '/guess-country-by-outline',
+      route: '/country-silhouette',
       lat: 40,
       lng: -118,
       glyph: 'outline',

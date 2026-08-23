@@ -1,68 +1,81 @@
-<h1 class="title">Guess the Country</h1>
-<p class="subtitle">Can you name the country from its outline alone?</p>
+<div class="game-card">
+  <header class="header">
+    <h1 class="title">Country Silhouette</h1>
+    <p class="subtitle">Can you name the country from its outline alone?</p>
+  </header>
 
-<h2 class="city-prompt" *ngIf="currentCountry">
-  Name the country shown below
-</h2>
-
-<div class="map-card">
-  <h2 class="map-title">Guess the Country by Outline</h2>
-  <div #mapContainer class="map"></div>
-</div>
-
-<div class="guess-row">
-  <div class="autocomplete">
-    <input
-      class="guess-input"
-      type="text"
-      [(ngModel)]="guessText"
-      [disabled]="hasGuessed"
-      placeholder="Type or click to see countries…"
-      autocomplete="off"
-      (focus)="onGuessInputFocus()"
-      (input)="onGuessInputChange()"
-      (blur)="onGuessInputBlur()"
-      (keyup.enter)="onLockInGuess()"
-    />
-
-    @if (isDropdownOpen && filteredCountryNames.length > 0) {
-      <ul class="autocomplete__list">
-        @for (name of filteredCountryNames; track name) {
-          <li>
-            <button
-              type="button"
-              class="autocomplete__option"
-              (mousedown)="selectCountry(name)"
-            >
-              {{ name }}
-            </button>
-          </li>
-        }
-      </ul>
-    }
+  <div class="country-tile" *ngIf="currentCountry">
+    <div class="country-tile__info">
+      <span class="country-tile__label">Name the country shown below</span>
+    </div>
   </div>
 
-  <button
-    mat-raised-button
-    class="guess-button"
-    (click)="onLockInGuess()"
-    [disabled]="hasGuessed || !currentCountry || !guessText.trim()"
-  >
-    Lock in guess
-  </button>
+  <div class="map-tile">
+    <div #mapContainer class="map"></div>
+  </div>
 
-  @if (hasGuessed) {
-    <div class="result-banner" [class.result-banner--correct]="isCorrect" [class.result-banner--wrong]="!isCorrect">
-      @if (isCorrect) {
-        <span>Correct — it was {{ currentCountry?.name }}!</span>
-      } @else {
-        <span>Not quite — it was {{ currentCountry?.name }}.</span>
-      }
-      <button mat-raised-button class="next-country-tile" (click)="nextCountry()">
+  <div class="range-picker">
+    <div class="range-tile">
+      <div class="guess-row">
+        <div class="autocomplete">
+          <input
+            class="guess-input"
+            type="text"
+            [(ngModel)]="guessText"
+            [disabled]="hasGuessed"
+            placeholder="Type or click to see countries…"
+            autocomplete="off"
+            (focus)="onGuessInputFocus()"
+            (input)="onGuessInputChange()"
+            (blur)="onGuessInputBlur()"
+            (keyup.enter)="onLockInGuess()"
+          />
+
+          @if (isDropdownOpen && filteredCountryNames.length > 0) {
+            <ul class="autocomplete__list">
+              @for (name of filteredCountryNames; track name) {
+                <li>
+                  <button type="button" class="autocomplete__option" (mousedown)="selectCountry(name)">
+                    {{ name }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button
+        mat-raised-button
+        class="guess-button"
+        (click)="onLockInGuess()"
+        [disabled]="hasGuessed || !currentCountry || !guessText.trim()"
+      >
+        Lock in guess
+      </button>
+
+      <button mat-raised-button class="next-country-tile" [disabled]="!hasGuessed" (click)="hasGuessed && nextCountry()">
         Next country →
       </button>
+
+      <div
+        class="result-label"
+        [class.result-label--filled]="hasGuessed && isCorrect"
+        [class.result-label--zero]="hasGuessed && !isCorrect"
+      >
+        @if (hasGuessed) {
+          @if (isCorrect) {
+            <span class="result-label__score">Correct!</span>
+          } @else {
+            <span class="result-label__score">Not quite</span>
+          }
+          <span class="result-label__detail">It was {{ currentCountry?.name }}</span>
+        }
+      </div>
     </div>
-  }
+  </div>
 </div>
 
 @if (guessHistory.length > 0) {
@@ -71,7 +84,6 @@
     <table class="history-table">
       <thead>
         <tr>
-          <th>#</th>
           <th>Country</th>
           <th>Result</th>
         </tr>
@@ -79,7 +91,6 @@
       <tbody>
         @for (entry of guessHistory; track entry.gameNumber) {
           <tr [style.background-color]="entry.correct ? 'var(--match-bg)' : '#f2d9d9'">
-            <td>{{ entry.gameNumber }}</td>
             <td>{{ entry.country }}</td>
             <td class="score-cell">{{ entry.correct ? '✓' : '✗' }}</td>
           </tr>

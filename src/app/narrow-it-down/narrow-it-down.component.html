@@ -1,77 +1,102 @@
-<h1 class="title">Narrow It Down</h1>
-<p class="subtitle">The narrower your range, the more points you score</p>
-<p class="warning-text">If the actual number falls outside your range, you score 0</p>
+<div class="game-card">
+  <header class="header">
+    <h1 class="title">Narrow It Down</h1>
+    <p class="subtitle">The narrower your range, the more points you score</p>
+  </header>
 
-<h2 class="country-prompt" *ngIf="randomCountry$ | async as randomCountry">
-  Estimate the population of {{ randomCountry.name }}
-</h2>
+  <p class="warning-text">If the actual number falls outside your range, you score 0</p>
 
-<div class="range-picker">
-  <div class="range-inputs">
-    <mat-form-field appearance="fill">
-      <mat-label>Min</mat-label>
-      <input
-        matInput
-        type="text"
-        inputmode="numeric"
-        [value]="minDisplay"
-        (focus)="onMinFocus()"
-        (input)="onMinInput($any($event.target).value)"
-        (blur)="onMinBlur()"
-      />
-    </mat-form-field>
-
-    <span class="range-separator">—</span>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Max</mat-label>
-      <input
-        matInput
-        type="text"
-        inputmode="numeric"
-        [value]="maxDisplay"
-        (focus)="onMaxFocus()"
-        (input)="onMaxInput($any($event.target).value)"
-        (blur)="onMaxBlur()"
-      />
-    </mat-form-field>
+  <div class="country-tile" *ngIf="randomCountry$ | async as randomCountry">
+    <div class="country-tile__info">
+      <span class="country-tile__label">Estimate the population of</span>
+      <span class="country-tile__name">{{ randomCountry.name }}</span>
+    </div>
+    <div class="country-tile__flag-wrap">
+      <img class="country-tile__flag" [src]="randomCountry.flags.svg" [alt]="randomCountry.name + ' flag'" />
+    </div>
   </div>
 
-  <div class="range-slider-wrap">
-    <mat-slider
-        class="range-slider"
-        [min]="sliderMin"
-        [max]="sliderMax"
-        [step]="sliderStep"
-        [displayWith]="sliderLabelFormat"
-        [discrete]="true"
-    >
-        <input
-          matSliderStartThumb
-          [formControl]="sliderMinControl"
-          (input)="onSliderMinChanged($any($event.target).value)"
-        />
-        <input
-          matSliderEndThumb
-          [formControl]="sliderMaxControl"
-          (input)="onSliderMaxChanged($any($event.target).value)"
-        />
-    </mat-slider>
-  </div>
+  <div class="range-picker">
+    <div class="range-tile">
+      <div class="range-inputs">
+        <mat-form-field appearance="fill">
+          <mat-label>Min</mat-label>
+          <input
+            matInput
+            type="text"
+            inputmode="numeric"
+            [value]="minDisplay"
+            (focus)="onMinFocus()"
+            (input)="onMinInput($any($event.target).value)"
+            (blur)="onMinBlur()"
+          />
+        </mat-form-field>
 
-  <button mat-raised-button class="guess-button" (click)="onGuess()">
-    Lock in range
-  </button>
+        <span class="range-separator">—</span>
 
-  @if (hasGuessed && currentCountry) {
-    <div class="result-banner">
-      <span>You got {{ currentScore }} points!</span>
-      <span>The population is {{ formatDots(currentCountry.population) }}</span>
-      <button mat-raised-button class="next-country-tile" (click)="nextCountry()">
+        <mat-form-field appearance="fill">
+          <mat-label>Max</mat-label>
+          <input
+            matInput
+            type="text"
+            inputmode="numeric"
+            [value]="maxDisplay"
+            (focus)="onMaxFocus()"
+            (input)="onMaxInput($any($event.target).value)"
+            (blur)="onMaxBlur()"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="range-slider-wrap">
+        <mat-slider
+            class="range-slider"
+            [min]="sliderMin"
+            [max]="sliderMax"
+            [step]="sliderStep"
+            [displayWith]="sliderLabelFormat"
+            [discrete]="true"
+        >
+            <input
+              matSliderStartThumb
+              [formControl]="sliderMinControl"
+              (input)="onSliderMinChanged($any($event.target).value)"
+            />
+            <input
+              matSliderEndThumb
+              [formControl]="sliderMaxControl"
+              (input)="onSliderMaxChanged($any($event.target).value)"
+            />
+        </mat-slider>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button mat-raised-button class="guess-button" (click)="onGuess()" [disabled]="hasGuessed">
+        Lock in range
+      </button>
+
+      <button
+        mat-raised-button
+        class="next-country-tile"
+        [disabled]="!hasGuessed"
+        (click)="hasGuessed && nextCountry()"
+      >
         Next country →
       </button>
+
+      <div
+        class="result-label"
+        [class.result-label--filled]="hasGuessed && currentCountry"
+        [class.result-label--zero]="hasGuessed && currentScore === 0"
+      >
+        @if (hasGuessed && currentCountry) {
+          <span class="result-label__score">{{ currentScore }} pts</span>
+          <span class="result-label__detail">Actual population: {{ formatDots(currentCountry.population) }}</span>
+        }
+      </div>
     </div>
-  }
+  </div>
 </div>
 
 @if (guessHistory.length > 0) {
@@ -80,19 +105,17 @@
     <table class="history-table">
       <thead>
         <tr>
-          <th>#</th>
           <th>Country</th>
           <th>Points</th>
         </tr>
       </thead>
       <tbody>
         @for (entry of guessHistory; track entry.gameNumber) {
-        <tr [style.background-color]="toGreenSaturation(entry.points)">
-          <td>{{ entry.gameNumber }}</td>
-          <td>{{ entry.countryName }}</td>
-          <td class="score-cell">{{ entry.points }}</td>
-        </tr>
-      }
+          <tr [style.background-color]="toGreenSaturation(entry.points)">
+            <td>{{ entry.countryName }}</td>
+            <td class="score-cell">{{ entry.points }}</td>
+          </tr>
+        }
       </tbody>
     </table>
     <div class="history-average">

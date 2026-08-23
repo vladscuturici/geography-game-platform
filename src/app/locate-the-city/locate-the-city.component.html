@@ -1,28 +1,122 @@
-<h1 class="title">Locate the city</h1>
-<p class="subtitle">How accurate can you point the city on the map?</p>
+<div class="game-card">
+  <header class="header">
+    <h1 class="title">Locate the City</h1>
+    <p class="subtitle">How accurate can you point the city on the map?</p>
+  </header>
 
-<h2 class="city-prompt" *ngIf="randomCity$ | async as randomCity">
-  Point {{ randomCity.name }} on the map
-</h2>
-
-<div class="map-card">
-  <h2 class="map-title">Locate the City</h2>
-  <div #mapContainer class="map"></div>
-</div>
-
-<div class="guess-row">
-  <button mat-raised-button class="guess-button" (click)="onLockInGuess()" [disabled]="hasGuessed || !currentCity">
-    Lock in guess
-  </button>
-
-  @if (hasGuessed) {
-    <div class="result-banner">
-      <span>You were {{ currentDistance | number: '1.0-1' }} km away — {{ currentScore }} points!</span>
-      <button mat-raised-button class="next-country-tile" (click)="nextCity()">
-        Next city →
-      </button>
+  <div class="top-row">
+    <div class="country-tile" *ngIf="randomCity$ | async as randomCity">
+      <div class="country-tile__info">
+        <span class="country-tile__label">Point on the map</span>
+        <span class="country-tile__name">{{ randomCity.name }}</span>
+      </div>
     </div>
-  }
+
+    <div class="toggle-stack">
+      <div class="toggle-row">
+        <button
+          type="button"
+          class="toggle-option"
+          [class.toggle-option--active]="borderMode === 'none'"
+          [disabled]="borderModeLocked || hasGuessed"
+          (click)="setBorderMode('none')"
+        >
+          No borders
+        </button>
+        <button
+          type="button"
+          class="toggle-option"
+          [class.toggle-option--active]="borderMode === 'shown'"
+          [disabled]="borderMode === 'shown' || hasGuessed"
+          (click)="setBorderMode('shown')"
+        >
+          Show borders <span class="toggle-option__hint">(half points)</span>
+        </button>
+      </div>
+
+      <div class="toggle-row toggle-row--regions">
+        <button
+          type="button"
+          class="toggle-option"
+          [class.toggle-option--active]="selectedRegion === 'world'"
+          (click)="setRegion('world')"
+        >
+          World
+        </button>
+        <button
+          type="button"
+          class="toggle-option"
+          [class.toggle-option--active]="selectedRegion === 'europe'"
+          (click)="setRegion('europe')"
+        >
+          Europe
+        </button>
+        <button
+          type="button"
+          class="toggle-option"
+          [class.toggle-option--active]="selectedRegion === 'americas'"
+          (click)="setRegion('americas')"
+        >
+          Americas
+        </button>
+        <button
+          type="button"
+          class="toggle-option"
+          [class.toggle-option--active]="selectedRegion === 'asia'"
+          (click)="setRegion('asia')"
+        >
+          Asia
+        </button>
+        <button
+          type="button"
+          class="toggle-option"
+          [class.toggle-option--active]="selectedRegion === 'africa'"
+          (click)="setRegion('africa')"
+        >
+          Africa
+        </button>
+        <button
+          type="button"
+          class="toggle-option"
+          [class.toggle-option--active]="selectedRegion === 'oceania'"
+          (click)="setRegion('oceania')"
+        >
+          Oceania
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-tile">
+    <div #mapContainer class="map"></div>
+  </div>
+
+  <div class="action-row">
+    <button
+      mat-raised-button
+      class="guess-button"
+      (click)="onLockInGuess()"
+      [disabled]="hasGuessed || !currentCity"
+    >
+      Lock in guess
+    </button>
+
+    <button mat-raised-button class="next-country-tile" [disabled]="!hasGuessed" (click)="hasGuessed && nextCity()">
+      Next city →
+    </button>
+
+    <div class="result-label" [class.result-label--filled]="hasGuessed" [class.result-label--zero]="hasGuessed && currentScore === 0">
+      @if (hasGuessed) {
+        <span class="result-label__score">
+          {{ currentScore }} pts
+          @if (scoreWasHalved) {
+            <span class="result-label__raw-score">{{ currentScore * 2 }} pts</span>
+          }
+        </span>
+        <span class="result-label__detail">{{ currentDistance | number: '1.0-1' }} km away</span>
+      }
+    </div>
+  </div>
 </div>
 
 @if (guessHistory.length > 0) {
@@ -31,7 +125,6 @@
     <table class="history-table">
       <thead>
         <tr>
-          <th>#</th>
           <th>City</th>
           <th>Points</th>
         </tr>
@@ -39,7 +132,6 @@
       <tbody>
         @for (entry of guessHistory; track entry.gameNumber) {
           <tr [style.background-color]="toGreenSaturation(entry.points)">
-            <td>{{ entry.gameNumber }}</td>
             <td>{{ entry.cityName }}</td>
             <td class="score-cell">{{ entry.points }}</td>
           </tr>

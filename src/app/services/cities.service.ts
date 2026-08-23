@@ -5,7 +5,6 @@ import { City } from '../models/cities.model';
 
 @Service()
 export class CitiesService {
-    //http injection
     private _httpClient = inject(HttpClient);
 
     private _apiUrl = 'https://countries.dev';
@@ -36,5 +35,24 @@ export class CitiesService {
                 return merged.slice(0, total);
             })
         );
+    }
+
+    /**
+     * Same capped/interleaved-population strategy as getTopCitiesCapped,
+     * but scoped to a single region's country codes. Kept as a distinct
+     * method (rather than just calling getTopCitiesCapped with a filtered
+     * list inline at every call site) so the "region" concept is explicit
+     * in the API and easy to find/reuse from any component.
+     */
+    public getTopCitiesCappedForRegion(
+        regionCountryCodes: string[],
+        total: number,
+        maxPerCountry: number = 5
+    ): Observable<City[]> {
+        if (regionCountryCodes.length === 0) {
+            return of([]);
+        }
+
+        return this.getTopCitiesCapped(regionCountryCodes, total, maxPerCountry);
     }
 }

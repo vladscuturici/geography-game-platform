@@ -28,14 +28,20 @@ export class HigherLowerComponent implements OnInit {
 
   public streak = 0;
   public bestStreak = 0;
-  public roundsPlayed = 0;
 
   public roundResult: RoundResult = null;
   public isRevealed = false;
   public isGameOver = false;
   public isLoading = true;
+  public isFlashing = false;
 
-  public guessHistory: { round: number; country: string; correct: boolean }[] = [];
+  private _gameNumber = 0;
+
+  /** Guesses within the CURRENT game only — reset every time a new game starts. */
+  public currentRoundHistory: { round: number; country: string; correct: boolean }[] = [];
+
+  /** One entry per completed (lost) game, kept across the whole session. */
+  public gameHistory: { gameNumber: number; score: number }[] = [];
 
   ngOnInit(): void {
     this.countries$.subscribe(countries => {
@@ -47,17 +53,12 @@ export class HigherLowerComponent implements OnInit {
     });
   }
 
-  public get accuracyPct(): number {
-    if (this.guessHistory.length === 0) return 0;
-    const correctCount = this.guessHistory.filter(g => g.correct).length;
-    return Math.round((correctCount / this.guessHistory.length) * 100);
-  }
-
   private _startNewGame(): void {
     this.streak = 0;
-    this.roundsPlayed = 0;
     this.isGameOver = false;
-    this.guessHistory = [];
+    this.isFlashing = false;
+    this.currentRoundHistory = [];
+    this._gameNumber++;
     this.champion = this._pickRandomCountry();
     this._nextChallenger();
   }
@@ -81,41 +82,62 @@ export class HigherLowerComponent implements OnInit {
   }
 
   public onGuess(direction: 'higher' | 'lower'): void {
-    if (!this.champion || !this.challenger || this.isRevealed || this.isGameOver) return;
+    if (!this.champion || !this.challenger || this.isGameOver || this.isFlashing) return;
 
     const championPop = this.champion.population;
     const challengerPop = this.challenger.population;
 
     const actuallyHigher = challengerPop > championPop;
     const guessedHigher = direction === 'higher';
-    // A tie is vanishingly rare for real population data, but guard against it
-    // by treating an exact match as a win either way rather than a loss.
     const isCorrect = challengerPop === championPop ? true : guessedHigher === actuallyHigher;
 
-    this.isRevealed = true;
     this.roundResult = isCorrect ? 'correct' : 'wrong';
-    this.roundsPlayed++;
+    this.isFlashing = true;
 
-    this.guessHistory = [
-      ...this.guessHistory,
-      { round: this.roundsPlayed, country: this.challenger.name, correct: isCorrect },
+    this.currentRoundHistory = [
+      ...this.currentRoundHistory,
+      { round: this.currentRoundHistory.length + 1, country: this.challenger.name, correct: isCorrect },
     ];
 
     if (isCorrect) {
       this.streak++;
       this.bestStreak = Math.max(this.bestStreak, this.streak);
-    } else {
-      this.isGameOver = true;
-    }
+      this.isRevealed = true; // briefly reveal the population during the flash
 
-    this._cdr.markForCheck();
+      this._cdr.markForCheck();
+
+      // Hold the correct-guess glow just long enough to register, then
+      // promote the challenger and roll a new one.
+      setTimeout(() => {
+        this.champion = this.challenger;
+        this._nextChallenger();
+        this.isFlashing = false;
+        this._cdr.markForCheck();
+      }, 550);
+    } else {
+      this.isRevealed = true;
+      this.isGameOver = true;
+
+      // Game over: file this game's final streak into the session history.
+      this.gameHistory = [
+        ...this.gameHistory,
+        { gameNumber: this._gameNumber, score: this.streak },
+      ];
+
+      this._cdr.markForCheck();
+    }
   }
 
-  public onContinue(): void {
-    if (!this.challenger || this.isGameOver) return;
-    // Challenger becomes the new champion; roll a fresh challenger.
-    this.champion = this.challenger;
-    this._nextChallenger();
+  /**
+   * Saturation scales relative to the best streak reached this session, so
+   * "green-ness" reflects how a game stacks up against your own record
+   * rather than an arbitrary fixed scale.
+   */
+  public toGreenSaturation(score: number): string {
+    const max = Math.max(this.bestStreak, 1);
+    const ratio = Math.min(Math.max(score / max, 0), 1);
+    const lightness = 100 - ratio * 60;
+    return `hsl(120, 70%, ${lightness}%)`;
   }
 
   public formatPopulation(value: number): string {

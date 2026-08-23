@@ -1,81 +1,86 @@
-<!-- tic-tac-toe.component.html -->
-<h1 class="title">TicTacToe</h1>
-<p class="subtitle">Can you find a country that matches both conditions?</p>
+<div class="game-card">
+  <header class="header">
+    <h1 class="title">TicTacToe</h1>
+    <p class="subtitle">Can you find a country that matches both conditions?</p>
+  </header>
 
-<div class="board-wrap">
-  <div class="board">
-    <div class="corner">
-      <img [src]="cornerLogo" alt="" class="corner__logo" />
-    </div>
-    <div class="cells-bg" style="--cells-bg-image: url('./bg1.png')"></div>
-
-    @for (col of columnConditions; track c; let c = $index) {
-      <div class="axis axis--col">
-        <button
-          type="button"
-          class="condition-btn"
-          [class.is-set]="col"
-          [disabled]="isLoadingPicker"
-          (click)="onSelectColumnCondition(c)"
-        >
-          @if (col) {
-            <img class="condition-btn__symbol" [src]="col.symbol" alt="" />
-            <span class="condition-btn__label">{{ col.label }}</span>
-          } @else {
-            <span class="condition-btn__label">{{ isLoadingPicker ? 'Checking…' : 'Add condition' }}</span>
-            <span class="condition-btn__icon">+</span>
-          }
-        </button>
-      </div>
+  <p class="warning-text">
+    @if (!allConditionsSet) {
+      Set all three row and column conditions to start guessing
+    } @else {
+      Conditions are locked in — guess a country for each cell
     }
+  </p>
 
-    @for (row of rowConditions; track r; let r = $index) {
-      <div class="axis axis--row">
-        <button
-          type="button"
-          class="condition-btn"
-          [class.is-set]="row"
-          [disabled]="isLoadingPicker"
-          (click)="onSelectRowCondition(r)"
-        >
-          @if (row) {
-            <img class="condition-btn__symbol" [src]="row.symbol" alt="" />
-            <span class="condition-btn__label">{{ row.label }}</span>
-          } @else {
-            <span class="condition-btn__label">{{ isLoadingPicker ? 'Checking…' : 'Add condition' }}</span>
-            <span class="condition-btn__icon">+</span>
-          }
-        </button>
-      </div>
-
-      @for (col of columnConditions; track c; let c = $index) {
-        <div class="cell" [class.is-filled]="cells[r][c]">
-          <button
-            type="button"
-            class="cell-btn"
-            [disabled]="!allConditionsSet || !row || !col || !!cells[r][c]"
-            (click)="onGuessCell(r, c)"
-          >
-            @if (cells[r][c]) {
-              <img class="cell-btn__flag" [src]="cellFlagImages[r][c]" alt="" />
-              <span class="cell-btn__mark">{{ cells[r][c] }}</span>
-            } @else {
-              <span class="cell-btn__hint">Guess</span>
-            }
-          </button>
+  <div class="board-tile">
+    <div class="board-wrap">
+      <div class="board">
+        <div class="corner">
+          <img [src]="cornerLogo" alt="" class="corner__logo" />
         </div>
-      }
-    }
+        <div class="cells-bg" style="--cells-bg-image: url('./bg1.png')"></div>
+
+        @for (col of columnConditions; track c; let c = $index) {
+          <div class="axis axis--col">
+            <button
+              type="button"
+              class="condition-btn"
+              [class.is-set]="col"
+              [disabled]="isLoadingPicker"
+              (click)="onSelectColumnCondition(c)"
+            >
+              @if (col) {
+                <img class="condition-btn__symbol" [src]="col.symbol" alt="" />
+                <span class="condition-btn__label">{{ col.label }}</span>
+              } @else {
+                <span class="condition-btn__label">{{ isLoadingPicker ? 'Checking…' : 'Add condition' }}</span>
+                <span class="condition-btn__icon">+</span>
+              }
+            </button>
+          </div>
+        }
+
+        @for (row of rowConditions; track r; let r = $index) {
+          <div class="axis axis--row">
+            <button
+              type="button"
+              class="condition-btn"
+              [class.is-set]="row"
+              [disabled]="isLoadingPicker"
+              (click)="onSelectRowCondition(r)"
+            >
+              @if (row) {
+                <img class="condition-btn__symbol" [src]="row.symbol" alt="" />
+                <span class="condition-btn__label">{{ row.label }}</span>
+              } @else {
+                <span class="condition-btn__label">{{ isLoadingPicker ? 'Checking…' : 'Add condition' }}</span>
+                <span class="condition-btn__icon">+</span>
+              }
+            </button>
+          </div>
+
+          @for (col of columnConditions; track c; let c = $index) {
+            <div class="cell" [class.is-filled]="cells[r][c]">
+              <button
+                type="button"
+                class="cell-btn"
+                [disabled]="!allConditionsSet || !row || !col || !!cells[r][c]"
+                (click)="onGuessCell(r, c)"
+              >
+                @if (cells[r][c]) {
+                  <img class="cell-btn__flag" [src]="cellFlagImages[r][c]" alt="" />
+                  <span class="cell-btn__mark">{{ cells[r][c] }}</span>
+                } @else {
+                  <span class="cell-btn__hint">Guess</span>
+                }
+              </button>
+            </div>
+          }
+        }
+      </div>
+    </div>
   </div>
 </div>
-
-<p class="footnote">
-  @if (!allConditionsSet) {
-    Set all three row and column conditions to start guessing.
-  } @else {
-    Conditions are locked in &mdash; guess a country for each cell.
-  }
-</p>
 
 @if (pickerTarget) {
   <app-condition-picker
@@ -88,55 +93,62 @@
 @if (guessTarget) {
   <div class="guess-backdrop" (click)="onGuessCancel()">
     <div class="guess-panel" (click)="$event.stopPropagation()">
-      <p class="guess-panel__prompt">
-        Name a country that is
-        <strong>{{ rowConditions[guessTarget.row]?.label }}</strong>
-        and
-        <strong>{{ columnConditions[guessTarget.col]?.label }}</strong>
-      </p>
 
-      <div class="guess-panel__field">
-        <input
-          type="text"
-          class="guess-panel__input"
-          [(ngModel)]="guessInput"
-          (input)="onGuessInputChange()"
-          (focus)="onGuessInputChange()"
-          (blur)="onGuessInputBlur()"
-          (keyup.enter)="onGuessSubmit()"
-          placeholder="Country name"
-          [disabled]="isCheckingGuess"
-          autocomplete="off"
-          autofocus
-        />
+      <div class="country-tile country-tile--compact">
+        <div class="country-tile__info">
+          <span class="country-tile__label">Name a country that is</span>
+          <span class="country-tile__name">
+            {{ rowConditions[guessTarget.row]?.label }} &amp; {{ columnConditions[guessTarget.col]?.label }}
+          </span>
+        </div>
+      </div>
 
-        @if (showSuggestions) {
-          <ul class="guess-panel__suggestions">
-            @for (suggestion of guessSuggestions; track suggestion.alpha2Code) {
-              <li>
-                <button
-                  type="button"
-                  class="guess-panel__suggestion"
-                  (mousedown)="onSuggestionSelect(suggestion)"
-                >
-                  <span class="guess-panel__suggestion-flag">{{ suggestion.flag }}</span>
-                  <span>{{ suggestion.name }}</span>
-                </button>
-              </li>
-            }
-          </ul>
+      <div class="guess-field-tile">
+        <div class="guess-panel__field">
+          <input
+            type="text"
+            class="guess-panel__input"
+            [(ngModel)]="guessInput"
+            (input)="onGuessInputChange()"
+            (focus)="onGuessInputChange()"
+            (blur)="onGuessInputBlur()"
+            (keyup.enter)="onGuessSubmit()"
+            placeholder="Country name"
+            [disabled]="isCheckingGuess"
+            autocomplete="off"
+            autofocus
+          />
+
+          @if (showSuggestions) {
+            <ul class="guess-panel__suggestions">
+              @for (suggestion of guessSuggestions; track suggestion.alpha2Code) {
+                <li>
+                  <button
+                    type="button"
+                    class="guess-panel__suggestion"
+                    (mousedown)="onSuggestionSelect(suggestion)"
+                  >
+                    <span class="guess-panel__suggestion-flag">{{ suggestion.flag }}</span>
+                    <span>{{ suggestion.name }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        @if (guessError) {
+          <p class="guess-panel__error">{{ guessError }}</p>
         }
       </div>
 
-      @if (guessError) {
-        <p class="guess-panel__error">{{ guessError }}</p>
-      }
-
-      <div class="guess-panel__actions">
-        <button type="button" class="guess-panel__cancel" (click)="onGuessCancel()">Cancel</button>
+      <div class="action-row">
+        <button type="button" class="next-country-tile" (click)="onGuessCancel()">
+          Cancel
+        </button>
         <button
           type="button"
-          class="guess-panel__submit"
+          class="guess-button"
           (click)="onGuessSubmit()"
           [disabled]="isCheckingGuess"
         >

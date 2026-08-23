@@ -17,34 +17,84 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
-  padding: 4rem 1.5rem 6rem;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 1.25rem 1.5rem;
   font-family: 'Spectral', Georgia, serif;
   font-size: 1.0625rem;
   color: var(--text);
+  overflow: hidden;
+}
+
+@media (min-width: 1100px) {
+  :host {
+    padding-right: calc(1.5rem + 220px + 2rem);
+  }
+}
+
+/* --- Header --- */
+.header {
+  width: 100%;
+  max-width: none;
+  text-align: center;
+  margin-bottom: 0;
+  padding: 1.1rem 1.5rem;
+  position: relative;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    rgba(232, 200, 118, 0.1) 0%,
+    rgba(20, 33, 61, 0.5) 65%,
+    rgba(20, 33, 61, 0.65) 100%
+  );
+  border: 1px solid rgba(201, 162, 75, 0.45);
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(232, 200, 118, 0.15), inset 0 -12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.header::before,
+.header::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--brass-bright);
+  opacity: 0.75;
+}
+
+.header::before {
+  top: 6px;
+  left: 6px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.header::after {
+  bottom: 6px;
+  right: 6px;
+  border-left: none;
+  border-top: none;
 }
 
 .title {
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 2.75rem;
+  font-size: 2.1rem;
+  line-height: 1.2;
   letter-spacing: 0.01em;
   color: var(--brass-bright);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
-  margin: 0 0 1.1rem;
-  text-align: center;
+  margin: 0 0 0.5rem;
 }
 
 .subtitle {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 400;
   color: var(--muted);
-  margin: 0 0 2.2rem;
+  margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-  text-align: center;
 }
 
 .loading-msg {
@@ -53,93 +103,143 @@
   font-size: 0.9rem;
 }
 
-/* --- Scoreboard --- */
-
-.scoreboard {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.score-chip {
+/* --- Game card wrapper --- */
+.game-card {
+  width: 100%;
+  max-width: 1040px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  padding: 0.6rem 1.25rem;
-  background: rgba(20, 33, 61, 0.94);
+  justify-content: space-evenly;
+  gap: 1.1rem;
+  background: rgba(242, 239, 230, 0.05);
+  border: 1px solid rgba(201, 162, 75, 0.4);
+  border-radius: 12px;
+  padding: 1.5rem 2.75rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(232, 200, 118, 0.06);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.tile__move-btns {
+  display: flex;
+  gap: 0.4rem;
+  /* margin-top: auto removed — handled by .tile__bottom now */
+}
+
+.tile__move-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   border: 1.5px solid var(--brass);
-  border-radius: 6px;
-  min-width: 84px;
-}
-
-.score-chip__label {
+  background: rgba(20, 33, 61, 0.9);
+  color: var(--brass-bright);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--brass);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-.score-chip__value {
+.tile__move-btn:hover:not(:disabled) {
+  background: var(--brass);
+  color: var(--ink);
+}
+
+.tile__move-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.tile__move-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+/* --- Prompt tile (no flag) --- */
+.country-tile {
+  width: 100%;
+  flex: 0 1 80px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.16), rgba(20, 33, 61, 0.6));
+  border: 1px solid var(--brass);
+  border-radius: 8px;
+  padding: 1rem 1.75rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(232, 200, 118, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.country-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(232, 200, 118, 0.12), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.country-tile__info {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.country-tile__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+.country-tile__name {
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1.7rem;
   color: var(--brass-bright);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  line-height: 1.1;
 }
 
-.reset-btn {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--brass);
-  background: transparent;
-  border: 1px solid rgba(201, 162, 75, 0.5);
-  border-radius: 6px;
-  padding: 0.55rem 0.9rem;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+/* --- Sort tile: houses the rail + draggable tiles --- */
+.sort-tile {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.16), rgba(20, 33, 61, 0.6));
+  border: 1px solid var(--brass);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(232, 200, 118, 0.1);
+  box-sizing: border-box;
+  overflow: hidden;
 }
-
-.reset-btn:hover {
-  background: rgba(201, 162, 75, 0.15);
-  color: var(--brass-bright);
-}
-
-.category-prompt {
-  font-family: 'Spectral', Georgia, serif;
-  font-size: 1.2rem;
-  color: var(--parchment);
-  text-align: center;
-  margin: 0 0 2rem;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
-}
-
-.category-prompt strong {
-  color: var(--brass-bright);
-}
-
-/* --- Sort rail --- */
 
 .sort-rail {
   width: 100%;
-  max-width: 1000px;
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1.75rem;
 }
 
 .rail-label {
-  flex: 0 0 110px;
+  flex: 0 0 100px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   line-height: 1.4;
-  color: var(--brass);
+  color: var(--brass-bright);
 }
 
 .rail-label--low {
@@ -153,18 +253,19 @@
 .tile-row {
   flex: 1;
   display: flex;
-  gap: 0.85rem;
+  align-items: stretch; /* NEW: forces every tile to match the height of the tallest one */
+  gap: 0.75rem;
   min-width: 0;
 }
 
 .tile {
   flex: 1;
   min-width: 0;
+  height: 210px; /* fixed height reserved for worst case (2-line name), same every round */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1.25rem 0.75rem;
+  padding: 1.1rem 0.6rem;
   background: rgba(242, 239, 230, 0.92);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -172,6 +273,29 @@
   cursor: grab;
   transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   position: relative;
+  box-sizing: border-box;
+}
+
+/* Flag + name always occupy the same fixed block at the top, regardless
+   of what's shown below — this is what keeps the name from shifting
+   when the bottom content switches between move-buttons and a value. */
+.tile__top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 0 0 auto;
+}
+
+/* Bottom content (handle+buttons pre-reveal, or value post-reveal) is
+   pinned to the bottom of the tile via margin-top: auto on this wrapper
+   instead of on the buttons themselves. */
+.tile__bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .tile:active {
@@ -203,131 +327,166 @@
   top: 0.5rem;
   left: 0.6rem;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 600;
   color: var(--brass);
 }
 
 .tile__flag {
-  width: 56px;
+  width: 50px;
   height: auto;
   object-fit: contain;
   border-radius: 3px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
-  margin-top: 0.4rem;
+  margin-top: 0.35rem;
 }
 
 .tile__name {
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--ink);
   text-align: center;
-  line-height: 1.25;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .tile__value {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
   color: var(--ink);
   text-align: center;
 }
 
 .tile__handle {
-  font-size: 0.85rem;
-  color: var(--muted-dark, #8a8272);
+  font-size: 0.82rem;
+  color: #8a8272;
   letter-spacing: 0.05em;
 }
 
-/* --- Submit / continue --- */
-
-.submit-actions {
+/* --- Action row: submit or next+result, always one row --- */
+.action-row {
   display: flex;
-  justify-content: center;
+  align-items: stretch;
+  align-self: stretch;
+  gap: 1rem;
+  width: 100%;
+  height: 72px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
 }
 
-.submit-btn {
+.guess-button {
+  flex: 1 1 auto;
+  height: 100%;
+  padding: 0 2.25rem;
+  background-color: var(--brass) !important;
+  color: var(--ink) !important;
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.02em;
-  padding: 0.85rem 2.5rem;
-  border-radius: 999px;
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-  background-color: var(--brass);
-  color: var(--ink);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-  transition: transform 0.12s ease, filter 0.15s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 
-.submit-btn:hover {
-  filter: brightness(1.08);
+.guess-button:hover {
+  background-color: var(--brass-bright) !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55);
 }
 
-.submit-btn:active {
+.guess-button:active {
   transform: scale(0.97);
 }
 
-.result-banner {
-  width: 100%;
-  max-width: 1000px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem 1.5rem;
-  background: rgba(20, 33, 61, 0.94);
-  color: var(--parchment);
-  border-left: 4px solid var(--brass);
-  padding: 1.25rem 1.75rem;
+.next-country-tile {
+  flex: 0 0 auto;
+  height: 100%;
+  padding: 0 2.25rem;
+  background-color: transparent;
+  color: var(--brass-bright);
+  border: 2px solid var(--brass);
   font-family: 'Spectral', Georgia, serif;
-  font-size: 1.15rem;
-  border-radius: 3px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  margin-bottom: 1.25rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
 }
 
-.result-banner--correct {
+.next-country-tile:hover {
+  background-color: rgba(201, 162, 75, 0.15);
+}
+
+.next-country-tile:active {
+  transform: scale(0.97);
+}
+
+/* Result label */
+.result-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  background: rgba(20, 33, 61, 0.94);
+  border-left: 4px solid rgba(201, 162, 75, 0.35);
+  border-radius: 8px;
+  padding: 0 1.5rem;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.result-label--filled {
   border-left-color: var(--match);
 }
 
-.result-banner--wrong {
+.result-label--zero {
   border-left-color: var(--wrong);
 }
 
-.continue-btn {
-  height: 44px;
-  padding: 0 1.5rem;
-  background-color: var(--brass);
-  color: var(--ink);
+.result-label__score {
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: 0.03em;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  font-size: 1.4rem;
+  line-height: 1.1;
+  color: var(--match);
+  white-space: nowrap;
 }
 
-.continue-btn:hover {
-  background-color: var(--brass-bright);
+.result-label--zero .result-label__score {
+  color: #e08a8a;
 }
 
-.continue-btn:active {
-  transform: scale(0.97);
+.result-label__detail {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--parchment);
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* --- Answer key (shown after a wrong guess) --- */
-
 .answer-key {
   width: 100%;
-  max-width: 1000px;
+  flex: 0 0 auto;
   display: flex;
-  gap: 0.85rem;
+  gap: 0.75rem;
+  box-sizing: border-box;
 }
 
 .answer-key__item {
@@ -336,8 +495,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.9rem 0.6rem;
+  gap: 0.3rem;
+  padding: 0.8rem 0.5rem;
   background: var(--match-bg);
   border: 1px solid var(--match);
   border-radius: 6px;
@@ -345,13 +504,13 @@
 
 .answer-key__rank {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 600;
   color: #2f5c26;
 }
 
 .answer-key__flag {
-  width: 40px;
+  width: 36px;
   height: auto;
   object-fit: contain;
   border-radius: 2px;
@@ -360,104 +519,28 @@
 .answer-key__name {
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--ink);
   text-align: center;
 }
 
 .answer-key__value {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   color: var(--ink);
 }
 
-/* --- Session history sidebar --- */
-
-.history-sidebar {
-  position: fixed;
-  top: 50%;
-  right: 2rem;
-  transform: translateY(-50%);
-  width: 220px;
-  max-height: 70vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: rgba(20, 33, 61, 0.94);
-  border-left: 4px solid var(--brass);
-  border-radius: 3px;
-  padding: 1.25rem 1.25rem 1.5rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  color: var(--parchment);
-  z-index: 5;
-}
-
-.history-title {
-  margin: 0 0 0.75rem;
-  font-family: 'Spectral', Georgia, serif;
-  font-size: 1rem;
-  color: var(--brass-bright);
-}
-
-.history-table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-}
-
-.history-table th {
-  text-align: left;
-  font-weight: 600;
-  color: #14213d;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.7rem;
-  padding: 0 0.4rem 0.5rem;
-  border-bottom: 1px solid rgba(217, 214, 196, 0.25);
-  background: transparent;
-}
-
-.history-table th:nth-child(1) { width: 22px; }
-.history-table th:nth-child(3),
-.history-table td:nth-child(3) { width: 42px; text-align: right; }
-
-.history-table tbody tr {
-  border-radius: 2px;
-}
-
-.history-table tbody td {
-  padding: 0.35rem 0.4rem;
-  border-bottom: 1px solid rgba(217, 214, 196, 0.12);
-  color: #14213d;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  background: transparent;
-}
-
-.history-table tbody tr:hover {
-  filter: brightness(0.96);
-}
-
-.history-average {
-  margin-top: 0.9rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(217, 214, 196, 0.25);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  text-align: center;
-  color: var(--parchment);
-}
-
-.history-average strong {
-  font-family: 'Spectral', Georgia, serif;
-  color: var(--brass-bright);
-  font-size: 0.95rem;
-}
-
 @media (max-width: 900px) {
+  :host {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 1.5rem 1.5rem 3rem;
+    padding-right: 1.5rem !important;
+  }
+  .game-card {
+    height: auto;
+  }
   .sort-rail {
     flex-direction: column;
     gap: 0.6rem;
@@ -478,15 +561,22 @@
   .answer-key__item {
     flex: 1 1 40%;
   }
-  .history-sidebar {
-    display: none;
+  .action-row {
+    flex-direction: column;
+    height: auto;
+  }
+  .guess-button,
+  .next-country-tile {
+    width: 100%;
+    height: 56px;
+  }
+  .result-label {
+    height: auto;
+    padding: 0.9rem 1.25rem;
   }
 }
 
 @media (max-width: 600px) {
-  .title {
-    font-size: 1.9rem;
-  }
   .tile {
     flex: 1 1 100%;
   }
@@ -495,11 +585,104 @@
   }
 }
 
+/* --- Session history sidebar --- */
+.history-sidebar {
+  position: fixed;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%);
+  width: 220px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(20, 33, 61, 0.94);
+  border-left: 4px solid var(--brass);
+  border-radius: 3px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  color: var(--parchment);
+  z-index: 5;
+}
+
+.history-title {
+  flex: 0 0 auto;
+  margin: 0 0 0.75rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1rem;
+  color: var(--brass-bright);
+}
+
+.history-table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.history-table thead {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.history-table tbody {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.history-table thead tr,
+.history-table tbody tr {
+  display: flex;
+  width: 100%;
+}
+
+.history-table th:nth-child(1),
+.history-table td:nth-child(1) {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal !important;
+  overflow-wrap: break-word;
+  word-break: normal;
+  line-height: 1.3;
+}
+
+.history-table th:nth-child(2),
+.history-table td:nth-child(2) {
+  flex: 0 0 42px;
+  text-align: right;
+  white-space: nowrap !important;
+}
+
+.history-average {
+  flex: 0 0 auto;
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(217, 214, 196, 0.25);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--parchment);
+}
+
+@media (max-width: 1100px) {
+  .history-sidebar {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tile,
-  .submit-btn,
-  .continue-btn,
-  .reset-btn {
+  .guess-button,
+  .next-country-tile,
+  .tile__move-btn {
     transition: none;
   }
 }

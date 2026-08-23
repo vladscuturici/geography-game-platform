@@ -64,15 +64,17 @@ export class GuessCountryByOutlineComponent implements AfterViewInit {
     this.map = L.map(this.mapContainer.nativeElement, {
       center: [20, 0],
       zoom: 2,
-      // The outline is the whole game — no dragging/zooming away from it,
-      // and no basemap tiles that could give away location context.
-      dragging: false,
-      scrollWheelZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      touchZoom: false,
-      keyboard: false,
-      zoomControl: false,
+      minZoom: 2,
+      // Zooming/panning now enabled, same as Locate the City — the outline
+      // still starts fitted tightly to the country via fitBounds below,
+      // so the default view stays "zoomed in on the country".
+      dragging: true,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      boxZoom: true,
+      touchZoom: true,
+      keyboard: true,
+      zoomControl: true,
       attributionControl: false,
     });
 
@@ -132,17 +134,19 @@ export class GuessCountryByOutlineComponent implements AfterViewInit {
 
     this.outlineLayer = L.geoJSON(this.currentCountry.geojson, {
       style: {
-        color: '#14213d',
+        color: '#e8c876', // brass-bright outline
         weight: 1.5,
-        fillColor: '#14213d',
+        fillColor: '#c9a24b', // brass fill, matches site palette
         fillOpacity: 0.92,
       },
     }).addTo(this.map);
 
     const bounds = this.outlineLayer.getBounds();
     if (bounds.isValid()) {
-      // Padding keeps small/thin countries from touching the map edges.
-      this.map.fitBounds(bounds, { padding: [40, 40] });
+      setTimeout(() => {
+        this.map.invalidateSize();
+        this.map.fitBounds(bounds, { padding: [40, 40] });
+      }, 0);
     }
   }
 

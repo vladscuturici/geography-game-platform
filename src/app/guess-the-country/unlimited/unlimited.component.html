@@ -1,20 +1,120 @@
-<h1 class="title">Guess the country - Unlimited</h1>
-<p class="subtitle">One country · five clues per guess · Repeatable</p>
+<div class="game-card">
+  <header class="header">
+    <h1 class="title">Guess the Country — Unlimited</h1>
+    <p class="subtitle">One country · Five clues per guess · Repeatable</p>
+  </header>
 
-@if (justSolved) {
-  <div class="solved-banner">
-    <span>🎉</span>
-    <span>You guessed the country!</span>
-    <button class="next-country-tile" (click)="nextCountry()">
-      New country →
-    </button>
+  <div class="mode-tile">
+    <a class="mode-option" routerLink="/guess-the-country/daily-country">Daily</a>
+    <a class="mode-option mode-option--active" routerLink="/guess-the-country/unlimited">Unlimited</a>
   </div>
-}
 
-<app-guess-round
-  [countries$]="countries$"
-  [targetCountry$]="randomCountry$"
-  [guessedCountries]="guessedCountries"
-  [solved]="justSolved"
-  (guessMade)="onGuessMade($event)"
-/>
+  @if (justSolved) {
+    <div class="solved-banner">
+      <span class="solved-banner__text">🎉 You guessed the country! It was {{ currentCountry?.name }}.</span>
+      <button class="next-country-tile" (click)="nextCountry()">New country →</button>
+    </div>
+  }
+
+  @if (gaveUp) {
+    <div class="solved-banner solved-banner--gave-up">
+      <span class="solved-banner__text">🏳️ You gave up. It was {{ currentCountry?.name }}.</span>
+      <button class="next-country-tile" (click)="nextCountry()">New country →</button>
+    </div>
+  }
+
+  <div class="round-body">
+    @if (!justSolved && !gaveUp) {
+      <div class="guess-tile">
+        <div class="guess-form">
+          <mat-form-field appearance="fill">
+            <mat-label>Choose a country…</mat-label>
+            <input type="text" matInput [formControl]="guessControl" [matAutocomplete]="auto" />
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+              <mat-option *ngFor="let country of (filteredCountries$ | async)" [value]="country">
+                {{ country.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <button class="guess-button" mat-raised-button (click)="onGuess()">Guess</button>
+        </div>
+      </div>
+    }
+
+    @if (guessedCountries.length === 0) {
+      <div class="empty-tile">
+        <p>Your guesses will appear here.</p>
+      </div>
+    } @else {
+      <div class="table-tile">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Region</th>
+              <th>Subregion</th>
+              <th>Population</th>
+              <th>Languages</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (guess of guessedCountries.slice().reverse(); track guess.country.name) {
+              <tr>
+                <td [style.background-color]="toGreenSaturation(guess.name)">{{ guess.country.name }}</td>
+                <td [style.background-color]="toGreenSaturation(guess.region)">{{ guess.country.region }}</td>
+                <td [style.background-color]="toGreenSaturation(guess.subregion)">{{ guess.country.subregion }}</td>
+                <td [style.background-color]="toGreenSaturation(guess.population)">
+                  {{ formatPopulation(guess.country.population) }}
+                  @if (populationArrow(guess.country.population); as arrow) {
+                    <span
+                      class="pop-arrow"
+                      [class.pop-arrow--up]="arrow === '▲'"
+                      [class.pop-arrow--down]="arrow === '▼'"
+                    >{{ arrow }}</span>
+                  }
+                </td>
+                <td [style.background-color]="toGreenSaturation(guess.languages)">
+                  @for (lang of guess.country.languages; track lang.iso639_1) {
+                    {{ lang.name }}@if (!$last) {, }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (!justSolved && !gaveUp) {
+      <button class="give-up-button" (click)="onGiveUp()">Give up</button>
+    }
+  </div>
+</div>
+
+@if (roundHistory.length > 0) {
+  <aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Result</th>
+          <th>Guesses</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of roundHistory; track entry.roundNumber) {
+          <tr [style.background-color]="entry.solved ? matchBg : giveUpBg">
+            <td>{{ entry.countryName }}</td>
+            <td>{{ entry.solved ? 'Solved' : 'Gave up' }}</td>
+            <td class="score-cell">{{ entry.guessCount }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <div class="history-average">
+      Solved: <strong>{{ solvedCount }}</strong> / {{ roundHistory.length }}
+    </div>
+  </aside>
+}

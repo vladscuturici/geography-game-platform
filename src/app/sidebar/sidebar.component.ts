@@ -54,8 +54,8 @@ export class SidebarComponent {
       hint: 'VI',
     },
     {
-      label: 'Guess Country by Outline',
-      route: '/guess-country-by-outline',
+      label: 'Country Silhouette',
+      route: '/country-silhouette',
       glyph: 'outline',
       hint: 'VII',
     },
@@ -68,7 +68,7 @@ export class SidebarComponent {
     {
       label: 'Sort it Out',
       route: 'sort-it-out',
-      glyph: 'updown',
+      glyph: 'sort',
       hint: 'IX',
     },
   ];

@@ -91,7 +91,7 @@ export class SortItOutComponent implements OnInit {
   public correctRounds = 0;
   public streak = 0;
   public bestStreak = 0;
-  public guessHistory: { round: number; category: string; correct: boolean }[] = [];
+  public guessHistory: { round: number; category: string; correct: boolean; tilesCorrectPct: number }[] = [];
 
   private _draggedIndex: number | null = null;
   public dragOverIndex: number | null = null;
@@ -114,7 +114,14 @@ export class SortItOutComponent implements OnInit {
 
   public get accuracyPct(): number {
     if (this.guessHistory.length === 0) return 0;
-    return Math.round((this.correctRounds / this.guessHistory.length) * 100);
+    const total = this.guessHistory.reduce((sum, entry) => sum + entry.tilesCorrectPct, 0);
+    return Math.round(total / this.guessHistory.length);
+  }
+
+  public toGreenSaturation(pct: number): string {
+    const clamped = Math.min(Math.max(pct, 0), 100);
+    const lightness = 100 - (clamped / 100) * 60;
+    return `hsl(120, 70%, ${lightness}%)`;
   }
 
   private _pickCategory(): CategoryDef {
@@ -219,6 +226,22 @@ export class SortItOutComponent implements OnInit {
     this.dragOverIndex = null;
   }
 
+  // --- Button-based reordering (works without drag, e.g. on touch devices) ---
+
+  public onMoveLeft(index: number): void {
+    if (this.isRevealed || index === 0) return;
+    const updated = [...this.tiles];
+    [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+    this.tiles = updated;
+  }
+
+  public onMoveRight(index: number): void {
+    if (this.isRevealed || index === this.tiles.length - 1) return;
+    const updated = [...this.tiles];
+    [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+    this.tiles = updated;
+  }
+
   // --- Submitting ---
 
   public onSubmit(): void {
@@ -231,6 +254,10 @@ export class SortItOutComponent implements OnInit {
     this.isRevealed = true;
     this.round++;
 
+    const tilesCorrectPct = Math.round(
+      (this.tileCorrectness.filter(Boolean).length / this.tileCorrectness.length) * 100
+    );
+
     if (this.isCorrect) {
       this.correctRounds++;
       this.streak++;
@@ -241,7 +268,7 @@ export class SortItOutComponent implements OnInit {
 
     this.guessHistory = [
       ...this.guessHistory,
-      { round: this.round, category: this.category.label, correct: this.isCorrect },
+      { round: this.round, category: this.category.label, correct: this.isCorrect, tilesCorrectPct },
     ];
   }
 

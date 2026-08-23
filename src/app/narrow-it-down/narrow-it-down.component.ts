@@ -234,7 +234,16 @@ export class NarrowItDownComponent implements OnInit {
 
     this.justSolved = false;
     this.hasGuessed = false;
+    this._resetRange();
     this._reroll$.next();
+  }
+
+  private _resetRange(): void {
+    this.minControl.setValue(this.POP_FLOOR, { emitEvent: false });
+    this.maxControl.setValue(this.POP_CEIL, { emitEvent: false });
+    this.minDisplay = this.formatDots(this.POP_FLOOR);
+    this.maxDisplay = this.formatDots(this.POP_CEIL);
+    this.syncSliderFromControls();
   }
 
   public toGreenSaturation(score: number): string {

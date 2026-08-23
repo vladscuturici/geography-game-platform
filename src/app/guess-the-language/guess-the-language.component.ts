@@ -150,8 +150,8 @@ export class GuessTheLanguageComponent implements OnInit, AfterViewInit {
         return {
           color: '#14213d',
           weight: 0.6,
-          fillColor: speaksLanguage ? '#c9a24b' : '#f2efe6',
-          fillOpacity: speaksLanguage ? 0.85 : 1,
+          fillColor: speaksLanguage ? '#cc3b3b' : '#c9a24b', 
+          fillOpacity: speaksLanguage ? 0.9 : 1,
         };
       },
     }).addTo(this.map);

@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { City } from '../models/cities.model';
 import { CountriesService } from '../services/countries.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { WikiService } from '../services/wiki.service';
 
 import {
   AfterViewInit,
@@ -53,6 +54,7 @@ const REGION_TO_COUNTRY_REGION: Record<Exclude<RegionSlug, 'world'>, string> = {
   styleUrl: './locate-the-city.component.css',
 })
 export class LocateTheCityComponent implements OnInit, AfterViewInit {
+  private _wikiService = inject(WikiService);
   private _citiesService = inject(CitiesService);
   private _countriesService = inject(CountriesService);
   private _gameService = inject(GameService);
@@ -168,6 +170,12 @@ export class LocateTheCityComponent implements OnInit, AfterViewInit {
     // /locate-the-city/:region segments reuses this same component
     // instance (only the param changes), we must react to paramMap
     // rather than reading the param once.
+    this._wikiService
+      .getWikiArticlesByPoint(44.4268, 26.1025, 10) // 25km offset, Bucharest
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((articles) => {
+        console.log('Wiki articles near 47°26′N 24°24′E:', articles);
+      });
     this._route.paramMap.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((params) => {
       const rawRegion = params.get('region');
       const region: RegionSlug = VALID_REGION_SLUGS.includes(rawRegion as RegionSlug)

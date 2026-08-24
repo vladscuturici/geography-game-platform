@@ -9,6 +9,7 @@ import { TicTacToeComponent } from './tic-tac-toe/tic-tac-toe.component';
 import { GuessCountryByOutlineComponent } from './guess-country-by-outline/guess-country-by-outline.component';
 import { HigherLowerComponent } from './higher-lower/higher-lower.component';
 import { SortItOutComponent } from './sort-it-out/sort-it-out.component';
+import { WikilocateComponent } from './wikilocate/wikilocate.component';
 
 export const routes: Routes = [
     {
@@ -68,5 +69,9 @@ export const routes: Routes = [
     {
         path: 'sort-it-out',
         component: SortItOutComponent
+    },
+    {
+        path: 'wiki-locate',
+        component: WikilocateComponent
     },
 ];

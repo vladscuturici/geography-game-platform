@@ -5,7 +5,7 @@ import { shareReplay } from 'rxjs';
 import { CountriesService } from '../services/countries.service';
 import { Country } from '../models/countries.model';
 
-type CategoryId = 'population' | 'area' | 'density' | 'borders';
+type CategoryId = 'population' | 'area' | 'density' | 'borders' | 'languages';
 
 interface CategoryDef {
   id: CategoryId;
@@ -58,6 +58,15 @@ const CATEGORIES: CategoryDef[] = [
     unit: 'countries',
     getValue: c => (c.borders?.length ?? 0),
     format: v => `${v} ${v === 1 ? 'neighbor' : 'neighbors'}`,
+  },
+  {
+    id: 'languages',
+    label: 'Official languages',
+    lowLabel: 'Fewest languages',
+    highLabel: 'Most languages',
+    unit: 'languages',
+    getValue: c => (c.languages?.length ?? 0),
+    format: v => `${v} ${v === 1 ? 'language' : 'languages'}`,
   },
 ];
 

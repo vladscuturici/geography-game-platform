@@ -50,18 +50,18 @@ export const routes: Routes = [
     {   path: 'locate-the-city/:region', 
         component: LocateTheCityComponent 
     },
-    {
-        path: 'guess-the-language',
-        component: GuessTheLanguageComponent
-    },
+    // {
+    //     path: 'guess-the-language',
+    //     component: GuessTheLanguageComponent
+    // },
     {
         path: 'tic-tac-toe',
         component: TicTacToeComponent
     },
-    {
-        path: 'country-silhouette',
-        component: GuessCountryByOutlineComponent
-    },
+    // {
+    //     path: 'country-silhouette',
+    //     component: GuessCountryByOutlineComponent
+    // },
     {
         path: 'higher-lower',
         component: HigherLowerComponent

@@ -2,6 +2,7 @@
 
 :host {
   --ink: #14213d;
+  --ink-deep: #0d1730;
   --parchment: #f2efe6;
   --parchment-dim: #e8e3d4;
   --brass: #c9a24b;
@@ -12,41 +13,38 @@
   --match: #6fae5e;
   --match-bg: #d9ecd0;
 
+  /* Logo palette — used deliberately, "messy"/layered, on the tiles */
+  --navy: #1c2c4f;
+  --navy-deep: #0d1730;
+  --cream: #f0dcae;
+  --cream-dim: #e2c98a;
+  --maroon: #7c2434;
+  --maroon-bright: #a63a4d;
+
   display: block;
   font-family: 'Spectral', Georgia, serif;
   color: var(--parchment);
 }
 
-/* ---------- Viewport wrapper ----------
-   This is the actual 100vw/100vh box. It never resizes its children — it
-   just centers the fixed-size `.home` canvas and clips any overflow that
-   the scale transform would otherwise spill outside the screen. */
-
-.home-viewport {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ink);
-}
-
-/* ---------- Fixed-size design canvas ----------
-   `.home` is always laid out at its native design resolution (see
-   DESIGN_WIDTH/DESIGN_HEIGHT in the component) — its width/height are set
-   inline from the component so this stylesheet doesn't need to know the
-   numbers. The `scale` transform (also bound inline) shrinks or grows the
-   whole canvas uniformly to fit whatever viewport it's shown in, so every
-   font size, padding, and — critically — every Leaflet pin position stays
-   in the same proportion to everything else at any screen size. */
+/* ---------- Root: fills the viewport, no fixed-canvas scaling ----------
+   The layout is fluid: the header sizes to content and the map/tile area
+   takes the rest of the height. Nothing here scales via transform, so
+   there's no letterboxing at unusual aspect ratios and nothing gets
+   clipped at the sides. */
 
 .home {
+  width: 100vw;
+  height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
-  transform-origin: center center;
-  background: var(--ink);
+  background-image: url('../../../public/map_texture.jpg');
+  background-color: var(--ink);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
+  overflow: hidden;
 }
 
 /* ---------- Header ---------- */
@@ -57,12 +55,38 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 2rem 1.5rem 1.5rem;
+  padding: 24px 24px 16px;
   text-align: center;
-  background:
-    radial-gradient(120% 140% at 50% 0%, rgba(201, 162, 75, 0.14), transparent 55%),
-    var(--ink);
-  border-bottom: 1px solid rgba(201, 162, 75, 0.35);
+  background-image:
+    radial-gradient(120% 140% at 50% 0%, rgba(124, 36, 52, 0.28), transparent 55%),
+    url('../../../public/map_texture.jpg');
+  background-color: var(--ink);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-blend-mode: normal, multiply;
+  border-bottom: none;
+  position: relative;
+}
+
+.home__header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--maroon-bright) 20%,
+    var(--brass-bright) 45%,
+    var(--cream) 55%,
+    var(--brass-bright) 65%,
+    var(--maroon-bright) 80%,
+    transparent 100%
+  );
+  opacity: 0.8;
 }
 
 .home__brand {
@@ -72,7 +96,6 @@
 }
 
 .home__logo {
-  /* Logo asset: 128x128 source, displayed at 56x56, transparent background. */
   width: 56px;
   height: 56px;
   flex-shrink: 0;
@@ -88,7 +111,7 @@
 
 .home__eyebrow {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted);
@@ -99,7 +122,7 @@
   margin: 0;
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 2.1rem;
+  font-size: 34px;
   color: var(--brass-bright);
   letter-spacing: 0.01em;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -108,200 +131,381 @@
 .home__tagline {
   margin: 0.35rem 0 0;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
+  font-size: 14px;
   letter-spacing: 0.05em;
   color: var(--muted);
   opacity: 0.85;
 }
 
-/* ---------- Map ---------- */
-
+/* ---------- Map background: dark base, color only in the gaps ---------- */
 .home__map-wrap {
   flex: 1;
   min-height: 0;
   position: relative;
-  padding: 1rem;
+  padding: 0;
   box-sizing: border-box;
+  overflow: hidden;
+  background-image: url('../../../public/map_texture.jpg');
+  background-color: var(--navy-deep);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: overlay;
 }
 
-.home__map {
-  width: 100%;
-  height: 100%;
-  border-radius: 6px;
-  border: 1px solid rgba(201, 162, 75, 0.4);
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.35);
-  background: var(--ink);
-  cursor: default;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.home__map--ready {
+/* Main pass — a confident diagonal gradient that visibly cycles through
+   all three logo colors across the land, cream as the bright hinge
+   between navy and maroon rather than a muddy blend. */
+/* Base pass — mostly brass/gold across the land. */
+.home__map-bg--a {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    128deg,
+    var(--maroon) 0%,
+    var(--maroon-bright) 25%,
+    var(--maroon-bright) 45%,
+    var(--maroon) 62%,
+    var(--maroon-bright) 80%,
+    var(--maroon) 100%
+  );
+  -webkit-mask-image: url('../../../public/map_vector.png');
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url('../../../public/map_vector.png');
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
   opacity: 1;
-}
-
-
-.home__loading {
-  position: absolute;
-  inset: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  background: var(--ink);
-  border: 1px solid rgba(201, 162, 75, 0.4);
   pointer-events: none;
 }
 
-.home__loading-text {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  opacity: 0.75;
-}
-
-/* SVG overlay for the curved connector paths between tiles. Sits directly
-   on top of the map, inside the same padded wrapper so coordinates line up
-   with Leaflet's own container-point calculations. */
-.home__paths {
+/* Grain layer for the land — same shape mask, sits right above --a,
+   soft-light keeps the maroon hue intact while adding paper texture */
+.home__map-bg--a-texture {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-  width: calc(100% - 2rem);
-  height: calc(100% - 2rem);
+  inset: 0;
+  background-image: url('../../../public/map_texture.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: soft-light;
+  -webkit-mask-image: url('../../../public/map_vector.png');
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url('../../../public/map_vector.png');
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  opacity: 0.9;
   pointer-events: none;
-  z-index: 400;
 }
 
-::ng-deep .game-path {
-  fill: none;
-  stroke: var(--brass);
-  stroke-width: 2;
-  stroke-dasharray: 6, 6;
+/* Darker maroon flecks for texture/depth instead of a different hue */
+.home__map-bg--b {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(10% 14% at 14% 22%, #5c1a28 0%, transparent 100%),
+    radial-gradient(8% 12% at 82% 12%, #5c1a28 0%, transparent 100%),
+    radial-gradient(9% 13% at 65% 78%, #5c1a28 0%, transparent 100%),
+    radial-gradient(7% 10% at 30% 88%, #5c1a28 0%, transparent 100%),
+    radial-gradient(8% 11% at 92% 60%, #5c1a28 0%, transparent 100%);
+  -webkit-mask-image: url('../../../public/map_vector.png');
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url('../../../public/map_vector.png');
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
   opacity: 0.6;
+  pointer-events: none;
 }
 
-/* ---------- Game tiles (rendered by Leaflet as raw HTML, so styles must
-   be unscoped via ::ng-deep — they never pass through Angular's template
-   compiler and won't otherwise pick up the component's style attribute) ---------- */
-
-::ng-deep .game-tile-marker {
-  /* Leaflet wraps our HTML in a div with default marker sizing/anchoring;
-     neutralize that so our own tile controls its own box. */
-  background: transparent !important;
-  border: none !important;
+/* Faint grain to keep the bold gradient from looking too digitally flat. */
+.home__map-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-::ng-deep .game-tile {
-  width: 240px;
+/* Scrim — darkens enough for text legibility while still letting the
+   colors read clearly through the gaps between tiles. */
+.home__map-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    radial-gradient(120% 90% at 50% 8%, rgba(13, 23, 48, 0.08), rgba(13, 23, 48, 0.5) 60%, rgba(13, 23, 48, 0.75) 100%),
+    linear-gradient(180deg, rgba(13, 23, 48, 0.12) 0%, rgba(13, 23, 48, 0.24) 55%, rgba(13, 23, 48, 0.48) 100%);
+  pointer-events: none;
+}
+/* ---------- Tile grid: fluid, fills the full width, 4 / 4 / 2 ---------- */
+
+.tile-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 24px;
+  padding: 32px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.tile-grid .game-tile:nth-child(9) { grid-column: 2 / 3; }
+.tile-grid .game-tile:nth-child(10) { grid-column: 3 / 4; }
+
+/* ---------- Tiles ---------- */
+
+.game-tile {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
-  padding: 1.1rem 1rem 1.2rem;
-  background: rgba(20, 33, 61, 0.92);
-  border: 2px solid var(--brass);
-  border-radius: 6px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-  cursor: pointer;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.75rem 1.5rem;
+  background:
+    radial-gradient(140% 90% at 8% -10%, rgba(166, 58, 77, 0.2), transparent 45%),
+    radial-gradient(120% 100% at 105% 115%, rgba(240, 220, 174, 0.09), transparent 50%),
+    radial-gradient(80% 70% at 90% -15%, rgba(232, 200, 118, 0.13), transparent 55%),
+    linear-gradient(160deg, rgba(28, 44, 79, 0.8), rgba(13, 23, 48, 0.74));
+  border: 1px solid rgba(166, 58, 77, 0.55);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(166, 58, 77, 0.1);
+  color: inherit;
+  font: inherit;
   text-align: center;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  backdrop-filter: blur(2px);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    box-shadow 0.35s ease,
+    background 0.25s ease;
 }
 
-::ng-deep .game-tile:hover {
-  transform: translateY(-3px);
-  border-color: var(--brass-bright);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
+/* A faint, oversized compass-star watermark sitting behind everything else,
+   rotated per-tile so the "mess" doesn't repeat identically. */
+.game-tile::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: -20%;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg 80deg,
+      rgba(166, 58, 77, 0.16) 80deg 90deg,
+      transparent 90deg 170deg,
+      rgba(240, 220, 174, 0.12) 170deg 180deg,
+      transparent 180deg 260deg,
+      rgba(232, 200, 118, 0.16) 260deg 270deg,
+      transparent 270deg 350deg,
+      rgba(166, 58, 77, 0.1) 350deg 360deg
+    );
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.6s ease;
 }
 
-::ng-deep .game-tile__icon {
-  line-height: 1;
-  margin-bottom: 0.2rem;
+.game-tile:nth-child(3n)::after { transform: rotate(24deg); }
+.game-tile:nth-child(3n + 1)::after { transform: rotate(-18deg); }
+.game-tile:nth-child(3n + 2)::after { transform: rotate(9deg); }
+
+.game-tile:hover:not(.game-tile--locked)::after,
+.game-tile:focus-visible:not(.game-tile--locked)::after {
+  opacity: 0.85;
+  transform: rotate(0deg);
+}
+
+/* Single diagonal beam of light that sweeps across once on hover, tinted
+   through all three logo colors as it travels rather than staying gold. */
+.game-tile__sheen {
+  position: absolute;
+  inset: -10%;
+  z-index: 1;
+  width: 40%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(166, 58, 77, 0.32) 42%,
+    rgba(255, 246, 224, 0.55) 50%,
+    rgba(232, 200, 118, 0.32) 58%,
+    transparent 100%
+  );
+  transform: translateX(-160%) skewX(-12deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.game-tile:hover:not(.game-tile--locked) .game-tile__sheen,
+.game-tile:focus-visible:not(.game-tile--locked) .game-tile__sheen {
+  opacity: 1;
+  animation: sheen-sweep 0.85s cubic-bezier(0.3, 0.7, 0.4, 1) forwards;
+}
+
+@keyframes sheen-sweep {
+  0% { transform: translateX(-160%) skewX(-12deg); }
+  100% { transform: translateX(360%) skewX(-12deg); }
+}
+
+/* Animated corner brackets that draw themselves in on hover, like a
+   viewfinder locking on. */
+.game-tile__corner {
+  position: absolute;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.game-tile__corner--tl {
+  top: 9px;
+  left: 9px;
+  border-top: 2px solid var(--maroon-bright);
+  border-left: 2px solid var(--maroon-bright);
+  transform: translate(6px, 6px) rotate(-6deg);
+}
+
+.game-tile__corner--br {
+  bottom: 9px;
+  right: 9px;
+  border-bottom: 2px solid var(--maroon-bright);
+  border-right: 2px solid var(--maroon-bright);
+  transform: translate(-6px, -6px) rotate(6deg);
+}
+
+.game-tile:hover:not(.game-tile--locked) .game-tile__corner,
+.game-tile:focus-visible:not(.game-tile--locked) .game-tile__corner {
+  opacity: 0.95;
+  transform: translate(0, 0) rotate(0deg);
+}
+
+.game-tile:hover:not(.game-tile--locked),
+.game-tile:focus-visible:not(.game-tile--locked) {
+  transform: translateY(-8px) scale(1.025);
+  border-color: var(--maroon-bright);
+  background:
+    radial-gradient(140% 90% at 8% -10%, rgba(166, 58, 77, 0.34), transparent 48%),
+    radial-gradient(120% 100% at 105% 115%, rgba(240, 220, 174, 0.16), transparent 52%),
+    radial-gradient(90% 80% at 90% -15%, rgba(232, 200, 118, 0.24), transparent 58%),
+    linear-gradient(160deg, rgba(34, 50, 87, 0.97), rgba(13, 23, 48, 0.9));
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(166, 58, 77, 0.4),
+    0 0 26px rgba(166, 58, 77, 0.28),
+    0 0 40px rgba(232, 200, 118, 0.15),
+    inset 0 1px 0 rgba(255, 246, 220, 0.15);
+}
+
+.game-tile:active:not(.game-tile--locked) {
+  transform: translateY(-3px) scale(0.995);
+}
+
+.game-tile__icon {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 200, 118, 0.18), transparent 70%);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
 }
 
-::ng-deep .game-tile__glyph {
-  width: 34px;
-  height: 34px;
+.game-tile:hover:not(.game-tile--locked) .game-tile__icon,
+.game-tile:focus-visible:not(.game-tile--locked) .game-tile__icon {
+  transform: scale(1.12) rotate(-4deg);
+  background: radial-gradient(
+    circle,
+    rgba(232, 200, 118, 0.34),
+    rgba(166, 58, 77, 0.18) 55%,
+    transparent 75%
+  );
+}
+
+.game-tile__glyph {
+  width: 40px;
+  height: 40px;
   color: var(--brass-bright);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  transition: filter 0.25s ease;
 }
 
-::ng-deep .game-tile__name {
+.game-tile:hover:not(.game-tile--locked) .game-tile__glyph,
+.game-tile:focus-visible:not(.game-tile--locked) .game-tile__glyph {
+  filter: drop-shadow(0 0 8px rgba(232, 200, 118, 0.6)) drop-shadow(0 0 10px rgba(166, 58, 77, 0.35)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+.game-tile__name {
+  position: relative;
+  z-index: 1;
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 1.35rem;
+  font-size: 24px;
   color: var(--brass-bright);
   line-height: 1.25;
 }
 
-::ng-deep .game-tile__desc {
+.game-tile__desc {
+  position: relative;
+  z-index: 1;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
+  font-size: 14px;
   line-height: 1.4;
   color: var(--parchment);
   opacity: 0.85;
 }
 
-::ng-deep .game-tile--locked {
+.game-tile--locked {
   cursor: default;
   border-style: dashed;
   border-color: rgba(201, 162, 75, 0.45);
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
-::ng-deep .game-tile--locked:hover {
-  transform: none;
-  border-color: rgba(201, 162, 75, 0.45);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-}
-
-::ng-deep .game-tile__badge {
-  margin-top: 0.2rem;
+.game-tile__badge {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.1rem;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.58rem;
+  font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
-/* ---------- Responsive ----------
-   Note: with the fixed-canvas + scale approach above, breakpoints here are
-   no longer strictly needed — the canvas already scales uniformly at every
-   size. This media query is kept only as a deliberate exception: below
-   640px "true" pixels, the whole poster would otherwise shrink so far that
-   tile text becomes unreadably small, so instead of continuing to scale
-   down we swap to a more compact tile layout at that design width. */
+@media (max-width: 900px) {
+  .tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    position: static;
+    height: 100%;
+  }
+  .tile-grid .game-tile:nth-child(9),
+  .tile-grid .game-tile:nth-child(10) {
+    grid-column: auto;
+  }
+}
 
 @media (max-width: 640px) {
-  .home__wordmark {
-    text-align: left;
-  }
-
-  .home__name {
-    font-size: 1.6rem;
-  }
-
-  ::ng-deep .game-tile {
-    width: 170px;
-    padding: 0.8rem 0.65rem 0.9rem;
-    gap: 0.35rem;
-  }
-
-  ::ng-deep .game-tile__glyph {
-    width: 26px;
-    height: 26px;
-  }
-
-  ::ng-deep .game-tile__name {
-    font-size: 1.1rem;
-  }
-
-  ::ng-deep .game-tile__desc {
-    display: none;
+  .tile-grid {
+    gap: 16px;
+    padding: 20px;
   }
 }

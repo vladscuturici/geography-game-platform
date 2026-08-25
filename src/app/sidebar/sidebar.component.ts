@@ -48,28 +48,34 @@ export class SidebarComponent {
       hint: 'V',
     },
     {
-      label: 'Guess the Language',
-      route: '/guess-the-language',
-      glyph: 'language',
+      label: 'WikiLocate',
+      route: '/wiki-locate',
+      glyph: 'book',
       hint: 'VI',
     },
-    {
-      label: 'Country Silhouette',
-      route: '/country-silhouette',
-      glyph: 'outline',
-      hint: 'VII',
-    },
+    // {
+    //   label: 'Country Silhouette',
+    //   route: '/country-silhouette',
+    //   glyph: 'outline',
+    //   hint: 'VII',
+    // },
     {
       label: 'Higher Lower',
       route: 'higher-lower',
       glyph: 'updown',
-      hint: 'VIII',
+      hint: 'VII',
     },
     {
       label: 'Sort it Out',
       route: 'sort-it-out',
       glyph: 'sort',
-      hint: 'IX',
+      hint: 'VII',
     },
+    // {
+    //   label: 'Guess the Language',
+    //   route: '/guess-the-language',
+    //   glyph: 'language',
+    //   hint: 'X',
+    // },
   ];
 }

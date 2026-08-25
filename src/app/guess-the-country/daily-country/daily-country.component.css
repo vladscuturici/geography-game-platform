@@ -193,6 +193,7 @@
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 table {
@@ -207,8 +208,8 @@ table {
 }
 
 thead { display: block; flex: 0 0 auto; width: 100%; }
-tbody { display: block; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
-thead tr, tbody tr { display: flex; width: 100%; }
+tbody { display: block; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;}
+thead tr, tbody tr { display: flex; width: 100%; min-width: 0;  }
 
 thead th {
   flex: 1 1 0;
@@ -234,7 +235,10 @@ tbody td {
   border-top: 1px solid var(--line);
   color: var(--text);
   overflow-wrap: break-word;
+  word-break: break-word;   /* add: forces breaks even mid-word for long lang lists */
+  white-space: normal;      /* add: guarantees wrapping is allowed */
 }
+
 .mode-tile {
   flex: 0 0 auto;
   display: flex;

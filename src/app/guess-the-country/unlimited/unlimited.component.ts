@@ -139,4 +139,9 @@ export class UnlimitedComponent implements OnInit {
     if (guessPopulation === answerPopulation) return '';
     return guessPopulation < answerPopulation ? '▲' : '▼';
   }
+  
+  public onEnterKey(): void {
+    setTimeout(() => this.onGuess());
+  }
+
 }

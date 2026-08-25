@@ -135,7 +135,7 @@ export class DailyCountryComponent implements OnInit {
   // --- Persistence ---
 
   private _formatDate(date: Date): string {
-    return date.toISOString().slice(0, 10); // YYYY-MM-DD
+    return date.toISOString().slice(0, 10); // UTC — unchanged
   }
 
   public formatShortDate(dateStr: string): string {
@@ -147,9 +147,13 @@ export class DailyCountryComponent implements OnInit {
   }
 
   private _addDays(dateStr: string, days: number): string {
-    const d = new Date(dateStr + 'T00:00:00');
-    d.setDate(d.getDate() + days);
+    const d = new Date(dateStr + 'T00:00:00Z'); // parse as UTC midnight ('Z' added)
+    d.setUTCDate(d.getUTCDate() + days);        // advance in UTC
     return this._formatDate(d);
+  }
+
+  public onEnterKey(): void {
+    setTimeout(() => this.onGuess());
   }
 
   private _loadState(): void {

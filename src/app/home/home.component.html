@@ -1,29 +1,45 @@
-<div class="home-viewport">
-  <div
-    class="home"
-    [style.width.px]="designWidth"
-    [style.height.px]="designHeight"
-    [style.transform]="'scale(' + scale + ')'"
-  >
-    <header class="home__header">
-      <div class="home__brand">
-        <img class="home__logo" src="128.png" alt="" />
-        <div class="home__wordmark">
-          <span class="home__eyebrow">According to the</span>
-          <h1 class="home__name">Legend</h1>
-        </div>
+<div class="home">
+  <header class="home__header">
+    <div class="home__brand">
+      <img class="home__logo" src="128.png" alt="" />
+      <div class="home__wordmark">
+        <span class="home__eyebrow">According to the</span>
+        <h1 class="home__name">Legend</h1>
       </div>
-      <p class="home__tagline">Pick from the games down below.</p>
-    </header>
+    </div>
+    <p class="home__tagline">Pick from the games down below.</p>
+  </header>
 
-    <div class="home__map-wrap">
-      <div #mapContainer class="home__map" [class.home__map--ready]="isMapReady"></div>
-      <!-- <svg #pathLayer class="home__paths"></svg> -->
+  <div class="home__map-wrap">
+    <div class="home__map-bg--a"></div>
+    <div class="home__map-bg--a-texture"></div>
+    <div class="home__map-bg--b"></div>
+    <div class="home__map-grain"></div>
+    <div class="home__map-scrim"></div>
 
-      @if (!isMapReady) {
-        <div class="home__loading">
-          <span class="home__loading-text">Charting the atlas…</span>
-        </div>
+    <div class="tile-grid">
+      @for (game of games; track game.title) {
+        <button
+          type="button"
+          class="game-tile"
+          [class.game-tile--locked]="!game.route"
+          [disabled]="!game.route"
+          (click)="onTileClick(game)"
+        >
+          <span class="game-tile__sheen"></span>
+          <span class="game-tile__corner game-tile__corner--tl"></span>
+          <span class="game-tile__corner game-tile__corner--br"></span>
+          <div class="game-tile__icon">
+            <svg viewBox="0 0 24 24" class="game-tile__glyph" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <g [innerHTML]="glyphSvg(game.glyph)"></g>
+            </svg>
+          </div>
+          <div class="game-tile__name">{{ game.title }}</div>
+          <div class="game-tile__desc">{{ game.description }}</div>
+          @if (!game.route) {
+            <div class="game-tile__badge">Coming soon</div>
+          }
+        </button>
       }
     </div>
   </div>

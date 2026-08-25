@@ -29,7 +29,7 @@ import { MatButtonModule } from '@angular/material/button';
 // Eligibility rules for candidate cities: at most 2 cities per country
 // (so no single country dominates the pool) and only cities with real
 // population weight, so the game doesn't ask about obscure towns.
-const MAX_CITIES_PER_COUNTRY = 2;
+const MAX_CITIES_PER_COUNTRY = 5;
 const MIN_POPULATION = 1_000_000;
 
 // How far around the city's coordinates we search for Wikipedia articles.
@@ -66,6 +66,8 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
   private _destroyRef = inject(DestroyRef);
   private _cdr = inject(ChangeDetectorRef);
 
+  public isExactMatch = false;
+
   // Candidate pool: top N per country (capped at 2), then filtered down to
   // cities with at least 1M population. `total` is passed generously large
   // so the per-country cap — not the overall total — is what does the
@@ -77,7 +79,7 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
     switchMap((countries) => {
       this.countryNameByCode = Object.fromEntries(countries.map((c) => [c.alpha2Code, c.name]));
       const codes = countries.map((c) => c.alpha2Code);
-      return this._citiesService.getTopCitiesCapped(codes, 1000, MAX_CITIES_PER_COUNTRY);
+      return this._citiesService.getTopCitiesCapped(codes, 5000, MAX_CITIES_PER_COUNTRY);
     }),
     map((cities) => cities.filter((c) => c.population >= MIN_POPULATION)),
     shareReplay(1)
@@ -252,6 +254,7 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
     this.isGuessSubmitting = false;
     this.guessControl.reset('');
     this.articles = [];
+    this.isExactMatch = false;
 
     this.clearMapLayers();
 
@@ -412,6 +415,7 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
           this.currentDistance = result.distance;
           this.hasGuessed = true;
           this.isGuessSubmitting = false;
+          this.isExactMatch = guessedCity.name === this.currentCity!.name;
 
           this.revealCity();
           this.recordHistory();
@@ -496,7 +500,12 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
     this.cityRevealMarker = L.marker([this.currentCity.latitude, this.currentCity.longitude], {
       icon: this.cityRevealIcon,
     })
-      .bindTooltip(this.currentCity.name, { permanent: true, direction: 'top' })
+      .bindTooltip(this.currentCity.name, {
+        permanent: true,
+        direction: 'top',
+        className: 'city-reveal-tooltip',
+        offset: [0, -10],
+      })
       .addTo(this.map);
 
     this.map.setView([this.currentCity.latitude, this.currentCity.longitude], 9);
@@ -523,5 +532,9 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
 
   public nextCity(): void {
     this._reroll$.next();
+  }
+
+  public onEnterKey(): void {
+    setTimeout(() => this.onSubmitGuess());
   }
 }

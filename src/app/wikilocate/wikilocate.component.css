@@ -185,8 +185,9 @@
   height: 100%;
   min-height: 260px;
   border-radius: 4px;
-  background-color: #1a2b4d;
+  background-color: var(--ink);
   overflow: hidden;
+  position: relative;
 }
 
 /* --- Action row --- */
@@ -669,4 +670,54 @@
 
 ::ng-deep .article-marker-tooltip::before {
   display: none;
+}
+
+::ng-deep .city-reveal-tooltip {
+  background: linear-gradient(135deg, rgba(20, 33, 61, 0.97), rgba(20, 33, 61, 0.88));
+  color: var(--brass-bright);
+  border: 2px solid var(--brass);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(232, 200, 118, 0.15);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+::ng-deep .city-reveal-tooltip::before {
+  display: none;
+}
+
+/* custom arrow to replace the hidden default one */
+::ng-deep .city-reveal-tooltip.leaflet-tooltip-top::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 7px 0 7px;
+  border-style: solid;
+  border-color: var(--brass) transparent transparent transparent;
+}
+
+::ng-deep .leaflet-tile-pane {
+  filter: hue-rotate(140deg) saturate(1.4) brightness(0.9);
+}
+
+::ng-deep .leaflet-tile-pane {
+  filter: brightness(1.8) grayscale(1);
+}
+
+.map::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--ink);
+  mix-blend-mode: color;
+  pointer-events: none;
+  z-index: 400; /* above tiles, below markers/tooltips which sit higher */
 }

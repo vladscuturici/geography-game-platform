@@ -29,7 +29,13 @@
         <div class="guess-form">
           <mat-form-field appearance="fill">
             <mat-label>Choose a country…</mat-label>
-            <input type="text" matInput [formControl]="guessControl" [matAutocomplete]="auto" />
+            <input
+              type="text"
+              matInput
+              [formControl]="guessControl"
+              [matAutocomplete]="auto"
+              (keydown.enter)="onEnterKey()"
+            />
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
               <mat-option *ngFor="let country of (filteredCountries$ | async)" [value]="country">
                 {{ country.name }}

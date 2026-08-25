@@ -1,80 +1,76 @@
 <div class="game-card">
-  <header class="header">
-    <h1 class="title">WikiLocate</h1>
-    <p class="subtitle">Read the pins. Guess the city.</p>
-  </header>
+    <header class="header">
+        <h1 class="title">WikiLocate</h1>
+        <p class="subtitle">Each pin corresponds to a Wikipedia article. Indentify the city.</p>
+    </header>
 
-  <div class="map-tile">
-    <div #mapContainer class="map"></div>
-  </div>
-
-  <div class="range-tile">
-    <div class="guess-form">
-      <mat-form-field appearance="fill">
-        <mat-label>Type the city name…</mat-label>
-        <input
-          type="text"
-          matInput
-          [formControl]="guessControl"
-          [matAutocomplete]="auto"
-          [disabled]="isRoundOver || !currentCity || isGuessSubmitting"
-          (keydown.enter)="onSubmitGuess()"
-        />
-        <mat-autocomplete #auto="matAutocomplete">
-          <mat-option *ngFor="let name of (filteredCityNames$ | async)" [value]="name">
-            {{ name }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
+    <div class="map-tile">
+        <div #mapContainer class="map"></div>
     </div>
 
-    <div class="action-row">
-      <button
-        mat-raised-button
-        class="guess-button"
-        (click)="onSubmitGuess()"
-        [disabled]="isRoundOver || !currentCity || !guessControl.value?.trim() || isGuessSubmitting"
-      >
-        Submit guess
-      </button>
+    <div class="range-tile">
+        <div class="guess-form">
+            <mat-form-field appearance="fill">
+                <mat-label>Type the city name…</mat-label>
+                    <input type="text" matInput [formControl]="guessControl" [matAutocomplete]="auto"
+                        [disabled]="isRoundOver || !currentCity || isGuessSubmitting" (keydown.enter)="onEnterKey()" />
+                <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option *ngFor="let name of (filteredCityNames$ | async)" [value]="name">
+                        {{ name }}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+        </div>
 
-      <button mat-raised-button class="next-country-tile" [disabled]="!isRoundOver" (click)="isRoundOver && nextCity()">
-        Next city →
-      </button>
+        <div class="action-row">
+            <button mat-raised-button class="guess-button" (click)="onSubmitGuess()"
+                [disabled]="isRoundOver || !currentCity || !guessControl.value?.trim() || isGuessSubmitting">
+                Submit guess
+            </button>
 
-      <div class="result-label" [class.result-label--filled]="hasGuessed" [class.result-label--zero]="hasGuessed && currentScore === 0">
-        @if (hasGuessed) {
-          <span class="result-label__score">{{ currentScore }} pts</span>
-          <span class="result-label__detail">
-            {{ wrongGuess }} — {{ currentCity?.name }}, {{ currentDistance | number: '1.0-1' }} km away
-          </span>
-        }
-      </div>
+            <button mat-raised-button class="next-country-tile" [disabled]="!isRoundOver"
+                (click)="isRoundOver && nextCity()">
+                Next city →
+            </button>
+
+            <div class="result-label" [class.result-label--filled]="hasGuessed"
+                [class.result-label--zero]="hasGuessed && currentScore === 0">
+                @if (hasGuessed) {
+                <span class="result-label__score">{{ currentScore }} pts</span>
+                <span class="result-label__detail">
+                    @if (isExactMatch) {
+                    {{ currentCity?.name }}
+                    } @else {
+                    {{ wrongGuess }} — {{ currentCity?.name }}, {{ currentDistance | number: '1.0-1' }} km away
+                    }
+                </span>
+                }
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 @if (guessHistory.length > 0) {
-  <aside class="history-sidebar">
+<aside class="history-sidebar">
     <h3 class="history-title">Session History</h3>
     <table class="history-table">
-      <thead>
-        <tr>
-          <th>City</th>
-          <th>Points</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (entry of guessHistory; track entry.gameNumber) {
-          <tr [style.background-color]="toGreenSaturation(entry.points)">
-            <td>{{ entry.cityName }}</td>
-            <td class="score-cell">{{ entry.points }}</td>
-          </tr>
-        }
-      </tbody>
+        <thead>
+            <tr>
+                <th>City</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (entry of guessHistory; track entry.gameNumber) {
+            <tr [style.background-color]="toGreenSaturation(entry.points)">
+                <td>{{ entry.cityName }}</td>
+                <td class="score-cell">{{ entry.points }}</td>
+            </tr>
+            }
+        </tbody>
     </table>
     <div class="history-average">
-      Average: <strong>{{ averageScore }}</strong> pts/guess
+        Average: <strong>{{ averageScore }}</strong> pts/guess
     </div>
-  </aside>
+</aside>
 }

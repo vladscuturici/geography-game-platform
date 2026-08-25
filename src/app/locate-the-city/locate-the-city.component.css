@@ -459,7 +459,12 @@
 }
 
 .toggle-row--regions {
-  gap: 0.4rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0.3rem;
+  flex: 2 1 0;      /* was flex: 1 1 0 — now takes 2x the share vs .toggle-row's 1x,
+                        since it needs to fit 2 stacked rows in the same toggle-stack */
 }
 
 .toggle-option {
@@ -487,7 +492,7 @@
 }
 
 .toggle-row--regions .toggle-option {
-  font-size: 0.72rem;
+  font-size: 0.85rem;   /* was 0.72rem */
   padding: 0 0.35rem;
 }
 
@@ -503,6 +508,16 @@
 
 .toggle-option--active:hover {
   background: var(--brass-bright);
+}
+
+.toggle-row--regions .toggle-option--active {
+  background: var(--ink);
+  color: var(--brass-bright);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.toggle-row--regions .toggle-option--active:hover {
+  background: #1c2d54; /* slightly lighter ink for hover feedback */
 }
 
 .toggle-option__hint {
@@ -522,10 +537,10 @@
     width: 100%;
   }
   .top-row .country-tile {
-    flex: 0 0 auto;
+    flex: 1 1 220px;
   }
   .toggle-stack {
-    flex: 0 0 auto;
+    flex: 2 1 auto;
   }
   .toggle-row {
     flex-wrap: wrap;

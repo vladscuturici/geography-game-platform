@@ -22,6 +22,8 @@ const GLYPH_PATHS = {
   outline: `<path d="M5 8.5c.6-1.8 2-2.7 3.4-2.3 1-1.4 3-1.7 4-.4 1.7-.6 3.4.3 3.6 1.9 1.7.3 2.6 1.8 2 3.3.9 1.1.7 2.6-.5 3.3.2 1.6-1 2.9-2.5 2.7-.6 1.5-2.4 2.1-3.7 1.2-1.3 1-3.1.8-4-.5-1.7.2-3-1-2.9-2.6-1.5-.5-2.1-2.1-1.3-3.5-.8-1.1-.5-2.7.9-3.1Z" />`,
   sort: `<path d="M4 18h4M4 13h8M4 8h12" /><path d="M17 5v13M17 5l-3 3M17 5l3 3" />`,
   book: `<path d="M12 6.5c-1.7-1.3-3.9-2-6.2-2v12.5c2.3 0 4.5.7 6.2 2 1.7-1.3 3.9-2 6.2-2V4.5c-2.3 0-4.5.7-6.2 2Z" /><path d="M12 6.5v12.5" /><circle cx="12" cy="3" r="1.2" fill="currentColor" stroke="none" />`,
+  wavelength: `<path d="M2 12c1-3.5 2.5-5.5 4-5.5s3 2 4 5.5 2.5 5.5 4 5.5 3-2 4-5.5 2.5-5.5 4-5.5" /><path d="M6 6.5v11M14 6.5v11" stroke-dasharray="1.5 1.5" stroke-width="1" />`,
+
 } as const;
 
 @Component({
@@ -37,8 +39,8 @@ export class HomeComponent {
 
   public games: GameTile[] = [
     { title: 'Guess the Country', description: 'Can you guess the daily/unlimited country based on clues?', route: '/guess-the-country/daily-country', glyph: 'globe' },
-    { title: 'Wavelength', description: 'Coming soon...', route: null, glyph: 'unknown' },
-    { title: 'TicTacToe', description: 'A geographic twist on the classic game.', route: '/tic-tac-toe', glyph: 'grid' },
+    { title: 'Wavelength', description: 'The classic Wavelength game with a geographic twist...', route: '/wavelength', glyph: 'wavelength' },
+    { title: 'TicTacToe', description: 'The classic TicTacToe game with a geographic twist...', route: '/tic-tac-toe', glyph: 'grid' },
     // { title: 'Country Silhouette', description: 'Idenfiy countries by their outline on the map.', route: '/country-silhouette', glyph: 'outline' },
     { title: 'Locate the City', description: 'Drop a pin where you think a city is and see how close you got.', route: '/locate-the-city', glyph: 'pin' },
     { title: 'Sort it out', description: 'Order 5 countries based on the given criteria.', route: '/sort-it-out', glyph: 'sort' },

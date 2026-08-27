@@ -261,20 +261,26 @@
 .tile {
   flex: 1;
   min-width: 0;
-  height: 210px; /* fixed height reserved for worst case (2-line name), same every round */
+  height: 210px;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 1.1rem 0.6rem;
-  background: rgba(242, 239, 230, 0.92);
-  border: 1px solid var(--line);
+  background: linear-gradient(160deg, #1c2c4e 0%, #0f1a30 100%);
+  border: 1.5px solid var(--brass);
   border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(232, 200, 118, 0.1);
   cursor: grab;
   transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   position: relative;
   box-sizing: border-box;
 }
+
+.tile:hover:not(.is-locked) {
+  border-color: var(--brass-bright);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(232, 200, 118, 0.3);
+}
+
 
 /* Flag + name always occupy the same fixed block at the top, regardless
    of what's shown below — this is what keeps the name from shifting
@@ -314,14 +320,49 @@
 
 .tile.is-correct {
   border-color: var(--match);
-  background: var(--match-bg);
+  border-width: 2px;
+  background: linear-gradient(160deg, var(--match-bg) 0%, #c3e0b6 100%);
+  box-shadow: 0 6px 18px rgba(111, 174, 94, 0.35), inset 0 0 0 1px rgba(111, 174, 94, 0.25);
 }
 
 .tile.is-wrong {
   border-color: var(--wrong);
-  background: var(--wrong-bg);
+  border-width: 2px;
+  background: linear-gradient(160deg, var(--wrong-bg) 0%, #e8bdb0 100%);
+  box-shadow: 0 6px 18px rgba(201, 106, 75, 0.35), inset 0 0 0 1px rgba(201, 106, 75, 0.25);
 }
 
+.tile.is-correct .tile__position,
+.tile.is-correct .tile__name,
+.tile.is-correct .tile__value {
+  color: #2f5c26;
+}
+
+.tile.is-wrong .tile__position,
+.tile.is-wrong .tile__name,
+.tile.is-wrong .tile__value {
+  color: #7a2f1a;
+}
+
+.tile.is-correct::after,
+.tile.is-wrong::after {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.tile.is-correct::after {
+  content: '✓';
+  color: #2f5c26;
+}
+
+.tile.is-wrong::after {
+  content: '✗';
+  color: #7a2f1a;
+}
 .tile__position {
   position: absolute;
   top: 0.5rem;
@@ -345,7 +386,7 @@
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
   font-size: 0.95rem;
-  color: var(--ink);
+  color: var(--brass-bright);
   text-align: center;
   line-height: 1.2;
   display: -webkit-box;
@@ -359,14 +400,24 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.74rem;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--brass-bright);
   text-align: center;
 }
 
 .tile__handle {
   font-size: 0.82rem;
-  color: #8a8272;
+  color: rgba(232, 200, 118, 0.6);
   letter-spacing: 0.05em;
+}
+
+.tile__position {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--brass-bright);
 }
 
 /* --- Action row: submit or next+result, always one row --- */

@@ -71,6 +71,12 @@ export class SidebarComponent {
       glyph: 'sort',
       hint: 'VII',
     },
+    {
+      label: 'Wavelength',
+      route: 'wavelength',
+      glyph: 'wavelength',
+      hint: 'VIII',
+    },
     // {
     //   label: 'Guess the Language',
     //   route: '/guess-the-language',

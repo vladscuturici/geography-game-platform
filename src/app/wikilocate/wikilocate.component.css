@@ -666,6 +666,21 @@
      so hovering the label (not just the tiny pin) brings it to front. */
   pointer-events: auto;
   cursor: default;
+
+  /* Base stacking + smooth "come to front" transition. The tooltip
+     element IS maplibre's marker element (it already gets
+     position: absolute from the .maplibregl-marker class, which is
+     what places it at the pin's lng/lat via a transform) — we must
+     NOT redeclare position here, just add z-index so it can stack
+     above sibling labels. */
+  z-index: 1;
+  transition: box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+::ng-deep .article-marker-tooltip:hover {
+  z-index: 1000;
+  border-color: var(--brass-bright);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(232, 200, 118, 0.4);
 }
 
 ::ng-deep .article-marker-tooltip::before {
@@ -702,22 +717,4 @@
   border-width: 8px 7px 0 7px;
   border-style: solid;
   border-color: var(--brass) transparent transparent transparent;
-}
-
-::ng-deep .leaflet-tile-pane {
-  filter: hue-rotate(140deg) saturate(1.4) brightness(0.9);
-}
-
-::ng-deep .leaflet-tile-pane {
-  filter: brightness(1.8) grayscale(1);
-}
-
-.map::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-color: var(--ink);
-  mix-blend-mode: color;
-  pointer-events: none;
-  z-index: 400; /* above tiles, below markers/tooltips which sit higher */
 }

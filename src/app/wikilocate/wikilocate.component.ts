@@ -10,8 +10,7 @@ import {
   inject,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import * as L from 'leaflet';
+import * as maplibregl from 'maplibre-gl';
 import { BehaviorSubject, combineLatest, map, Observable, shareReplay, startWith, switchMap } from 'rxjs';
 import { City } from '../models/cities.model';
 import { CitiesService } from '../services/cities.service';
@@ -26,21 +25,89 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
-// Eligibility rules for candidate cities: at most 2 cities per country
-// (so no single country dominates the pool) and only cities with real
-// population weight, so the game doesn't ask about obscure towns.
+// IMPORTANT: this stylesheet must be registered in angular.json under
+// architect.build.options.styles, e.g.:
+//   "styles": ["node_modules/maplibre-gl/dist/maplibre-gl.css", "src/styles.css"]
+// Without it the map container has no intrinsic sizing/positioning CSS
+// and can render with 0 height, which looks identical to "nothing loads".
+
 const MAX_CITIES_PER_COUNTRY = 5;
 const MIN_POPULATION = 1_000_000;
-
-// How far around the city's coordinates we search for Wikipedia articles.
-// Wide enough to surface real nearby landmarks/places, narrow enough that
-// the pins still cluster meaningfully around the city.
 const WIKI_SEARCH_OFFSET_KM = 20;
 
-// Marker z-index offsets used to bring a hovered/overlapping pin to the
-// front, above its neighbours.
-const ARTICLE_MARKER_Z_DEFAULT = 0;
-const ARTICLE_MARKER_Z_HOVER = 1000;
+const ARTICLE_SOURCE_ID = 'wiki-articles';
+const ARTICLE_LAYER_ID = 'wiki-articles-points';
+
+// Navy + brass recolor palette applied over the base "liberty" style so
+// the map matches the parchment/brass theme instead of its default
+// colors. Keep these in sync with the --ink / --brass* CSS variables in
+// wikilocate.component.css.
+const MAP_NAVY_DEEP = '#0b1428'; // background / open water
+const MAP_NAVY_WATER = '#12213f'; // waterways, slightly lighter than bg
+const MAP_NAVY_LAND = '#182a4d'; // landcover / landuse / parks / buildings
+const MAP_NAVY_LAND_ALT = '#1f345c'; // secondary land fill (e.g. buildings) for subtle contrast
+const MAP_BRASS = '#c9a24b'; // minor roads, boundaries
+const MAP_BRASS_BRIGHT = '#e8c876'; // major roads / highways
+
+// Layer ids (from the "liberty" style) to hide entirely, on top of the
+// symbol/fill-extrusion layers already hidden in ngAfterViewInit.
+// Grouped by what they represent so it's easy to add/remove a category.
+const HIDDEN_LAYER_IDS = new Set<string>([
+  // Footpaths / pedestrian paths
+  'road_path_pedestrian',
+  'bridge_path_pedestrian_casing',
+  'bridge_path_pedestrian',
+  'tunnel_path_pedestrian',
+  'road_area_pattern',
+
+  // Buildings (flat 2D fill; the 3D extrusion layer is already hidden)
+  'building',
+
+  // Minor streets, service roads/tracks, rail lines (surface, bridge, tunnel)
+  'road_minor_casing',
+  'road_minor',
+  'road_service_track_casing',
+  'road_service_track',
+  'road_link_casing',
+  'road_link',
+  'road_major_rail',
+  'road_major_rail_hatching',
+  'road_transit_rail',
+  'road_transit_rail_hatching',
+  'tunnel_service_track_casing',
+  'tunnel_service_track',
+  'tunnel_link_casing',
+  'tunnel_link',
+  'tunnel_street_casing',
+  'tunnel_minor',
+  'tunnel_major_rail',
+  'tunnel_major_rail_hatching',
+  'tunnel_transit_rail',
+  'tunnel_transit_rail_hatching',
+  'bridge_service_track_casing',
+  'bridge_service_track',
+  'bridge_link_casing',
+  'bridge_link',
+  'bridge_street_casing',
+  'bridge_street',
+  'bridge_major_rail',
+  'bridge_major_rail_hatching',
+  'bridge_transit_rail',
+  'bridge_transit_rail_hatching',
+
+  // Airports (runways/taxiways as fills/lines)
+  'aeroway_fill',
+  'aeroway_runway',
+  'aeroway_taxiway',
+
+  // Residential landuse tint, parks, cemeteries, hospitals, schools
+  'landuse_residential',
+  'park',
+  'park_outline',
+  'landuse_cemetery',
+  'landuse_hospital',
+  'landuse_school',
+]);
 
 @Component({
   selector: 'app-wikilocate',
@@ -68,11 +135,6 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
 
   public isExactMatch = false;
 
-  // Candidate pool: top N per country (capped at 2), then filtered down to
-  // cities with at least 1M population. `total` is passed generously large
-  // so the per-country cap — not the overall total — is what does the
-  // real trimming; the population filter runs after.
-
   private countryNameByCode: Record<string, string> = {};
 
   public eligibleCities$ = this._countriesService.getAllCountries().pipe(
@@ -98,14 +160,11 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
   public filteredCityNames$!: Observable<string[]>;
   public allCityNames: string[] = [];
 
-  // Lookup from city name -> full City so a typed guess can be resolved
-  // back to coordinates for distance-based scoring.
   private cityByName: Record<string, City> = {};
 
   public guessInput = '';
   public wrongGuess: string | null = null;
 
-  // --- Round result state (distance-based scoring, mirrors Locate The City) ---
   public hasGuessed = false;
   public currentScore = 0;
   public currentDistance = 0;
@@ -115,7 +174,6 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
     return this.hasGuessed;
   }
 
-  // --- Session history ---
   public guessHistory: { gameNumber: number; cityName: string; points: number }[] = [];
 
   public get averageScore(): number {
@@ -127,11 +185,17 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
   @ViewChild('mapContainer', { static: true })
   private mapContainer!: ElementRef<HTMLDivElement>;
 
-  private map!: L.Map;
-  private articleMarkers: L.Marker[] = [];
-  private cityRevealMarker: L.Marker | null = null;
-  private cityRevealIcon!: L.Icon;
-  private articleIcon!: L.DivIcon;
+  private map!: maplibregl.Map;
+  private cityRevealMarker: maplibregl.Marker | null = null;
+  private articleLabelMarkers: maplibregl.Marker[] = [];
+  private mapReady = false;
+  private pendingCity: City | null = null;
+
+  private readonly WORLD_MIN_ZOOM = 2;
+  private readonly WORLD_BOUNDS: maplibregl.LngLatBoundsLike = [
+    [-180, -85],
+    [180, 85],
+  ];
 
   public filteredCityNames: string[] = [];
   public isDropdownOpen = false;
@@ -140,9 +204,6 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
     this.eligibleCities$.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((cities) => {
       this.allCityNames = [...new Set(cities.map((c) => c.name))].sort((a, b) => a.localeCompare(b));
 
-      // Keep the first city seen per name so a typed guess can be resolved
-      // back to coordinates. Names should already be de-duplicated above,
-      // but this guards against any accidental collisions.
       this.cityByName = {};
       for (const city of cities) {
         if (!(city.name in this.cityByName)) {
@@ -198,54 +259,125 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    // --- Diagnostic: confirm the container actually has real dimensions
+    // before MapLibre ever touches it.
+    const rect = this.mapContainer.nativeElement.getBoundingClientRect();
+    // eslint-disable-next-line no-console
+    console.log('[wikilocate] map container size at init:', rect.width, 'x', rect.height);
 
-    this.cityRevealIcon = L.icon({
-      iconUrl: 'leaflet/marker-icon.png',
-      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
-      shadowUrl: 'leaflet/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-      className: 'actual-city-marker-icon',
-    });
-
-    this.articleIcon = L.divIcon({
-      className: 'article-marker-icon',
-      html: '<span class="article-marker-dot"></span>',
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-    });
-
-    this.map = L.map(this.mapContainer.nativeElement, {
-      center: [20, 0],
+    this.map = new maplibregl.Map({
+      container: this.mapContainer.nativeElement,
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: [0, 20],
       zoom: 2,
-      minZoom: 2,
-      maxBounds: [
-        [-90, -180],
-        [90, 180],
-      ],
-      maxBoundsViscosity: 1.0,
+      minZoom: this.WORLD_MIN_ZOOM,
+      attributionControl: false,
+      pitch: 0,
+      maxPitch: 0,
+      dragRotate: false,
+      touchPitch: false,
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      maxZoom: 18,
-      subdomains: 'abcd',
-    }).addTo(this.map);
+    this.map.addControl(
+      new maplibregl.AttributionControl({ customAttribution: '&copy; OpenStreetMap contributors, &copy; OpenFreeMap' })
+    );
 
-    // If a city was already picked before the map finished initializing,
-    // load its articles now.
-    if (this.currentCity) {
-      this.loadArticlesForCurrentCity();
+    this.map.on('error', (e: any) => {
+      // eslint-disable-next-line no-console
+      console.error('[wikilocate] MapLibre error:', e?.error ?? e);
+    });
+
+    this.map.on('load', () => {
+      // eslint-disable-next-line no-console
+      console.log('[wikilocate] MapLibre "load" event fired — style + initial tiles ready.');
+      this.mapReady = true;
+
+      // Hide every symbol layer (text/icons), 3D building extrusions, and
+      // the explicit HIDDEN_LAYER_IDS set (footpaths, buildings, minor
+      // roads/rail, airports, residential/park/cemetery/hospital/school
+      // fills) rather than hand-building a minimal style ourselves.
+      const layers = this.map.getStyle().layers ?? [];
+      for (const layer of layers) {
+        if (layer.type === 'symbol' || layer.type === 'fill-extrusion' || HIDDEN_LAYER_IDS.has(layer.id)) {
+          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
+        }
+      }
+
+      this.recolorMapStyle();
+      this.map.resize();
+      this.map.setMaxBounds(this.WORLD_BOUNDS);
+
+      if (this.pendingCity) {
+        this.loadArticlesForCurrentCity();
+      } else if (this.currentCity) {
+        this.loadArticlesForCurrentCity();
+      }
+    });
+
+    window.addEventListener('resize', this.onWindowResize);
+  }
+
+  private onWindowResize = (): void => {
+    this.map?.resize();
+  };
+
+  // Recolors the base "liberty" vector style into the navy + brass
+  // theme. Layer ids/source-layers follow the OpenMapTiles naming
+  // convention the liberty style is built on, so we match on substrings
+  // rather than hardcoding an exact layer list (more resilient to minor
+  // style updates upstream).
+  private recolorMapStyle(): void {
+    const layers = this.map.getStyle().layers ?? [];
+
+    for (const layer of layers) {
+      const id = layer.id.toLowerCase();
+      const sourceLayer = ('source-layer' in layer ? (layer as any)['source-layer'] : '') ?? '';
+      const key = `${id} ${sourceLayer}`.toLowerCase();
+
+      try {
+        switch (layer.type) {
+          case 'background':
+            this.map.setPaintProperty(layer.id, 'background-color', MAP_NAVY_DEEP);
+            break;
+
+          case 'fill':
+            if (/water/.test(key)) {
+              this.map.setPaintProperty(layer.id, 'fill-color', MAP_NAVY_WATER);
+            } else if (/building/.test(key)) {
+              this.map.setPaintProperty(layer.id, 'fill-color', MAP_NAVY_LAND_ALT);
+            } else {
+              // landcover, landuse, parks, pitches, etc.
+              this.map.setPaintProperty(layer.id, 'fill-color', MAP_NAVY_LAND);
+            }
+            break;
+
+          case 'line':
+            if (/water/.test(key)) {
+              this.map.setPaintProperty(layer.id, 'line-color', MAP_NAVY_WATER);
+            } else if (/boundary|admin/.test(key)) {
+              this.map.setPaintProperty(layer.id, 'line-color', MAP_BRASS);
+            } else if (/building/.test(key)) {
+              this.map.setPaintProperty(layer.id, 'line-color', MAP_NAVY_LAND_ALT);
+            } else if (/motorway|trunk|highway|primary/.test(key)) {
+              this.map.setPaintProperty(layer.id, 'line-color', MAP_BRASS_BRIGHT);
+            } else if (/road|street|transportation|bridge|tunnel|path|rail/.test(key)) {
+              this.map.setPaintProperty(layer.id, 'line-color', MAP_BRASS);
+            }
+            break;
+
+          default:
+            // Leave circle/symbol/heatmap/etc. layers untouched — the
+            // article marker circle layer sets its own brass colors,
+            // and symbol layers are hidden entirely above.
+            break;
+        }
+      } catch {
+        // Some layers don't support the paint property we tried to set
+        // (style-specific quirks); skip rather than fail the whole pass.
+      }
     }
   }
 
-  /**
-   * Resets all per-round state for a freshly picked city and (if the map
-   * is ready) kicks off the article fetch + pin placement.
-   */
   private startRound(city: City | null): void {
     this.wrongGuess = null;
     this.hasGuessed = false;
@@ -256,9 +388,15 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
     this.articles = [];
     this.isExactMatch = false;
 
+    this.pendingCity = city;
+
+    if (!this.map) {
+      return;
+    }
+
     this.clearMapLayers();
 
-    if (city && this.map) {
+    if (city && this.mapReady) {
       this.loadArticlesForCurrentCity();
     }
   }
@@ -288,92 +426,115 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
 
   private plotArticleMarkers(articles: WikiGeoArticle[]): void {
     this.clearArticleMarkers();
-    this.map.setMinZoom(2); // reset floor so fitBounds can compute freely
+    this.map.setMinZoom(this.WORLD_MIN_ZOOM);
     this.resetMapBounds();
+
+    const geojson: GeoJSON.FeatureCollection<GeoJSON.Point, { title: string }> = {
+      type: 'FeatureCollection',
+      features: articles.map((article) => ({
+        type: 'Feature',
+        properties: { title: article.title },
+        geometry: { type: 'Point', coordinates: [article.lon, article.lat] },
+      })),
+    };
+
+    const existingSource = this.map.getSource(ARTICLE_SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
+    if (existingSource) {
+      existingSource.setData(geojson);
+    } else {
+      this.map.addSource(ARTICLE_SOURCE_ID, { type: 'geojson', data: geojson });
+      this.map.addLayer({
+        id: ARTICLE_LAYER_ID,
+        type: 'circle',
+        source: ARTICLE_SOURCE_ID,
+        paint: {
+          'circle-radius': 6,
+          'circle-color': '#e8c876',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#14213d',
+        },
+      });
+    }
+
+    // Labels are DOM elements reusing the original .article-marker-tooltip
+    // CSS (pill shape, border, JetBrains Mono font, etc.) — a plain WebGL
+    // symbol layer can't reproduce that box styling. The dot itself (used
+    // for judging position) is the GeoJSON circle layer above and stays
+    // pixel-accurate during zoom; only this cosmetic text label is
+    // DOM-positioned via a marker.
+    for (const article of articles) {
+      const tooltip = document.createElement('span');
+      tooltip.className = 'article-marker-tooltip';
+      tooltip.textContent = article.title;
+
+      const label = new maplibregl.Marker({ element: tooltip, anchor: 'bottom', offset: [0, -10] })
+        .setLngLat([article.lon, article.lat])
+        .addTo(this.map);
+
+      this.articleLabelMarkers.push(label);
+    }
 
     if (articles.length === 0) return;
 
-    const bounds: L.LatLngExpression[] = [];
+    const bounds = new maplibregl.LngLatBounds();
     for (const article of articles) {
-      const marker = L.marker([article.lat, article.lon], { icon: this.articleIcon })
-        .bindTooltip(article.title, { permanent: true, direction: 'top', className: 'article-marker-tooltip' })
-        .addTo(this.map);
-
-      // When pins/labels are close together or overlapping, whichever
-      // label the mouse is over should render above its neighbours (both
-      // the pin and its tooltip). The pin itself is tiny, so the hover
-      // target that matters is the tooltip label — we bind directly to
-      // its DOM element (via native events) rather than relying on the
-      // marker's own hover, since the label can visually extend well
-      // beyond the marker's own hit area. Reset back to default on
-      // mouse-out so the next hovered label can take over.
-      const bringToFront = () => {
-        marker.setZIndexOffset(ARTICLE_MARKER_Z_HOVER);
-        const tooltipEl = marker.getTooltip()?.getElement();
-        if (tooltipEl) {
-          tooltipEl.style.zIndex = '10000';
-        }
-      };
-      const sendToBack = () => {
-        marker.setZIndexOffset(ARTICLE_MARKER_Z_DEFAULT);
-        const tooltipEl = marker.getTooltip()?.getElement();
-        if (tooltipEl) {
-          tooltipEl.style.zIndex = '';
-        }
-      };
-
-      // Keep hover working on the pin itself too, in case it isn't
-      // covered by its own label.
-      marker.on('mouseover', bringToFront);
-      marker.on('mouseout', sendToBack);
-
-      const tooltipEl = marker.getTooltip()?.getElement();
-      if (tooltipEl) {
-        tooltipEl.addEventListener('mouseenter', bringToFront);
-        tooltipEl.addEventListener('mouseleave', sendToBack);
-      }
-
-      this.articleMarkers.push(marker);
-      bounds.push([article.lat, article.lon]);
+      bounds.extend([article.lon, article.lat]);
     }
 
-    const fitted = L.latLngBounds(bounds);
-    this.map.fitBounds(fitted, { padding: [40, 40], maxZoom: 10 });
-    this.map.setMinZoom(this.map.getZoom()); // lock: can zoom in from here, not out
+    // The allowed play area is the *padded* bounds, not the tight fit
+    // around the articles themselves. Fit the initial camera to that
+    // padded area directly so the round starts as zoomed out as the
+    // allowed panning area permits, instead of starting tight on the
+    // articles and only being able to zoom out to a level that's still
+    // more zoomed-in than what maxBounds would actually allow.
+    const paddedBounds = this.padBounds(bounds, 0.5);
+    this.map.setMaxBounds(paddedBounds);
+    this.map.fitBounds(paddedBounds, { padding: 40, maxZoom: 9, animate: false });
 
-    // Lock panning to the fitted area — give it some breathing room via .pad()
-    // so the pins aren't glued to the edge of the pannable region.
-    this.map.setMaxBounds(fitted.pad(0.5));
+    // eslint-disable-next-line no-console
+    console.log('[wikilocate] article bounds:', bounds.toArray(), 'resulting zoom:', this.map.getZoom());
+
+    // Lock zoom-out at this fully-zoomed-out starting position — you can
+    // still zoom in further, just not past what the padded bounds show.
+    const currentZoom = this.map.getZoom();
+    const safeMinZoom = Math.min(currentZoom, 9);
+    this.map.setMinZoom(safeMinZoom);
+  }
+
+  private padBounds(bounds: maplibregl.LngLatBounds, fraction: number): maplibregl.LngLatBoundsLike {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const lngPad = (ne.lng - sw.lng) * fraction || 1;
+    const latPad = (ne.lat - sw.lat) * fraction || 1;
+    return [
+      [sw.lng - lngPad, sw.lat - latPad],
+      [ne.lng + lngPad, ne.lat + latPad],
+    ];
   }
 
   private resetMapBounds(): void {
-    this.map.setMaxBounds([
-      [-90, -180],
-      [90, 180],
-    ]);
+    this.map.setMaxBounds(this.WORLD_BOUNDS);
   }
 
   private clearMapLayers(): void {
     this.clearArticleMarkers();
-    this.map?.setMinZoom(2);
+    this.map?.setMinZoom(this.WORLD_MIN_ZOOM);
     this.resetMapBounds();
 
     if (this.cityRevealMarker) {
-      this.map?.removeLayer(this.cityRevealMarker);
+      this.cityRevealMarker.remove();
       this.cityRevealMarker = null;
     }
   }
 
   private clearArticleMarkers(): void {
-    for (const marker of this.articleMarkers) {
-      marker.off('mouseover');
-      marker.off('mouseout');
-      // Tooltip DOM elements (and their native listeners) are removed
-      // along with the marker/layer itself, so no separate cleanup is
-      // needed for the mouseenter/mouseleave bindings added on them.
-      this.map.removeLayer(marker);
+    const source = this.map?.getSource(ARTICLE_SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
+    source?.setData({ type: 'FeatureCollection', features: [] });
+
+    for (const marker of this.articleLabelMarkers) {
+      marker.remove();
     }
-    this.articleMarkers = [];
+    this.articleLabelMarkers = [];
   }
 
   public onSubmitGuess(): void {
@@ -385,8 +546,6 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
     const guessedCity = this.resolveCityByName(guess);
 
     if (!guessedCity) {
-      // Guess doesn't match a known city — no coordinates to score against,
-      // so it's treated the same as being maximally wrong.
       this.wrongGuess = guess;
       this.hasGuessed = true;
       this.currentScore = 0;
@@ -433,8 +592,6 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
   private resolveCityByName(name: string): City | null {
     if (this.cityByName[name]) return this.cityByName[name];
 
-    // Fall back to a normalized (diacritic/case-insensitive) match in case
-    // the typed guess doesn't exactly match the autocomplete casing.
     const normalizedGuess = this.normalize(name);
     const match = Object.values(this.cityByName).find((c) => this.normalize(c.name) === normalizedGuess);
     return match ?? null;
@@ -472,8 +629,6 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
     return result;
   }
 
-  // Builds a regex pattern that matches a term regardless of diacritics,
-  // e.g. "sao paulo" also matches "São Paulo" in the original (non-normalized) title.
   private buildDiacriticInsensitivePattern(term: string): string {
     const diacriticGroups: Record<string, string> = {
       a: 'a\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5',
@@ -497,18 +652,25 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
   private revealCity(): void {
     if (!this.currentCity) return;
 
-    this.cityRevealMarker = L.marker([this.currentCity.latitude, this.currentCity.longitude], {
-      icon: this.cityRevealIcon,
-    })
-      .bindTooltip(this.currentCity.name, {
-        permanent: true,
-        direction: 'top',
-        className: 'city-reveal-tooltip',
-        offset: [0, -10],
-      })
+    const root = document.createElement('div');
+    root.className = 'actual-city-marker-icon';
+    root.style.position = 'relative';
+
+    const tooltip = document.createElement('span');
+    tooltip.className = 'city-reveal-tooltip';
+    tooltip.textContent = this.currentCity.name;
+    tooltip.style.position = 'absolute';
+    tooltip.style.bottom = '100%';
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translateX(-50%)';
+    tooltip.style.marginBottom = '10px';
+    root.appendChild(tooltip);
+
+    this.cityRevealMarker = new maplibregl.Marker({ element: root, anchor: 'bottom' })
+      .setLngLat([this.currentCity.longitude, this.currentCity.latitude])
       .addTo(this.map);
 
-    this.map.setView([this.currentCity.latitude, this.currentCity.longitude], 9);
+    this.map.flyTo({ center: [this.currentCity.longitude, this.currentCity.latitude], zoom: 9, animate: false });
   }
 
   private recordHistory(): void {
@@ -536,5 +698,10 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
 
   public onEnterKey(): void {
     setTimeout(() => this.onSubmitGuess());
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('resize', this.onWindowResize);
+    this.map?.remove();
   }
 }

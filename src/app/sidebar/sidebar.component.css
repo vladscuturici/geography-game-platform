@@ -247,33 +247,104 @@
 } */
 
 /* ---------- Responsive ---------- */
-
+/* Below 900px the sidebar becomes a slim, icon-only bar pinned to the
+   top of the viewport instead of a full-height left rail. Labels,
+   numerals, and the leader dots are hidden entirely — only the brand
+   seal and the glyph swatches remain, laid out horizontally. If there
+   isn't room for every icon it scrolls horizontally rather than
+   wrapping, so the bar never grows past a single row. */
 @media (max-width: 900px) {
   :host {
     width: 100%;
     height: auto;
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: 20;
     border-right: none;
     border-bottom: 1px solid rgba(201, 162, 75, 0.35);
     overflow-y: visible;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   }
 
   .atlas-sidebar {
+    flex-direction: row;
+    align-items: center;
     height: auto;
-    padding: 1.25rem 1rem;
+    padding: 0.6rem 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .brand {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    padding-right: 0.75rem;
+    border-bottom: none;
+    border-right: 1px solid rgba(201, 162, 75, 0.3);
+    flex-shrink: 0;
+  }
+
+  .brand__seal {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* Full wordmark ("According to the / Legend") doesn't fit next to a
+     row of icons at this width — drop it and keep just the seal as the
+     home affordance. */
+  .brand__wordmark {
+    display: none;
+  }
+
+  .legend-key {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: none;
+  }
+
+  .legend-key__title {
+    display: none;
   }
 
   .legend-key__list {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow-x: auto;
+    /* Hide the scrollbar visually while keeping the bar swipeable. */
+    scrollbar-width: none;
+  }
+
+  .legend-key__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .legend-key__row {
+    flex-shrink: 0;
   }
 
   .legend-key__link {
-    flex: 1 1 auto;
+    gap: 0;
+    padding: 0.45rem;
+    justify-content: center;
   }
 
+  /* Icons only: hide the label/numeral text block and the leader dots
+     that only make sense in the full-width vertical layout. */
+  .legend-key__text,
   .legend-key__leader {
     display: none;
+  }
+
+  .legend-key__swatch {
+    width: 36px;
+    height: 36px;
+  }
+
+  .legend-key__icon {
+    width: 19px;
+    height: 19px;
   }
 
   .scale-bar {

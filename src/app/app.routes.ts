@@ -11,6 +11,7 @@ import { HigherLowerComponent } from './higher-lower/higher-lower.component';
 import { SortItOutComponent } from './sort-it-out/sort-it-out.component';
 import { WikilocateComponent } from './wikilocate/wikilocate.component';
 import { WavelengthComponent } from './wavelength/wavelength.component';
+import { WavelengthOnlineComponent } from './wavelength-online/wavelength-online.component';
 
 export const routes: Routes = [
     {
@@ -83,19 +84,10 @@ export const routes: Routes = [
     {
         path: 'wavelength',
         children: [
-            {
-                path: '',
-                redirectTo: 'local',
-                pathMatch: 'full'
-            },
-            {
-                path: 'local',
-                component: WavelengthComponent
-            },
-            {
-                path: 'online',
-                component: WavelengthComponent
-            }
+            { path: '', redirectTo: 'local', pathMatch: 'full' },
+            { path: 'local', component: WavelengthComponent },
+            { path: 'online', component: WavelengthOnlineComponent },
+            { path: 'online/room/:code', component: WavelengthOnlineComponent },
         ]
-    },
+    }
 ];

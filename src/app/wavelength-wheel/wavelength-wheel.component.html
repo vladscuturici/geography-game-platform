@@ -1,0 +1,37 @@
+<div class="wheel-visual">
+  <div class="wheel" #wheelEl (pointerdown)="onDragStart($event, wheelEl)" (pointermove)="onDragMove($event)">
+    <svg viewBox="0 0 300 168" class="wheel-svg">
+      <path class="wheel-base" d="M 10 150 A 140 140 0 0 1 290 150 L 150 150 Z" />
+
+      <path class="zone zone--yellow" [attr.d]="wedgePath(yellowZoneLeft.from, yellowZoneLeft.to)" />
+      <path class="zone zone--green" [attr.d]="wedgePath(greenZoneLeft.from, greenZoneLeft.to)" />
+      <path class="zone zone--red" [attr.d]="wedgePath(redZone.from, redZone.to)" />
+      <path class="zone zone--green" [attr.d]="wedgePath(greenZoneRight.from, greenZoneRight.to)" />
+      <path class="zone zone--yellow" [attr.d]="wedgePath(yellowZoneRight.from, yellowZoneRight.to)" />
+
+      @if (phase === 'reveal' && lockedGuess !== null) {
+      <g class="target-marker" [attr.transform]="needleTransform(target, 150, 150)">
+        <line x1="150" y1="150" x2="150" y2="24" class="target-marker__line" />
+      </g>
+      }
+
+      @if (coverValue > 0.5) {
+      <path class="zone zone--cover" [attr.d]="wedgePath(0, coverValue, 150, 150, 142)" />
+      }
+
+      <path class="wheel-rim" d="M 10 150 A 140 140 0 0 1 290 150 L 10 150 Z" />
+
+      <g class="needle" [attr.transform]="needleTransform(needleValue, 150, 150)">
+        <polygon class="needle__body" points="150,28 146,150 154,150" />
+      </g>
+
+      <circle cx="150" cy="150" r="15" class="pivot-ring" />
+      <circle cx="150" cy="150" r="6" class="pivot-dot" />
+    </svg>
+  </div>
+
+  <div class="wheel-labels">
+    <span class="wheel-label wheel-label--left">{{ category.leftLabel }}</span>
+    <span class="wheel-label wheel-label--right">{{ category.rightLabel }}</span>
+  </div>
+</div>

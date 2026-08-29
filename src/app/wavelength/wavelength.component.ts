@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Country } from '../models/countries.model';
 import { CountriesService } from '../services/countries.service';
 import { WavelengthCategory, pickRandomCategory } from '../categories/wavelength.categories';
+import { WavelengthWheelComponent } from '../wavelength-wheel/wavelength-wheel.component';
 
 type RoundPhase = 'psychic' | 'guesser' | 'reveal';
 
@@ -38,6 +39,7 @@ const YELLOW_WIDTH = 20;
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    WavelengthWheelComponent,
   ],
   templateUrl: './wavelength.component.html',
   styleUrl: './wavelength.component.css',
@@ -203,124 +205,6 @@ export class WavelengthComponent implements OnInit {
 
   public playAgain(): void {
     this.startGame();
-  }
-
-  // --- Wheel geometry helpers ---
-  public valueToAngle(value: number): number {
-    const v = Math.min(100, Math.max(0, value));
-    return 180 - v * 1.8;
-  }
-
-  public get redZone(): { from: number; to: number } {
-    return {
-      from: Math.max(0, this.target - RED_WIDTH),
-      to: Math.min(100, this.target + RED_WIDTH),
-    };
-  }
-
-  public get greenZoneLeft(): { from: number; to: number } {
-    return {
-      from: Math.max(0, this.target - GREEN_WIDTH),
-      to: Math.max(0, this.target - RED_WIDTH),
-    };
-  }
-
-  public get greenZoneRight(): { from: number; to: number } {
-    return {
-      from: Math.min(100, this.target + RED_WIDTH),
-      to: Math.min(100, this.target + GREEN_WIDTH),
-    };
-  }
-
-  public get yellowZoneLeft(): { from: number; to: number } {
-    return {
-      from: Math.max(0, this.target - YELLOW_WIDTH),
-      to: Math.max(0, this.target - GREEN_WIDTH),
-    };
-  }
-
-  public get yellowZoneRight(): { from: number; to: number } {
-    return {
-      from: Math.min(100, this.target + GREEN_WIDTH),
-      to: Math.min(100, this.target + YELLOW_WIDTH),
-    };
-  }
-
-  public wedgePath(from: number, to: number, cx = 150, cy = 150, r = 140): string {
-    if (to <= from) return '';
-    const a1 = this.valueToAngle(from);
-    const a2 = this.valueToAngle(to);
-
-    // Sample the arc as short straight segments instead of using an SVG "A"
-    // command. For large spans (like the cover sweep, up to 180°) the A
-    // command's endpoint+radius pair is ambiguous between two circles, and
-    // the sweep-flag that resolves it correctly for small zone wedges can
-    // pick the wrong one at larger spans — producing an inward-cutting spike
-    // instead of a rim-hugging fan. Sampling sidesteps the ambiguity entirely.
-    const steps = Math.max(2, Math.ceil(Math.abs(a1 - a2) / 4));
-    let d = `M ${cx} ${cy}`;
-    for (let i = 0; i <= steps; i++) {
-      const angle = a1 + ((a2 - a1) * i) / steps;
-      const p = this.polar(cx, cy, r, angle);
-      d += ` L ${p.x.toFixed(2)} ${p.y.toFixed(2)}`;
-    }
-    d += ' Z';
-    return d;
-  }
-
-  private polar(cx: number, cy: number, r: number, angleDeg: number): { x: number; y: number } {
-    const rad = (angleDeg * Math.PI) / 180;
-    return {
-      x: cx + r * Math.cos(rad),
-      y: cy - r * Math.sin(rad),
-    };
-  }
-
-  public needleTransform(value: number, cx = 150, cy = 150): string {
-    const angle = this.valueToAngle(value);
-    const rotation = 90 - angle;
-    return `rotate(${rotation} ${cx} ${cy})`;
-  }
-
-  // --- Drag handling on the wheel ---
-  private wheelEl: HTMLElement | null = null;
-
-  public onDragStart(event: PointerEvent, el: HTMLElement): void {
-    if (this.phase !== 'guesser') return;
-    this.wheelEl = el;
-    this.updateFromPointer(event);
-    (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
-  }
-
-  public onDragMove(event: PointerEvent): void {
-    if (this.phase !== 'guesser') return;
-    if (event.buttons === 0 && event.pointerType === 'mouse') return;
-    this.updateFromPointer(event);
-  }
-
-  private updateFromPointer(event: PointerEvent): void {
-    if (!this.wheelEl) return;
-    const rect = this.wheelEl.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.bottom;
-    const dx = event.clientX - cx;
-    const dy = cy - event.clientY;
-    let angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
-
-    // atan2 returns -180..180. If the pointer dips below the wheel's baseline
-    // (dy < 0), the angle comes back negative even on the left side (e.g.
-    // -170° instead of 170°). Naively clamping negative angles to 0 always
-    // snaps to the rightmost value, which is wrong when the pointer was
-    // actually on the left. Snap to whichever edge (0° or 180°) matches the
-    // side the pointer is on instead.
-    if (angleDeg < 0) {
-      angleDeg = dx < 0 ? 180 : 0;
-    } else {
-      angleDeg = Math.min(180, angleDeg);
-    }
-
-    const value = Math.round((180 - angleDeg) / 1.8);
-    this.onNeedleChange(value);
   }
 
   public toGreenSaturation(points: number): string {

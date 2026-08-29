@@ -1,0 +1,130 @@
+.wheel-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  justify-content: center;
+}
+
+.wheel-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.wheel-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brass-bright, #e8c876);
+  background: var(--ink, #14213d);
+  border: 1px solid rgba(232, 200, 118, 0.35);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  white-space: normal;
+  line-height: 1.35;
+  flex: 1 1 0;
+  width: auto;
+  max-width: 44%;
+  text-align: center;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+}
+
+.wheel-label--left {
+  border-bottom-left-radius: 4px;
+}
+
+.wheel-label--right {
+  border-bottom-right-radius: 4px;
+  text-align: right;
+}
+
+.wheel {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  touch-action: none;
+  cursor: grab;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.4));
+}
+
+.wheel-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.wheel-base {
+  fill: var(--ink, #14213d);
+  stroke: none;
+}
+
+.wheel-rim {
+  fill: none;
+  stroke: var(--logo-red, #8c2b3a);
+  stroke-width: 9;
+  stroke-linejoin: round;
+}
+
+.needle__body {
+  fill: var(--logo-red, #8c2b3a);
+  stroke: rgba(20, 33, 61, 0.4);
+  stroke-width: 0.75;
+}
+
+.zone {
+  stroke: none;
+}
+
+.zone--red {
+  fill: var(--wheel-red, #c96a6a);
+}
+
+.zone--green {
+  fill: var(--wheel-green, #6fae5e);
+}
+
+.zone--yellow {
+  fill: var(--wheel-yellow, #d9a441);
+}
+
+.zone--cover {
+  fill: rgb(113, 0, 235);
+  opacity: 1;
+}
+
+.target-marker__line {
+  stroke: var(--parchment, #f2efe6);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+  opacity: 0.85;
+}
+
+.pivot-ring {
+  fill: var(--parchment, #f2efe6);
+  stroke: var(--logo-red, #8c2b3a);
+  stroke-width: 5;
+}
+
+.pivot-dot {
+  fill: var(--logo-red, #8c2b3a);
+  r: 7;
+}
+
+@media (max-width: 500px) {
+  .wheel-label {
+    font-size: 0.6rem;
+    padding: 0.4rem 0.55rem;
+    min-height: 2.2rem;
+  }
+}

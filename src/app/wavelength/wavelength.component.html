@@ -9,13 +9,14 @@
         <a class="mode-option" routerLink="/wavelength/online">Online</a>
     </div>
 
-    @if (!gameOver) {
-    <div class="country-tile">
-        <div class="country-tile__info">
-            <span class="country-tile__label">Category</span>
-            <span class="country-tile__name">{{ category.title }}</span>
+    <div class="game-body">
+        @if (!gameOver) {
+        <div class="country-tile">
+            <div class="country-tile__info">
+                <span class="country-tile__label">Category</span>
+                <span class="country-tile__name">{{ category.title }}</span>
+            </div>
         </div>
-    </div>
 
     <div class="wheel-tile">
         <div class="wheel-tile__header">
@@ -38,99 +39,66 @@
             }
         </p>
 
-        <div class="wheel-visual">
-            <div class="wheel" #wheelEl (pointerdown)="onDragStart($event, wheelEl)" (pointermove)="onDragMove($event)">
-                <svg viewBox="0 0 300 168" class="wheel-svg">
-                    <path class="wheel-base" d="M 10 150 A 140 140 0 0 1 290 150 L 150 150 Z" />
-
-                    <!-- zones are always in the DOM now; the purple cover animates over them -->
-                    <path class="zone zone--yellow" [attr.d]="wedgePath(yellowZoneLeft.from, yellowZoneLeft.to)" />
-                    <path class="zone zone--green" [attr.d]="wedgePath(greenZoneLeft.from, greenZoneLeft.to)" />
-                    <path class="zone zone--red" [attr.d]="wedgePath(redZone.from, redZone.to)" />
-                    <path class="zone zone--green" [attr.d]="wedgePath(greenZoneRight.from, greenZoneRight.to)" />
-                    <path class="zone zone--yellow" [attr.d]="wedgePath(yellowZoneRight.from, yellowZoneRight.to)" />
-
-                    @if (phase === 'reveal' && lockedGuess !== null) {
-                    <g class="target-marker" [attr.transform]="needleTransform(target, 150, 150)">
-                        <line x1="150" y1="150" x2="150" y2="24" class="target-marker__line" />
-                    </g>
-                    }
-
-                    <!-- the swinging purple cover that hides the dial while guessing -->
-                    @if (coverValue > 0.5) {
-                    <path class="zone zone--cover" [attr.d]="wedgePath(0, coverValue, 150, 150, 142)" />
-                    }
-
-                    <!-- slim rim tracing the arc and baseline -->
-                    <path class="wheel-rim" d="M 10 150 A 140 140 0 0 1 290 150 L 10 150 Z" />
-
-                    <!-- tapered compass-style needle -->
-                    <g class="needle" [attr.transform]="needleTransform(needleValue, 150, 150)">
-                        <polygon class="needle__body" points="150,28 146,150 154,150" />
-                    </g>
-
-                    <!-- layered pivot -->
-                    <circle cx="150" cy="150" r="15" class="pivot-ring" />
-                    <circle cx="150" cy="150" r="6" class="pivot-dot" />
-                </svg>
-            </div>
-
-            <div class="wheel-labels">
-                <span class="wheel-label wheel-label--left">{{ category.leftLabel }}</span>
-                <span class="wheel-label wheel-label--right">{{ category.rightLabel }}</span>
-            </div>
-        </div>
+        <app-wavelength-wheel
+            [category]="category"
+            [target]="target"
+            [needleValue]="needleValue"
+            [phase]="phase"
+            [coverValue]="coverValue"
+            [lockedGuess]="lockedGuess"
+            (needleValueChange)="onNeedleChange($event)"
+        ></app-wavelength-wheel>
     </div>
 
-    <!-- Unified hint + action tile: keeps the same footprint across psychic / guesser / reveal -->
-    <div class="action-row action-row--stacked">
-        @if (phase === 'psychic') {
-        <div class="guess-tile">
-            <div class="guess-form">
-                <mat-form-field appearance="fill">
-                    <mat-label>Choose a country…</mat-label>
-                    <input type="text" matInput [formControl]="countryControl" [matAutocomplete]="auto"
-                        (keydown.enter)="onEnterKey()" />
-                    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-                        <mat-option *ngFor="let country of (filteredCountries$ | async)" [value]="country">
-                            {{ country.name }}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-                <button class="guess-button" mat-raised-button (click)="confirmCountry()">
-                    Lock in country
+        <div class="action-row action-row--stacked">
+            @if (phase === 'psychic') {
+            <div class="guess-tile">
+                <div class="guess-form">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Choose a country…</mat-label>
+                        <input type="text" matInput [formControl]="countryControl" [matAutocomplete]="auto"
+                            (keydown.enter)="onEnterKey()" />
+                        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+                            <mat-option *ngFor="let country of (filteredCountries$ | async)" [value]="country">
+                                {{ country.name }}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                    <button class="guess-button" mat-raised-button (click)="confirmCountry()">
+                        Lock in country
+                    </button>
+                </div>
+            </div>
+            }
+
+            @if (phase === 'guesser') {
+            <div class="guess-tile">
+                <button class="guess-button guess-button--full" (click)="confirmGuess()">Lock in guess</button>
+            </div>
+            }
+
+            @if (phase === 'reveal') {
+            <div class="guess-tile">
+                <button class="guess-button guess-button--full" (click)="nextRound()">
+                    {{ round >= 6 ? 'See results →' : 'Next round →' }}
                 </button>
             </div>
+            }
         </div>
         }
 
-        @if (phase === 'guesser') {
-        <div class="guess-tile">
-            <button class="guess-button guess-button--full" (click)="confirmGuess()">Lock in guess</button>
+        @if (gameOver) {
+        <div class="country-tile">
+            <div class="country-tile__info">
+                <span class="country-tile__label">Final score</span>
+                <span class="country-tile__name">{{ teamScore }} / 30</span>
+            </div>
+        </div>
+        <div class="action-row">
+            <button class="guess-button" (click)="playAgain()">Play again</button>
         </div>
         }
-
-        @if (phase === 'reveal') {
-        <div class="guess-tile">
-            <button class="guess-button guess-button--full" (click)="nextRound()">
-                {{ round >= 6 ? 'See results →' : 'Next round →' }}
-            </button>
-        </div>
-        }
     </div>
-    }
-
-    @if (gameOver) {
-    <div class="country-tile">
-        <div class="country-tile__info">
-            <span class="country-tile__label">Final score</span>
-            <span class="country-tile__name">{{ teamScore }} / 30</span>
-        </div>
-    </div>
-    <div class="action-row">
-        <button class="guess-button" (click)="playAgain()">Play again</button>
-    </div>
-    }
 </div>
 
 @if (history.length > 0) {

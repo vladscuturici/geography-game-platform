@@ -1,0 +1,245 @@
+<div class="game-card">
+  <header class="header">
+    <h1 class="title">Wavelength</h1>
+    <p class="subtitle">Get on your teammate's wavelength</p>
+  </header>
+
+  <div class="mode-tile">
+    <a class="mode-option" routerLink="/wavelength/local">Local</a>
+    <a class="mode-option mode-option--active" routerLink="/wavelength/online">Online</a>
+  </div>
+
+  <div class="game-body" [class.game-body--top]="screen !== 'room' || state?.phase === 'waiting'">
+    @if (screen === 'username') {
+    <div class="guess-tile">
+      <div class="guess-form">
+        <mat-form-field appearance="fill">
+          <mat-label>Your name</mat-label>
+          <input matInput [(ngModel)]="username" (keydown.enter)="confirmUsername()" />
+        </mat-form-field>
+        <button class="guess-button" mat-raised-button (click)="confirmUsername()">Continue</button>
+      </div>
+    </div>
+    }
+
+    @if (screen === 'menu') {
+    <div class="menu-tile">
+      <button class="guess-button guess-button--full" mat-raised-button (click)="chooseCreate()">Create room</button>
+      <button class="guess-button guess-button--full" mat-stroked-button (click)="chooseJoin()">Join room</button>
+    </div>
+    }
+
+    @if (screen === 'join-code') {
+    <div class="guess-tile">
+      <div class="guess-form">
+        <mat-form-field appearance="fill">
+          <mat-label>Room code</mat-label>
+          <input matInput [(ngModel)]="joinCodeInput" (keydown.enter)="joinRoom()" style="text-transform: uppercase;" />
+        </mat-form-field>
+        <button class="guess-button" mat-raised-button (click)="joinRoom()">Join</button>
+      </div>
+    </div>
+    }
+
+    @if (screen === 'connecting') {
+    <div class="phase-tile">
+      <p class="phase-hint">Connecting…</p>
+    </div>
+    }
+
+    @if (screen === 'error') {
+    <p class="phase-hint">{{ errorMessage }}</p>
+    <div class="action-row">
+      <button class="guess-button" (click)="screen = 'menu'">Back</button>
+    </div>
+    }
+
+    @if (screen === 'room' && state) {
+
+    @if (state.phase === 'waiting') {
+    <div class="country-tile">
+      <div class="country-tile__info">
+        <span class="country-tile__label">Room code</span>
+        <span class="country-tile__name">{{ roomCode }}</span>
+      </div>
+    </div>
+    <div class="phase-tile">
+      <p class="phase-hint">Waiting for your teammate to join…</p>
+    </div>
+    <div class="action-row">
+      <button class="guess-button guess-button--full" (click)="copyRoomLink()">Copy invite link</button>
+    </div>
+    }
+
+    @if (state.phase !== 'waiting' && !state.gameOver) {
+    <div class="country-tile">
+      <div class="country-tile__info">
+        <span class="country-tile__label">Category</span>
+        <span class="country-tile__name">{{ state.category.title }}</span>
+      </div>
+    </div>
+
+    <div class="wheel-tile" *ngIf="displayState">
+      <div class="wheel-tile__header">
+        <span class="wheel-tile__round">Round {{ displayState.round }} / {{ displayState.totalRounds }}</span>
+
+        @if (lockedCountryObj && displayState.phase !== 'psychic') {
+        <div class="locked-country-tile">
+          <img class="locked-country-tile__flag" [src]="lockedCountryObj.flags.svg"
+            [alt]="lockedCountryObj.name + ' flag'" />
+          <span class="locked-country-tile__name">{{ lockedCountryObj.name }}</span>
+        </div>
+        }
+
+        <div class="wheel-tile__roles">
+          <span class="wheel-tile__role">Psychic: {{ psychicName }}</span>
+          <span class="wheel-tile__role">Guesser: {{ guesserName }}</span>
+        </div>
+      </div>
+
+      <p class="wheel-instruction">
+        @if (displayState.phase === 'psychic') {
+        @if (isPsychic) {
+        Choose a country that matches the red spot
+        } @else {
+        {{ psychicName }} is picking a country…
+        }
+        }
+        @if (displayState.phase === 'guesser') {
+        @if (!isPsychic) {
+        Drag the needle where the country belongs…
+        } @else {
+        {{ guesserName }} is guessing…
+        }
+        }
+        @if (displayState.phase === 'reveal') {
+        <span class="wheel-instruction__score" [style.color]="pointsColor(state.lastPoints)">+{{ state.lastPoints }}
+          points</span>
+        }
+      </p>
+
+      <app-wavelength-wheel [category]="displayState.category" [target]="displayState.target ?? 50"
+        [needleValue]="needleValue" [phase]="wheelPhase" [coverValue]="coverValue"
+        [lockedGuess]="displayState.lockedGuess" (needleValueChange)="onNeedleChange($event)"></app-wavelength-wheel>
+    </div>
+
+    <div class="action-row action-row--stacked">
+      @if (state.phase === 'psychic') {
+      @if (isPsychic) {
+      <div class="guess-tile">
+        <div class="guess-form">
+          <mat-form-field appearance="fill">
+            <mat-label>Choose a country…</mat-label>
+            <input type="text" matInput [formControl]="countryControl" [matAutocomplete]="auto"
+              (keydown.enter)="onEnterKey()" />
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+              <mat-option *ngFor="let country of (filteredCountries$ | async)" [value]="country">
+                {{ country.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+          <button class="guess-button" mat-raised-button [disabled]="!hasValidCountrySelected"
+            (click)="confirmCountry()">
+            Lock in country
+          </button>
+        </div>
+      </div>
+      } @else {
+      <div class="guess-tile guess-tile--hint">
+        <p class="phase-hint phase-hint--tile">Waiting for {{ psychicName }} to pick a country…</p>
+      </div>
+      }
+      }
+
+      @if (state.phase === 'guesser') {
+      @if (!isPsychic) {
+      <div class="guess-tile guess-tile--action">
+        <button class="guess-button guess-button--full" (click)="confirmGuess()">Lock in guess</button>
+      </div>
+      } @else {
+      <div class="guess-tile guess-tile--hint">
+        <p class="phase-hint phase-hint--tile">Waiting for {{ guesserName }}'s guess…</p>
+      </div>
+      }
+      }
+
+      @if (state.phase === 'reveal') {
+      <div class="guess-tile guess-tile--action">
+        <button class="guess-button guess-button--full" [disabled]="state.youReadyForNextRound" (click)="nextRound()">
+          {{ state.round >= state.totalRounds ? 'See results' : 'Next round' }}
+          ({{ state.nextRoundReadyCount }}/2)
+        </button>
+      </div>
+      }
+    </div>
+    }
+
+    @if (state.gameOver) {
+    <div class="country-tile country-tile--final">
+      <div class="country-tile__info">
+        <span class="country-tile__label">Final score</span>
+        <span class="country-tile__name">{{ state.teamScore }} / 30</span>
+      </div>
+    </div>
+
+    <div class="action-row action-row--center">
+      <button class="guess-button" [disabled]="state.youReadyForPlayAgain" (click)="playAgain()">
+        Play again ({{ state.playAgainReadyCount }}/2)
+      </button>
+    </div>
+    }
+    }
+  </div>
+</div>
+
+@if (state?.history && state!.history.length > 0) {
+@if (state && (state.history.length > 0 || state.gameHistory.length > 0)) {
+<aside class="history-sidebar">
+
+  @if (!state.gameOver) {
+  <h3 class="history-title">Current Game</h3>
+  <table class="history-table">
+    <thead>
+      <tr>
+        <th>Country</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (entry of state.history; track entry.round) {
+      <tr [style.background-color]="toGreenSaturation(entry.points)">
+        <td>{{ entry.country }}</td>
+        <td class="score-cell">{{ entry.points }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="history-average">
+    Team total: <strong>{{ state.teamScore }}</strong> / {{ state.history.length * 5 }}
+  </div>
+  } @else {
+  <h3 class="history-title">Session History</h3>
+  <table class="history-table">
+    <thead>
+      <tr>
+        <th>Game</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (g of state.gameHistory; track g.game) {
+      <tr [style.background-color]="toGreenSaturation(g.score * (5/30))">
+        <td>Game {{ g.game }}</td>
+        <td class="score-cell">{{ g.score }} / 30</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="history-average">
+    Games played: <strong>{{ state.gameHistory.length }}</strong>
+  </div>
+  }
+
+</aside>
+}
+}

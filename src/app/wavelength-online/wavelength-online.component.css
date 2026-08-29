@@ -157,6 +157,11 @@
   gap: 1.1rem;
 }
 
+.game-body--top {
+  justify-content: flex-start;
+  gap: 0.9rem;
+}
+
 /* --- Mode select --- */
 .mode-select {
   width: 100%;
@@ -287,10 +292,10 @@
   gap: 0.75rem;
 }
 
-/* --- Wheel tile header: round counter + psychic/guesser roles --- */
+/* --- Wheel tile header: round counter + locked country mini-tile + roles tile --- */
 .wheel-tile__header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   flex: 0 0 auto;
@@ -318,22 +323,57 @@
   padding: 0.35rem 0.85rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
-  align-self: flex-start;
+  flex: 0 0 auto;
 }
 
+/* --- Locked-country mini-tile, sits between round counter and roles --- */
+.locked-country-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--ink);
+  border: 1px solid rgba(232, 200, 118, 0.35);
+  border-radius: 22px;
+  padding: 0.4rem 1rem 0.4rem 0.4rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  flex: 0 0 auto;
+}
+
+.locked-country-tile__flag {
+  height: 32px;
+  width: auto;
+  border-radius: 4px;
+  display: block;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.locked-country-tile__name {
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* --- Roles mini-tile: ink background, yellow text --- */
 .wheel-tile__roles {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 0.2rem;
+  background: var(--ink);
+  border: 1px solid rgba(232, 200, 118, 0.35);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  flex: 0 0 auto;
 }
 
 .wheel-tile__role {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
   color: var(--brass-bright);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -379,14 +419,53 @@
   color: var(--brass-bright);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
   flex: 0 0 auto;
+  min-height: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .wheel-instruction__score {
-  color: var(--match);
+  display: inline-block;
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  background: var(--ink);
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .wheel-instruction__score--zero {
-  color: #e08a8a;
+  background: rgba(201, 106, 106, 0.2);
+}
+
+/* --- Final score tile: nudge up --- */
+.country-tile--final {
+  margin-top: -0.5rem;
+}
+
+/* --- Play again row: centered + nudged up --- */
+.action-row--center {
+  justify-content: center;
+  margin-top: -0.5rem;
+}
+
+.action-row--center .guess-button {
+  width: auto;
+  min-width: 220px;
+}
+
+/* --- Menu tile (Create/Join room together) --- */
+.menu-tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.16), rgba(20, 33, 61, 0.6));
+  border: 1px solid var(--brass);
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(232, 200, 118, 0.1);
+  box-sizing: border-box;
 }
 
 .wheel-label--left {
@@ -431,7 +510,6 @@
   stroke-width: 0.75;
 }
 
-
 .zone {
   stroke: none;
 }
@@ -471,7 +549,6 @@
   fill: var(--logo-red);
   r: 7;
 }
-
 
 .pivot {
   fill: var(--logo-red);
@@ -658,6 +735,10 @@
   }
   .wheel-tile__roles {
     align-items: flex-start;
+    align-self: stretch;
+  }
+  .locked-country-tile {
+    align-self: stretch;
   }
 }
 
@@ -817,6 +898,54 @@
 
 .guess-form mat-form-field { flex: 1 1 auto; }
 
+/* --- Phase tile (Connecting… / Waiting for teammate…) --- */
+.phase-tile {
+  width: 100%;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.14), rgba(20, 33, 61, 0.6));
+  border: 1px solid var(--brass);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(232, 200, 118, 0.08);
+  box-sizing: border-box;
+}
+
+.phase-tile .phase-hint {
+  color: var(--brass-bright);
+  font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Guess-tile hint variant (keeps same fixed height as interactive state) --- */
+.guess-tile--hint {
+  justify-content: center;
+}
+
+.phase-hint--tile {
+  color: var(--brass-bright);
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Guess-tile action variant: button fills the whole fixed-size tile --- */
+.guess-tile--action {
+  flex: 0 0 84px;
+  height: 84px;
+  padding: 0; /* let the button fill it edge-to-edge */
+}
+
+.guess-tile--action .guess-button {
+  height: 100% !important;
+  width: 100%;
+}
+
+.wheel-instruction__country {
+  color: #ffffff;
+}
+
 ::ng-deep .guess-form .mat-mdc-form-field-subscript-wrapper {
   display: none;
 }
@@ -856,5 +985,8 @@
     font-size: 0.6rem;
     padding: 0.4rem 0.55rem;
     min-height: 2.2rem;
+  }
+  .locked-country-tile__name {
+    font-size: 0.75rem;
   }
 }

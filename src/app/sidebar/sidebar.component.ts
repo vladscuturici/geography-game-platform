@@ -69,13 +69,13 @@ export class SidebarComponent {
       label: 'Sort it Out',
       route: 'sort-it-out',
       glyph: 'sort',
-      hint: 'VII',
+      hint: 'VIII',
     },
     {
       label: 'Wavelength',
       route: 'wavelength',
       glyph: 'wavelength',
-      hint: 'VIII',
+      hint: 'IX',
     },
     // {
     //   label: 'Guess the Language',

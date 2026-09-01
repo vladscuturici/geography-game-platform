@@ -13,12 +13,12 @@
     </div>
 
     <div class="toggle-stack">
-      <div class="toggle-row toggle-row--regions">
+      <div class="toggle-row">
         <button
           type="button"
           class="toggle-option"
           [class.toggle-option--active]="borderMode === 'none'"
-          [disabled]="borderModeLocked || hasGuessed"
+          [disabled]="borderModeLocked || hasGuessed || isCountryMode"
           (click)="setBorderMode('none')"
         >
           No borders
@@ -27,10 +27,10 @@
           type="button"
           class="toggle-option"
           [class.toggle-option--active]="borderMode === 'shown'"
-          [disabled]="borderMode === 'shown' || hasGuessed"
+          [disabled]="borderMode === 'shown' || hasGuessed || isCountryMode"
           (click)="setBorderMode('shown')"
         >
-          Show borders <span class="toggle-option__hint">(half points)</span>
+          Show borders <span class="toggle-option__hint">(25% penalty)</span>
         </button>
       </div>
 
@@ -84,6 +84,21 @@
           Oceania
         </button>
       </div>
+
+      <div class="toggle-row toggle-row--country">
+        <button
+          type="button"
+          class="toggle-option toggle-option--country"
+          [class.toggle-option--active]="isCountryMode"
+          (click)="openCountryPicker()"
+        >
+          @if (isCountryMode && selectedCountryName) {
+            {{ selectedCountryName }} <span class="toggle-option__hint">(click to change)</span>
+          } @else {
+            Select a Country
+          }
+        </button>
+      </div>
     </div>
   </div>
 
@@ -110,7 +125,7 @@
         <span class="result-label__score">
           {{ currentScore }} pts
           @if (scoreWasHalved) {
-            <span class="result-label__raw-score">{{ currentScore * 2 }} pts</span>
+            <span class="result-label__raw-score">{{ rawScore }} pts</span>
           }
         </span>
         <span class="result-label__detail">{{ currentDistance | number: '1.0-1' }} km away</span>
@@ -142,4 +157,30 @@
       Average: <strong>{{ averageScore }}</strong> pts/guess
     </div>
   </aside>
+}
+
+@if (showCountryPicker) {
+  <div class="country-picker-backdrop" (click)="closeCountryPicker()">
+    <div class="country-picker-modal" (click)="$event.stopPropagation()">
+      <h3 class="country-picker-title">Choose a country</h3>
+      <select class="country-picker-select" [(ngModel)]="pickerSelectedCode">
+        @for (country of pickerCountries; track country.code) {
+          <option [value]="country.code">{{ country.name }}</option>
+        }
+      </select>
+      <div class="country-picker-actions">
+        <button type="button" class="country-picker-cancel" (click)="closeCountryPicker()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="country-picker-confirm"
+          [disabled]="!pickerSelectedCode"
+          (click)="confirmCountryPicker()"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
 }

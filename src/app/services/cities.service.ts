@@ -55,4 +55,17 @@ export class CitiesService {
 
         return this.getTopCitiesCapped(regionCountryCodes, total, maxPerCountry);
     }
+
+    /**
+     * Returns the top `limit` cities (by population) for a single country,
+     * ordered by population (the API's default order). If the country has
+     * fewer than `limit` cities in the database, whatever is available is
+     * returned — the API doesn't need padding logic on our end since it
+     * simply returns fewer results.
+     */
+    public getTopCitiesForCountry(countryCode: string, limit: number = 100): Observable<City[]> {
+        return this._httpClient
+            .get<City[]>(`${this._apiUrl}/cities?country=${countryCode}&limit=${limit}`)
+            .pipe(catchError(() => of([] as City[])));
+    }
 }

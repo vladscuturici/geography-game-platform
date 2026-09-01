@@ -304,9 +304,9 @@ tbody td {
 .history-sidebar {
   position: fixed;
   top: 50%;
-  right: 2rem;
+  right: 1rem;       
   transform: translateY(-50%);
-  width: 260px;
+  width: clamp(160px, 22vw, 220px); /* was fixed 260px; capped at 220px = the reserved space, so it can never overlap the card */
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -363,13 +363,13 @@ tbody td {
 .history-table td {
   padding: 0.4rem 0.35rem;
   text-align: center;
+  white-space: nowrap;
 }
 
 .history-table th:nth-child(1),
 .history-table td:nth-child(1) {
-  flex: 0 0 70px;
-  white-space: nowrap !important;
-  font-size: 0.7rem;
+  flex: 0 0 60px;
+  font-size: 0.68rem;
 }
 
 .history-table th:nth-child(2),
@@ -384,8 +384,7 @@ tbody td {
 
 .history-table th:nth-child(3),
 .history-table td:nth-child(3) {
-  flex: 0 0 64px;
-  white-space: nowrap !important;
+  flex: 0 0 56px;
 }
 
 .history-table th {
@@ -403,14 +402,25 @@ tbody td {
   color: var(--parchment);
 }
 
+::ng-deep .guess-form .mat-mdc-text-field-wrapper {
+  background: var(--parchment);
+  border-radius: 4px 4px 0 0;
+  overflow: hidden; /* clips the ripple/corners so pink background can't peek through */
+}
+
+::ng-deep .guess-form .mat-mdc-form-field-flex {
+  background: var(--parchment);
+  border-radius: 4px 4px 0 0;
+}
+
+::ng-deep .guess-form .mat-mdc-form-field-subscript-wrapper {
+  display: none; /* removes the empty hint-space strip below the input that was showing pink */
+}
+
 @media (max-width: 1100px) {
   .history-sidebar {
     display: none;
   }
-}
-
-@media (max-width: 700px) {
-  .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
 }
 
 @keyframes reveal {
@@ -425,7 +435,39 @@ tbody td {
 @media (max-width: 700px) {
   :host { height: auto; min-height: 100vh; overflow: visible; padding: 1.5rem 1.5rem 3rem; }
   .game-card { height: auto; }
+
+  .title { font-size: 1.5rem; }               /* was 2.1rem — was too big for narrow width */
+  .subtitle { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .header { padding: 0.85rem 1rem; }
+
   .guess-form { flex-direction: column; }
-  .guess-button { width: 100%; }
-  thead th, tbody td { padding: 0.55rem 0.5rem; font-size: 0.78rem; }
+  .guess-button { width: 100%; height: 48px; font-size: 0.95rem; }
+
+  .guess-tile { padding: 0.75rem 0.85rem; }
+
+  .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
+  .mode-tile { padding: 0.3rem; }
+
+  /* --- table: shrink everything and stop headers truncating --- */
+  table { font-size: 0.68rem; }
+
+  thead th, tbody td {
+    padding: 0.4rem 0.35rem;
+    font-size: 0.62rem;
+  }
+
+  thead th {
+    letter-spacing: 0.02em;   /* was 0.08em — that was eating horizontal space per letter */
+    white-space: normal;      /* let long headers like "POPULATION" wrap instead of truncate */
+    line-height: 1.15;
+  }
+
+  tbody td {
+    line-height: 1.25;
+  }
+
+  .pop-arrow {
+    font-size: 0.9em;
+    margin-left: 0.15rem;
+  }
 }

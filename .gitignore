@@ -43,3 +43,6 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 matrix-lookup.py
+db_update.py
+cities_lookup.py
+reference_distance.py

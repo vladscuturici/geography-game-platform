@@ -19,7 +19,9 @@
   --cream: #f0dcae;
   --cream-dim: #e2c98a;
   --maroon: #7c2434;
+  --maroon_brighter: #c51838;
   --maroon-bright: #a63a4d;
+  --maroon-glow: #e0637a;
 
   display: block;
   font-family: 'Spectral', Georgia, serif;
@@ -54,18 +56,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 24px 24px 16px;
+  gap: 0.65rem;
+  padding: 20px 24px 18px;
   text-align: center;
   background-image:
-    radial-gradient(120% 140% at 50% 0%, rgba(124, 36, 52, 0.28), transparent 55%),
+    radial-gradient(120% 140% at 50% 0%, rgba(82, 71, 241, 0.28), transparent 75%),
     url('../../../public/map_texture.jpg');
   background-color: var(--ink);
   background-size: cover, cover;
   background-position: center, center;
   background-repeat: no-repeat, no-repeat;
   background-blend-mode: normal, multiply;
-  border-bottom: none;
   position: relative;
 }
 
@@ -96,8 +97,8 @@
 }
 
 .home__logo {
-  width: 56px;
-  height: 56px;
+  /* width: 72px;  */
+  /* height: 100px; */
   flex-shrink: 0;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
 }
@@ -122,19 +123,30 @@
   margin: 0;
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 34px;
-  color: var(--brass-bright);
+  font-size: 44px;
   letter-spacing: 0.01em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.home__name-part {
+  background: linear-gradient(90deg, var(--maroon_brighter) 0%, var(--brass-bright) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent; /* fallback for non-webkit */
+}
+
+.home__name-part--accent {
+  color: var(--maroon_brighter);
 }
 
 .home__tagline {
-  margin: 0.35rem 0 0;
+  margin: 0;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.05em;
   color: var(--muted);
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 /* ---------- Map background: dark base, color only in the gaps ---------- */
@@ -424,8 +436,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(232, 200, 118, 0.18), transparent 70%);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
@@ -443,8 +455,8 @@
 }
 
 .game-tile__glyph {
-  width: 40px;
-  height: 40px;
+  width: 52px; /* was 40px */
+  height: 52px;
   color: var(--brass-bright);
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
   transition: filter 0.25s ease;
@@ -460,7 +472,7 @@
   z-index: 1;
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 24px;
+  font-size: 28px; /* was 24px */
   color: var(--brass-bright);
   line-height: 1.25;
 }
@@ -493,21 +505,178 @@
   color: var(--muted);
 }
 
+.game-tile__tags {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+}
+
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  line-height: 1.5;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.game-tile:hover:not(.game-tile--locked) .tag {
+  transform: translateY(-1px);
+}
+
+/* Singleplayer — quiet, brass-tinted, the "default" mode */
+.tag--singleplayer {
+  color: var(--brass-bright);
+  background: rgba(201, 162, 75, 0.14);
+  border-color: rgba(201, 162, 75, 0.35);
+}
+
+/* Daily — stands out, uses the accent green so it reads as "special" */
+.tag--daily {
+  color: var(--match);
+  background: rgba(111, 174, 94, 0.16);
+  border-color: rgba(111, 174, 94, 0.4);
+}
+
+/* Local multiplayer — warm orange, energetic but grounded */
+.tag--local-mp {
+  color: #e8934a;
+  background: rgba(232, 147, 74, 0.16);
+  border-color: rgba(232, 147, 74, 0.4);
+}
+
+/* Online multiplayer — red, signals "live"/connected */
+.tag--online-mp {
+  color: #e0524a;
+  background: rgba(224, 82, 74, 0.16);
+  border-color: rgba(224, 82, 74, 0.4);
+}
+
+.home__brand-tile {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 40px;
+  border-radius: 10px;
+  background:
+    linear-gradient(155deg, var(--cream) 0%, var(--parchment) 50%, var(--cream-dim) 100%);
+  border: 1px solid rgba(124, 36, 52, 0.35);
+  box-shadow:
+    0 4px 0 rgba(124, 36, 52, 0.25),
+    0 18px 30px -8px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(124, 36, 52, 0.1);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* thin brass hairline framing the plaque, slightly inset */
+.home__brand-tile::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(201, 162, 75, 0.55);
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* soft corner flourishes, echoing the tile corner-bracket motif */
+.home__brand-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle 3.5px at 14px 14px, var(--brass) 0%, var(--brass) 55%, transparent 60%),
+    radial-gradient(circle 3.5px at calc(100% - 14px) 14px, var(--brass) 0%, var(--brass) 55%, transparent 60%),
+    radial-gradient(circle 3.5px at 14px calc(100% - 14px), var(--brass) 0%, var(--brass) 55%, transparent 60%),
+    radial-gradient(circle 3.5px at calc(100% - 14px) calc(100% - 14px), var(--brass) 0%, var(--brass) 55%, transparent 60%);
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.3));
+  pointer-events: none;
+  z-index: 2;
+}
+
+.home__brand-tile .home__logo {
+  position: relative;
+  z-index: 3;
+  height: 52px;
+  width: auto;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+}
+
+@media (max-width: 640px) {
+  .home__brand-tile { padding: 10px 24px; }
+  .home__brand-tile .home__logo { height: 40px; }
+}
+
 @media (max-width: 900px) {
-  .tile-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    position: static;
-    height: 100%;
+  .home {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
   }
-  .tile-grid .game-tile:nth-child(9),
-  .tile-grid .game-tile:nth-child(10) {
-    grid-column: auto;
+
+  .home__map-wrap {
+    flex: none;
+    overflow: visible;
+  }
+
+  .tile-grid {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    height: auto;
   }
 }
 
 @media (max-width: 640px) {
+  .home__header {
+    padding: 16px 16px 14px;
+  }
+
+  .home__brand-tile {
+    padding: 8px 20px;
+  }
+
+  .home__brand-tile .home__logo {
+    height: 36px;
+  }
+
   .tile-grid {
-    gap: 16px;
-    padding: 20px;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .game-tile {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .game-tile__icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .game-tile__glyph {
+    width: 40px;
+    height: 40px;
+  }
+
+  .game-tile__name {
+    font-size: 22px;
+  }
+
+  .game-tile__desc {
+    font-size: 13px;
   }
 }

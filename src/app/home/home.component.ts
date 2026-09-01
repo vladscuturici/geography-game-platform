@@ -8,7 +8,17 @@ interface GameTile {
   description: string;
   route: string | null;
   glyph: keyof typeof GLYPH_PATHS;
+  tags: TagKey[];
 }
+
+type TagKey = 'singleplayer' | 'daily' | 'local-mp' | 'online-mp';
+
+const TAG_LABELS: Record<TagKey, string> = {
+  singleplayer: 'Singleplayer',
+  daily: 'Daily',
+  'local-mp': 'Local Multiplayer',
+  'online-mp': 'Online Multiplayer',
+};
 
 const GLYPH_PATHS = {
   globe: `<circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" />`,
@@ -38,17 +48,19 @@ export class HomeComponent {
   private _sanitizer = inject(DomSanitizer);
 
   public games: GameTile[] = [
-    { title: 'Guess the Country', description: 'Can you guess the daily/unlimited country based on clues?', route: '/guess-the-country/daily-country', glyph: 'globe' },
-    { title: 'Wavelength', description: 'The classic Wavelength game with a geographic twist...', route: '/wavelength', glyph: 'wavelength' },
-    { title: 'TicTacToe', description: 'The classic TicTacToe game with a geographic twist...', route: '/tic-tac-toe', glyph: 'grid' },
-    // { title: 'Country Silhouette', description: 'Idenfiy countries by their outline on the map.', route: '/country-silhouette', glyph: 'outline' },
-    { title: 'Locate the City', description: 'Drop a pin where you think a city is and see how close you got.', route: '/locate-the-city', glyph: 'pin' },
-    { title: 'Sort it out', description: 'Order 5 countries based on the given criteria.', route: '/sort-it-out', glyph: 'sort' },
-    // { title: 'Guess the Language', description: 'Identify the country based on highlighted countries', route: '/guess-the-language', glyph: 'language' },
-    { title: 'Narrow it Down', description: 'Bracket a hidden number with a shrinking range for points.', route: '/narrow-it-down', glyph: 'target' },
-    { title: 'Higher Lower', description: 'Which country has the bigger population?', route: '/higher-lower', glyph: 'updown' },
-    { title: 'WikiLocate', description: 'Identify the city based on the Wikipedia pages displayed.', route: '/wiki-locate', glyph: 'book' },
+    { title: 'Guess the Country', description: 'Can you guess the daily/unlimited country based on clues?', route: '/guess-the-country/daily-country', glyph: 'globe', tags: ['singleplayer', 'daily'] },
+    { title: 'Wavelength', description: 'The classic Wavelength game with a geographic twist...', route: '/wavelength', glyph: 'wavelength', tags: ['local-mp', 'online-mp'] },
+    { title: 'TicTacToe', description: 'The classic TicTacToe game with a geographic twist...', route: '/tic-tac-toe', glyph: 'grid', tags: ['singleplayer', 'local-mp', 'online-mp'] },
+    { title: 'Locate the City', description: 'Drop a pin where you think a city is and see how close you got.', route: '/locate-the-city', glyph: 'pin', tags: ['singleplayer'] },
+    { title: 'Sort it out', description: 'Order 5 countries based on the given criteria.', route: '/sort-it-out', glyph: 'sort', tags: ['singleplayer'] },
+    { title: 'Narrow it Down', description: 'Bracket a hidden number with a shrinking range for points.', route: '/narrow-it-down', glyph: 'target', tags: ['singleplayer'] },
+    { title: 'Higher Lower', description: 'Which country has the bigger population?', route: '/higher-lower', glyph: 'updown', tags: ['singleplayer'] },
+    { title: 'WikiLocate', description: 'Identify the city based on the Wikipedia pages displayed.', route: '/wiki-locate', glyph: 'book', tags: ['singleplayer'] },
   ];
+
+  public tagLabel(tag: TagKey): string {
+    return TAG_LABELS[tag];
+  }
 
   public glyphSvg(glyph: keyof typeof GLYPH_PATHS): SafeHtml {
     return this._sanitizer.bypassSecurityTrustHtml(GLYPH_PATHS[glyph] ?? GLYPH_PATHS.unknown);

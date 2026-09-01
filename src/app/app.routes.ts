@@ -4,14 +4,13 @@ import { DailyCountryComponent } from './guess-the-country/daily-country/daily-c
 import { UnlimitedComponent } from './guess-the-country/unlimited/unlimited.component';
 import { NarrowItDownComponent } from './narrow-it-down/narrow-it-down.component';
 import { LocateTheCityComponent } from './locate-the-city/locate-the-city.component';
-import { GuessTheLanguageComponent } from './guess-the-language/guess-the-language.component';
 import { TicTacToeComponent } from './tic-tac-toe/tic-tac-toe.component';
-import { GuessCountryByOutlineComponent } from './guess-country-by-outline/guess-country-by-outline.component';
 import { HigherLowerComponent } from './higher-lower/higher-lower.component';
 import { SortItOutComponent } from './sort-it-out/sort-it-out.component';
 import { WikilocateComponent } from './wikilocate/wikilocate.component';
 import { WavelengthComponent } from './wavelength/wavelength.component';
 import { WavelengthOnlineComponent } from './wavelength-online/wavelength-online.component';
+import { TicTacToeOnlineComponent } from './tic-tac-toe-online/tic-tac-toe-online.component';
 
 export const routes: Routes = [
     {
@@ -52,14 +51,26 @@ export const routes: Routes = [
     {   path: 'locate-the-city/:region', 
         component: LocateTheCityComponent 
     },
+    { 
+        path: 'locate-the-city/country/:countryCode', 
+        component: LocateTheCityComponent 
+    },    
     // {
     //     path: 'guess-the-language',
     //     component: GuessTheLanguageComponent
     // },
-    {
+        {
         path: 'tic-tac-toe',
         redirectTo: 'tic-tac-toe/single-player',
         pathMatch: 'full',
+    },
+    {
+        path: 'tic-tac-toe/online-pvp',
+        component: TicTacToeOnlineComponent,
+    },
+    {
+        path: 'tic-tac-toe/online-pvp/room/:code',
+        component: TicTacToeOnlineComponent,
     },
     {
         path: 'tic-tac-toe/:mode',
@@ -68,7 +79,7 @@ export const routes: Routes = [
     // {
     //     path: 'country-silhouette',
     //     component: GuessCountryByOutlineComponent
-    // },
+    // },,
     {
         path: 'higher-lower',
         component: HigherLowerComponent

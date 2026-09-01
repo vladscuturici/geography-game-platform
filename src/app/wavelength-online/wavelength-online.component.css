@@ -275,11 +275,17 @@
   line-height: 1.05;
 }
 
-/* --- Wheel tile --- */
+/* --- Wheel tile ---
+   NOTE: this tile is now a *size query container*. That's the key fix:
+   all the cqh/cqw units used on its descendants below only work if an
+   ancestor declares container-type. Previously those units were
+   silently resolving against the viewport, not this tile, which is
+   why content overflowed instead of shrinking with the tile itself. */
 .wheel-tile {
   width: 100%;
   flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
   background: linear-gradient(135deg, rgba(201, 162, 75, 0.16), rgba(20, 33, 61, 0.6));
   border: 1px solid var(--brass);
   border-radius: 8px;
@@ -290,6 +296,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+
+  container-type: size;
+  container-name: wheel-tile;
 }
 
 /* --- Wheel tile header: round counter + locked country mini-tile + roles tile --- */
@@ -298,7 +307,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  flex: 0 0 auto;
+  flex: 0 1 auto; /* allow shrinking, was 0 0 auto */
+  min-height: 0;
+  flex-wrap: wrap;
+  row-gap: 0.35rem;
 }
 
 .wheel-visual {
@@ -306,7 +318,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0.35rem;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
   justify-content: center;
 }
@@ -326,21 +338,41 @@
   flex: 0 0 auto;
 }
 
+.wheel-tile__round {
+  font-size: clamp(0.5rem, 5cqh, 0.72rem);
+  padding: clamp(0.15rem, 2cqh, 0.35rem) clamp(0.5rem, 3cqw, 0.85rem);
+}
+
+.wheel-tile__role {
+  font-size: clamp(0.55rem, 4cqh, 0.82rem);
+}
+
+.wheel-instruction {
+  font-size: clamp(0.75rem, 5cqh, 1.1rem);
+  min-height: clamp(1rem, 6cqh, 2.6rem);
+}
+
+.wheel-label {
+  font-size: clamp(0.5rem, min(2.2cqw, 3.5cqh), 0.68rem);
+  padding: clamp(0.15rem, 1.5cqh, 0.5rem) clamp(0.3rem, 2cqw, 0.75rem);
+  min-height: clamp(1rem, 6cqh, 2.2rem);
+}
+
 /* --- Locked-country mini-tile, sits between round counter and roles --- */
 .locked-country-tile {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: clamp(0.3rem, 2cqw, 0.6rem);
   background: var(--ink);
   border: 1px solid rgba(232, 200, 118, 0.35);
   border-radius: 22px;
-  padding: 0.4rem 1rem 0.4rem 0.4rem;
+  padding: clamp(0.15rem, 2cqh, 0.4rem) clamp(0.6rem, 3cqw, 1rem) clamp(0.15rem, 2cqh, 0.4rem) clamp(0.15rem, 2cqh, 0.4rem);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
   flex: 0 0 auto;
 }
 
 .locked-country-tile__flag {
-  height: 32px;
+  height: clamp(18px, 10cqh, 32px);
   width: auto;
   border-radius: 4px;
   display: block;
@@ -350,7 +382,7 @@
 .locked-country-tile__name {
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: clamp(0.7rem, 5cqh, 1.05rem);
   color: #ffffff;
   white-space: nowrap;
 }
@@ -360,11 +392,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.2rem;
+  gap: clamp(0.1rem, 1cqh, 0.2rem);
   background: var(--ink);
   border: 1px solid rgba(232, 200, 118, 0.35);
   border-radius: 8px;
-  padding: 0.4rem 0.75rem;
+  padding: clamp(0.2rem, 2cqh, 0.4rem) clamp(0.4rem, 2cqw, 0.75rem);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
   flex: 0 0 auto;
 }
@@ -372,7 +404,7 @@
 .wheel-tile__role {
   color: var(--brass-bright);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.82rem;
+  font-size: clamp(0.55rem, 4cqh, 0.82rem);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -380,33 +412,38 @@
 .wheel-labels {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0 0.25rem;
+  gap: clamp(0.3rem, 2cqw, 0.75rem);
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-height: 0;
 }
 
 .wheel-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--brass-bright);
   background: var(--ink);
   border: 1px solid rgba(232, 200, 118, 0.35);
   border-radius: 10px;
-  padding: 0.5rem 0.75rem;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-  white-space: normal;        /* allow wrapping instead of truncating */
-  line-height: 1.35;
-  flex: 1 1 0;                 /* both labels share space evenly */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  font-size: clamp(0.5rem, min(2.2cqw, 3.5cqh), 0.68rem);
+  padding: clamp(0.15rem, 1.5cqh, 0.5rem) clamp(0.3rem, 2cqw, 0.75rem);
+  white-space: normal;
+  line-height: 1.2;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: clamp(1rem, 6cqh, 2.2rem);
   width: auto;
-  max-width: 44%;
   text-align: center;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.6rem;
+  overflow-wrap: break-word;
 }
 
 .wheel-instruction {
@@ -415,11 +452,9 @@
   margin: 0;
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: 1.1rem;
   color: var(--brass-bright);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
-  flex: 0 0 auto;
-  min-height: 2.6rem;
+  flex: 0 1 auto; /* allow shrinking, was 0 0 auto */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -477,9 +512,14 @@
   text-align: right;
 }
 
+/* Wheel graphic: takes remaining space in .wheel-visual and shrinks
+   in both width AND height as the container shrinks, instead of
+   only capping width via max-width. */
 .wheel {
   width: 100%;
-  max-width: 420px;
+  height: 100%;
+  max-width: min(420px, 100%);
+  max-height: 100%;
   margin: 0 auto;
   touch-action: none;
   cursor: grab;
@@ -488,8 +528,10 @@
 
 .wheel-svg {
   width: 100%;
-  height: auto;
+  height: 100%;
+  max-height: 100%;
   display: block;
+  object-fit: contain;
 }
 
 .wheel-base {
@@ -700,55 +742,13 @@
   text-overflow: ellipsis;
 }
 
-@media (max-width: 700px) {
-  :host {
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
-    padding: 1.5rem 1.5rem 3rem;
-  }
-  .game-card {
-    height: auto;
-  }
-  .game-body {
-    flex: 0 0 auto;
-  }
-  .mode-buttons {
-    flex-direction: column;
-  }
-  .action-row {
-    flex-direction: column;
-    height: auto;
-  }
-  .guess-button,
-  .next-country-tile {
-    width: 100%;
-  }
-  .result-label {
-    height: auto;
-    padding: 0.9rem 1.25rem;
-  }
-  .wheel-tile__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.4rem;
-  }
-  .wheel-tile__roles {
-    align-items: flex-start;
-    align-self: stretch;
-  }
-  .locked-country-tile {
-    align-self: stretch;
-  }
-}
-
 /* --- Session history sidebar (shared style) --- */
 .history-sidebar {
   position: fixed;
   top: 50%;
-  right: 2rem;
+  right: 1rem;
   transform: translateY(-50%);
-  width: 220px;
+  width: clamp(160px, 22vw, 220px);
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -764,6 +764,10 @@
 
 .history-title {
   flex: 0 0 auto;
+  margin: 0 0 0.75rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1rem;
+  color: var(--brass-bright);
 }
 
 .history-table {
@@ -774,7 +778,7 @@
   min-height: 0;
   border-collapse: collapse;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
 .history-table thead {
@@ -797,6 +801,12 @@
   width: 100%;
 }
 
+.history-table th,
+.history-table td {
+  padding: 0.4rem 0.35rem;
+  white-space: nowrap;
+}
+
 .history-table th:nth-child(1),
 .history-table td:nth-child(1) {
   flex: 1 1 auto;
@@ -805,13 +815,17 @@
   overflow-wrap: break-word;
   word-break: normal;
   line-height: 1.3;
+  text-align: left;
 }
 
 .history-table th:nth-child(2),
 .history-table td:nth-child(2) {
   flex: 0 0 42px;
   text-align: right;
-  white-space: nowrap !important;
+}
+
+.history-table th {
+  letter-spacing: 0.02em;
 }
 
 .history-average {
@@ -880,11 +894,11 @@
   width: 100%;
   display: flex;
   align-items: center;
-  height: 84px;           /* fixed instead of min-height, so both phases match */
+  height: 84px;
   background: linear-gradient(135deg, rgba(201, 162, 75, 0.16), rgba(20, 33, 61, 0.6));
   border: 1px solid var(--brass);
   border-radius: 8px;
-  padding: 0 1.25rem;      /* vertical padding removed, height is now fixed */
+  padding: 0 1.25rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(232, 200, 118, 0.1);
   box-sizing: border-box;
 }
@@ -934,7 +948,7 @@
 .guess-tile--action {
   flex: 0 0 84px;
   height: 84px;
-  padding: 0; /* let the button fill it edge-to-edge */
+  padding: 0;
 }
 
 .guess-tile--action .guess-button {
@@ -952,6 +966,7 @@
 ::ng-deep .guess-form .mat-mdc-form-field { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 1rem; }
 ::ng-deep .guess-form .mat-mdc-text-field-wrapper {
   height: 56px;
+  overflow: hidden;
 }
 ::ng-deep .guess-form .mat-mdc-form-field-flex {
   height: 56px;
@@ -969,24 +984,78 @@
 ::ng-deep .guess-form .mat-mdc-floating-label { font-family: 'Spectral', Georgia, serif; color: var(--text); }
 ::ng-deep .guess-form .mat-mdc-input-element { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text); }
 
-@media (max-width: 700px) {
-  .guess-form { flex-direction: column; }
-  .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
-}
-
 @media (max-width: 1100px) {
   .history-sidebar {
     display: none;
   }
+  .wheel-tile {
+    padding: 0.75rem 1.25rem 0.4rem;
+    gap: 0.5rem;
+  }
+  .wheel {
+    max-width: 320px;
+  }
 }
 
 @media (max-width: 500px) {
-  .wheel-label {
-    font-size: 0.6rem;
-    padding: 0.4rem 0.55rem;
-    min-height: 2.2rem;
-  }
   .locked-country-tile__name {
-    font-size: 0.75rem;
+    font-size: clamp(0.6rem, 5cqh, 0.75rem);
+  }
+}
+
+@media (max-width: 700px) {
+  :host {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 1.5rem 1.5rem 3rem;
+  }
+
+  .title { font-size: 1.5rem; }
+  .subtitle { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .header { padding: 0.85rem 1rem; }
+
+  .game-card { height: auto; padding: 1.25rem 1.25rem; }
+  .game-body { flex: 0 0 auto; gap: 0.85rem; }
+  .mode-buttons { flex-direction: column; }
+  .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
+
+  /* --- category tile: was overflowing to 3 lines at 1.9rem --- */
+  .country-tile {
+    flex: 0 1 auto;
+    padding: 0.55rem 1.25rem;
+    min-height: 0;
+  }
+  .country-tile__label { font-size: 0.6rem; letter-spacing: 0.14em; }
+  .country-tile__name { font-size: 1.2rem; line-height: 1.05; }
+
+  /* --- wheel tile: on very small viewports, the tile also becomes
+     auto-height (game-card/game-body switch to flex: 0 0 auto), so
+     let it size to content here instead of forcing a container-size
+     squeeze that has nothing to shrink into. --- */
+  .wheel-tile {
+    padding: 0.75rem 1rem 0.4rem;
+    gap: 0.5rem;
+    container-type: normal;
+  }
+  .guess-form { flex-direction: column; }
+  .guess-tile { height: auto; padding: 0.75rem 1rem; }
+
+  .action-row { flex-direction: column; height: auto; }
+  .guess-button, .next-country-tile { width: 100%; height: 48px; font-size: 0.95rem; }
+
+  .result-label { height: auto; padding: 0.9rem 1.25rem; }
+
+  .wheel-tile__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+  .wheel-tile__roles {
+    align-items: flex-start;
+    align-self: stretch;
+  }
+  .locked-country-tile {
+    align-self: stretch;
   }
 }

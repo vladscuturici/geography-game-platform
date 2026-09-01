@@ -5,17 +5,47 @@ export interface RoundPicker<T> {
   pick(items: T[]): T;
 }
 
-export class RandomCountryPicker implements RoundPicker<Country> {
-    pick(items: Country[]): Country {
-        return items[Math.floor(Math.random()*items.length)];
-    }
+// Fisher-Yates shuffle
+function shuffle<T>(arr: T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }
 
-export class RandomCityPicker implements RoundPicker<City> {
-    pick(items: City[]): City {
-        return items[Math.floor(Math.random()*items.length)];
+abstract class ShuffleBagPicker<T> implements RoundPicker<T> {
+  private bag: T[] = [];
+  private lastItem: T | null = null;
+
+  pick(items: T[]): T {
+    if (this.bag.length === 0) {
+      this.bag = shuffle(items);
+      const top = this.bag.length - 1;
+      if (
+        this.lastItem !== null &&
+        this.bag.length > 1 &&
+        this.bag[top] === this.lastItem
+      ) {
+        [this.bag[top], this.bag[top - 1]] = [this.bag[top - 1], this.bag[top]];
+      }
     }
+    const next = this.bag.pop()!;
+    this.lastItem = next;
+    return next;
+  }
+
+  // Clears the bag so the next pick() reshuffles from the given pool
+  // instead of draining leftover items from a previous (now-stale) pool.
+  reset(): void {
+    this.bag = [];
+    this.lastItem = null;
+  }
 }
+
+export class RandomCountryPicker extends ShuffleBagPicker<Country> {}
+export class RandomCityPicker extends ShuffleBagPicker<City> {}
 
 function stringToNumber(str: string): number {
   let hash = 0;

@@ -31,7 +31,10 @@ export class NarrowItDownComponent implements OnInit {
   _randomPicker = new RandomCountryPicker();
   private _destroyRef = inject(DestroyRef);
 
-  public countries$ = this._countriesService.getAllCountries().pipe(shareReplay(1));
+  public countries$ = this._countriesService.getAllCountries().pipe(
+    map((countries) => countries.filter((c) => c.population > 0)),
+    shareReplay(1)
+  );
   private _reroll$ = new BehaviorSubject<void>(undefined);
   public justSolved = false;
 
@@ -236,6 +239,12 @@ export class NarrowItDownComponent implements OnInit {
     this.hasGuessed = false;
     this._resetRange();
     this._reroll$.next();
+
+    // Unlock for the new round
+    this.minControl.enable({ emitEvent: false });
+    this.maxControl.enable({ emitEvent: false });
+    this.sliderMinControl.enable({ emitEvent: false });
+    this.sliderMaxControl.enable({ emitEvent: false });
   }
 
   private _resetRange(): void {
@@ -261,5 +270,11 @@ export class NarrowItDownComponent implements OnInit {
       this.maxControl.value
     );
     this.hasGuessed = true;
+
+    // Lock everything down until "Next country"
+    this.minControl.disable({ emitEvent: false });
+    this.maxControl.disable({ emitEvent: false });
+    this.sliderMinControl.disable({ emitEvent: false });
+    this.sliderMaxControl.disable({ emitEvent: false });
   }
 }

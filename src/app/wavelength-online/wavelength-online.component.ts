@@ -62,6 +62,7 @@ interface RoomState {
 
 const WS_BASE = 'wss://wavelength-server.vladscuturici.workers.dev';
 const API_BASE = 'https://wavelength-server.vladscuturici.workers.dev';
+export const MAX_USERNAME_LENGTH = 10;
 
 @Component({
   selector: 'app-wavelength-online',
@@ -146,12 +147,22 @@ export class WavelengthOnlineComponent implements OnInit {
   }
 
   public confirmUsername(): void {
-    if (!this.username.trim()) return;
+    const trimmed = this.username.trim();
+    if (!trimmed) return;
+    this.username = trimmed;
     if (this.joinCodeInput) {
       this.joinRoom();
     } else {
       this.screen = 'menu';
     }
+  }
+
+  public get usernameTooLong(): boolean {
+    return this.username.trim().length > MAX_USERNAME_LENGTH;
+  }
+
+  public get usernameRemaining(): number {
+    return MAX_USERNAME_LENGTH - this.username.length;
   }
 
   public chooseCreate(): void {
@@ -184,7 +195,7 @@ export class WavelengthOnlineComponent implements OnInit {
   }
 
   private connectSocket(code: string): void {
-    const name = encodeURIComponent(this.username.trim().slice(0, 24));
+    const name = encodeURIComponent(this.username.trim().slice(0, MAX_USERNAME_LENGTH));
     const ws = new WebSocket(`${WS_BASE}/room/${code}/ws?name=${name}`);
 
     ws.onopen = () => {

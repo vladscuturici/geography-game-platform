@@ -2,22 +2,27 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.35rem;
+  gap: clamp(0.2rem, 1.5cqh, 0.35rem);
   flex: 1 1 auto;
   min-height: 0;
   justify-content: center;
 }
 
+/* Labels are a fixed-size row (not flex: 1) — the wheel graphic below
+   is what absorbs the squeeze first (flex: 1 1 auto, min-height: 0).
+   Labels only start shrinking themselves, via the cqh/cqw clamps
+   below, once there truly isn't room — they should never just get
+   clipped by the ancestor .wheel-tile's overflow:hidden. */
 .wheel-labels {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: clamp(0.3rem, 2cqw, 0.75rem);
   padding: 0 0.25rem;
+  flex: 0 0 auto;
 }
 
 .wheel-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -25,10 +30,9 @@
   background: var(--ink, #14213d);
   border: 1px solid rgba(232, 200, 118, 0.35);
   border-radius: 10px;
-  padding: 0.5rem 0.75rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
   white-space: normal;
-  line-height: 1.35;
+  line-height: 1.2;
   flex: 1 1 0;
   width: auto;
   max-width: 44%;
@@ -37,7 +41,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.6rem;
+
+  /* was fixed: font-size 0.68rem, padding 0.5rem 0.75rem,
+     min-height 2.6rem — none of which could shrink, so on a short
+     .wheel-tile this row got clipped by the parent's
+     overflow: hidden instead of shrinking to fit */
+  font-size: clamp(0.5rem, min(2.2cqw, 3.2cqh), 0.68rem);
+  padding: clamp(0.2rem, 1.2cqh, 0.5rem) clamp(0.35rem, 2cqw, 0.75rem);
+  min-height: clamp(1rem, 5cqh, 2.6rem);
 }
 
 .wheel-label--left {
@@ -49,18 +60,26 @@
   text-align: right;
 }
 
+/* The wheel graphic: was a fixed max-width:420px with no height cap,
+   so it never yielded space back to the labels below it. It now
+   flexes and is capped in both axes to the container's available
+   size, so it's the first thing to shrink when the tile is squeezed. */
 .wheel {
   width: 100%;
-  max-width: 420px;
+  max-width: min(420px, 100%);
+  max-height: 100%;
   margin: 0 auto;
   touch-action: none;
   cursor: grab;
   filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.4));
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .wheel-svg {
   width: 100%;
-  height: auto;
+  height: 100%;
+  max-height: 100%;
   display: block;
 }
 
@@ -123,8 +142,8 @@
 
 @media (max-width: 500px) {
   .wheel-label {
-    font-size: 0.6rem;
-    padding: 0.4rem 0.55rem;
-    min-height: 2.2rem;
+    font-size: clamp(0.55rem, min(2.4cqw, 3cqh), 0.6rem);
+    padding: clamp(0.25rem, 1.2cqh, 0.4rem) clamp(0.3rem, 2cqw, 0.55rem);
+    min-height: clamp(1rem, 5cqh, 2.2rem);
   }
 }

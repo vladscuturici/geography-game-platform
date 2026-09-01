@@ -153,19 +153,7 @@
   position: relative;
   overflow: hidden;
   max-height: 100%;
-  /* container-type: size (both axes) requires a definite height to be
-     handed down from outside — it strips content from contributing to
-     size at all. On desktop that height comes from the flex/height:100vh
-     chain rooted at :host, so it worked. On mobile, :host switches to
-     height: auto and this tile becomes flex: 0 0 auto — nothing outside
-     hands it a height anymore, and containment won't let the board's
-     own content define one either, so the tile collapsed to near-zero
-     height, squashing the whole grid into a sliver.
-     inline-size containment only needs a definite WIDTH (which this
-     tile always has, at 100%), and that's all .corner__player-line's
-     cqw-based font-size actually needs — so this avoids the collapse
-     entirely while keeping that responsive text sizing working. */
-  container-type: inline-size;
+  container-type: size;
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
@@ -262,11 +250,11 @@
 }
 
 .condition-btn__label {
-  font-size: clamp(0.5rem, 3.4cqw, 0.72rem);
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-align: center;
-  line-height: 1.25;
+  line-height: 1.3;
   text-transform: none;
   overflow: hidden;
 }
@@ -278,7 +266,7 @@
 
 .condition-btn__icon {
   font-family: 'Spectral', Georgia, serif;
-  font-size: clamp(1.1rem, 9cqw, 2.5rem);
+  font-size: 2.5rem;
   line-height: 1;
   color: var(--brass);
 }
@@ -358,9 +346,9 @@
 }
 
 .cell-btn__hint {
-  font-size: clamp(0.42rem, 2.6cqw, 0.68rem);
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   color: var(--line);
 }
 
@@ -369,7 +357,7 @@
 }
 
 .cell-btn__flag {
-  width: clamp(24px, 16cqw, 56px);
+  width: 56px;
   height: auto;
   object-fit: contain;
   border-radius: 3px;
@@ -389,7 +377,7 @@
 .cell-btn__mark {
   font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
-  font-size: clamp(0.5rem, 3.2cqw, 1.05rem);
+  font-size: 1.05rem;
   color: var(--brass-bright);
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   text-align: center;
@@ -588,7 +576,7 @@
 }
 
 .guess-button {
-  height: 56px;
+  height: 56px;   /* was: height: 100%; */
   padding: 0 2.25rem;
   background-color: var(--brass) !important;
   color: var(--ink) !important;
@@ -858,20 +846,15 @@
 }
 
 /* -------------------------------------------------------------------- */
-/* Score sidebar                                                         */
+/* Score sidebar                                                        */
 /* -------------------------------------------------------------------- */
 
-/* Width was a hardcoded 260px / right: 2rem — the same overlap/overflow
-   bug as the other games' history sidebars at mid-range widths. Fixed
-   the same way: clamp width so it can shrink but is capped at 220px,
-   matching the space :host already reserves via padding-right above
-   (calc(1.5rem + 220px + 2rem)) — so it can never overlap .game-card. */
 .score-sidebar {
   position: fixed;
   top: 50%;
-  right: 1rem;
+  right: 2rem;
   transform: translateY(-50%);
-  width: clamp(160px, 22vw, 220px);
+  width: 260px;
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -1086,29 +1069,16 @@
 }
 .guess-form mat-form-field { flex: 1 1 auto; }
 
-/* --- Angular Material input "pink halo" fix ---
-   Same bug as the other games: the parchment-colored background set on
-   the wrapper/flex didn't fully cover Material's default surface, so
-   the maroon page background bled through at the rounded corners.
-   Fix: paint background on both wrapper and flex, and clip with
-   overflow: hidden so the ripple/corner-radius can't let it peek
-   through. The subscript wrapper (empty hint/error space) is also
-   hidden, since it was reserving pink strip space below the input. */
 ::ng-deep .guess-form .mat-mdc-form-field-subscript-wrapper {
   display: none;
 }
 ::ng-deep .guess-form .mat-mdc-form-field { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 1rem; }
 ::ng-deep .guess-form .mat-mdc-text-field-wrapper {
   height: 56px;
-  background: var(--parchment);
-  border-radius: 4px 4px 0 0;
-  overflow: hidden;
 }
 ::ng-deep .guess-form .mat-mdc-form-field-flex {
   height: 56px;
   align-items: center;
-  background: var(--parchment);
-  border-radius: 4px 4px 0 0;
 }
 ::ng-deep .guess-form .mat-mdc-form-field-infix {
   min-height: 56px;
@@ -1121,18 +1091,32 @@
 ::ng-deep .guess-form .mdc-line-ripple::after { border-bottom-color: var(--brass); }
 ::ng-deep .guess-form .mat-mdc-floating-label { font-family: 'Spectral', Georgia, serif; color: var(--text); }
 ::ng-deep .guess-form .mat-mdc-input-element { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text); }
-
 /* -------------------------------------------------------------------- */
 /* Responsive                                                            */
 /* -------------------------------------------------------------------- */
 
-/* Consolidated into a single max-width: 700px breakpoint — matching
-   the other game variants. Previously this was split across two
-   separate breakpoints (600px and 700px) with no genuine reason for
-   the split; that pattern is exactly what caused the "duplicate/
-   conflicting media query" bugs found in the other files, where a
-   later block's rules silently won over an earlier one's due to CSS
-   source order. Consolidating removes that risk here before it bites. */
+@media (max-width: 600px) {
+  .title { font-size: 1.7rem; }
+  .subtitle { font-size: 0.7rem; }
+  .board { gap: 0.3rem; }
+  .condition-btn__label { font-size: 0.62rem; }
+  .condition-btn__symbol { width: 28px; height: 28px; object-fit: contain; }
+  .cell-btn__hint { font-size: 0.58rem; }
+  .cell-btn__mark { font-size: 0.85rem; }
+  .corner__player-label { font-size: 0.55rem; }
+  .corner__player-number { font-size: 2.6rem; }
+  .corner__countdown { font-size: 2.6rem; }
+  .action-row { flex-direction: column; height: auto; }
+  .guess-button, .next-country-tile { width: 100%; height: 52px; }
+  .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
+  .guess-form { flex-direction: column; height: auto; }
+  .guess-tile { height: auto; padding: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .condition-btn, .cell-btn, .guess-button, .next-country-tile { transition: none; }
+}
+
 @media (max-width: 700px) {
   :host {
     height: auto;
@@ -1140,32 +1124,6 @@
     overflow: visible;
     padding: 1.5rem 1.5rem 3rem;
   }
-
   .game-card { height: auto; }
   .board-tile { flex: 0 0 auto; }
-  .board-wrap {
-    width: min(92vw, 480px);
-    max-height: none;
-  }
-
-  .title { font-size: 1.7rem; }
-  .subtitle { font-size: 0.7rem; }
-
-  .board { gap: 0.3rem; }
-  .condition-btn__symbol { width: 28px; height: 28px; object-fit: contain; }
-  .corner__player-label { font-size: 0.55rem; }
-  .corner__player-number { font-size: 2.6rem; }
-  .corner__countdown { font-size: 2.6rem; }
-
-  .action-row { flex-direction: column; height: auto; }
-  .guess-button, .next-country-tile { width: 100%; height: 52px; }
-
-  .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
-
-  .guess-form { flex-direction: column; height: auto; }
-  .guess-tile { height: auto; padding: 1rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .condition-btn, .cell-btn, .guess-button, .next-country-tile { transition: none; }
 }

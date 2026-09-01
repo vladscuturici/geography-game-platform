@@ -162,14 +162,6 @@
 
 .guess-form mat-form-field { flex: 1 1 auto; }
 
-::ng-deep .guess-form .mat-mdc-form-field { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 1rem; }
-::ng-deep .guess-form .mat-mdc-text-field-wrapper { background: var(--parchment); }
-::ng-deep .guess-form .mat-mdc-form-field-flex { background: var(--parchment); border-radius: 4px 4px 0 0; }
-::ng-deep .guess-form .mdc-line-ripple::before { border-bottom-color: rgba(0, 0, 0, 0.35); }
-::ng-deep .guess-form .mdc-line-ripple::after { border-bottom-color: var(--brass); }
-::ng-deep .guess-form .mat-mdc-floating-label { font-family: 'Spectral', Georgia, serif; color: var(--text); }
-::ng-deep .guess-form .mat-mdc-input-element { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text); }
-
 .guess-button {
   height: 56px;
   padding: 0 1.75rem;
@@ -355,9 +347,9 @@ tbody td {
 .history-sidebar {
   position: fixed;
   top: 50%;
-  right: 2rem;
+  right: 1rem;
   transform: translateY(-50%);
-  width: 220px;
+  width: clamp(160px, 22vw, 220px);
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -413,6 +405,8 @@ tbody td {
 .history-table th,
 .history-table td {
   padding: 0.4rem 0.35rem;
+  text-align: center;
+  white-space: nowrap;
 }
 
 /* Country column: flexible, wraps at word boundaries */
@@ -430,15 +424,12 @@ tbody td {
 .history-table th:nth-child(2),
 .history-table td:nth-child(2) {
   flex: 0 0 52px;
-  white-space: nowrap !important;
 }
 
 /* Guesses column: fixed, centered */
 .history-table th:nth-child(3),
 .history-table td:nth-child(3) {
-  flex: 0 0 64px;
-  text-align: center;
-  white-space: nowrap !important;
+  flex: 0 0 56px;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
@@ -458,6 +449,19 @@ tbody td {
   color: var(--parchment);
 }
 
+::ng-deep .guess-form .mat-mdc-form-field { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 1rem; }
+::ng-deep .guess-form .mat-mdc-text-field-wrapper {
+  background: var(--parchment);
+  border-radius: 4px 4px 0 0;
+  overflow: hidden; /* clips corners/ripple so pink background can't peek through */
+}
+::ng-deep .guess-form .mat-mdc-form-field-flex { background: var(--parchment); border-radius: 4px 4px 0 0; }
+::ng-deep .guess-form .mat-mdc-form-field-subscript-wrapper { display: none; }
+::ng-deep .guess-form .mdc-line-ripple::before { border-bottom-color: rgba(0, 0, 0, 0.35); }
+::ng-deep .guess-form .mdc-line-ripple::after { border-bottom-color: var(--brass); }
+::ng-deep .guess-form .mat-mdc-floating-label { font-family: 'Spectral', Georgia, serif; color: var(--text); }
+::ng-deep .guess-form .mat-mdc-input-element { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text); }
+
 @media (max-width: 1100px) {
   .history-sidebar {
     display: none;
@@ -465,7 +469,49 @@ tbody td {
 }
 
 @media (max-width: 700px) {
+  :host { height: auto; min-height: 100vh; overflow: visible; padding: 1.5rem 1.5rem 3rem; }
+  .game-card { height: auto; }
+
+  .title { font-size: 1.5rem; }
+  .subtitle { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .header { padding: 0.85rem 1rem; }
+
+  .guess-form { flex-direction: column; }
+  .guess-button { width: 100%; height: 48px; font-size: 0.95rem; }
+  .guess-tile { padding: 0.75rem 0.85rem; }
+
   .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
+  .mode-tile { padding: 0.3rem; }
+
+  .solved-banner { flex-wrap: wrap; }
+  .next-country-tile { width: 100%; }
+
+  /* --- table: shrink everything and stop headers truncating --- */
+  table { font-size: 0.68rem; }
+
+  thead th, tbody td {
+    padding: 0.4rem 0.35rem;
+    font-size: 0.62rem;
+  }
+
+  thead th {
+    letter-spacing: 0.02em;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  tbody td {
+    line-height: 1.25;
+  }
+
+  .pop-arrow {
+    font-size: 0.9em;
+    margin-left: 0.15rem;
+  }
+
+  .give-up-button {
+    width: 100%;
+  }
 }
 
 @keyframes reveal {
@@ -477,7 +523,7 @@ tbody td {
   tbody tr { animation: none; }
 }
 
-@media (max-width: 700px) {
+/* @media (max-width: 700px) {
   :host { height: auto; min-height: 100vh; overflow: visible; padding: 1.5rem 1.5rem 3rem; }
   .game-card { height: auto; }
   .guess-form { flex-direction: column; }
@@ -485,4 +531,4 @@ tbody td {
   .solved-banner { flex-wrap: wrap; }
   .next-country-tile { width: 100%; }
   thead th, tbody td { padding: 0.55rem 0.5rem; font-size: 0.78rem; }
-}
+} */

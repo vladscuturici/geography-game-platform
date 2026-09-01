@@ -185,7 +185,7 @@
   height: 100%;
   min-height: 260px;
   border-radius: 4px;
-  background-color: #1a2b4d; 
+  background-color: #1a2b4d;
   overflow: hidden;
 }
 
@@ -451,25 +451,42 @@
   gap: 0.5rem;
 }
 
+/* Both rows share the same 6-column grid so button edges line up exactly
+   between the border-toggle row (2 buttons, 3 columns each) and the
+   region row (3 buttons per line, 2 columns each). */
 .toggle-row {
   flex: 1 1 0;
-  display: flex;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  width: 100%;
+  gap: 0.3rem;
   min-height: 0;
+  box-sizing: border-box;
+}
+
+.toggle-row .toggle-option {
+  grid-column: span 3;
 }
 
 .toggle-row--regions {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-template-rows: repeat(2, 1fr);
+  width: 100%;
   gap: 0.3rem;
+  box-sizing: border-box;
   flex: 2 1 0;      /* was flex: 1 1 0 — now takes 2x the share vs .toggle-row's 1x,
                         since it needs to fit 2 stacked rows in the same toggle-stack */
 }
 
+.toggle-row--regions .toggle-option {
+  grid-column: span 2;
+}
+
 .toggle-option {
-  flex: 1 1 0;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -543,10 +560,17 @@
     flex: 2 1 auto;
   }
   .toggle-row {
-    flex-wrap: wrap;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .toggle-option {
-    flex: 1 1 calc(50% - 0.25rem);
+  .toggle-row .toggle-option {
+    grid-column: span 1;
+  }
+  .toggle-row--regions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+  }
+  .toggle-row--regions .toggle-option {
+    grid-column: span 1;
   }
 }
 
@@ -583,4 +607,125 @@
   text-decoration: line-through;
   opacity: 0.75;
   white-space: nowrap;
+}
+
+/* --- Per-country toggle row --- */
+.toggle-row--country {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.toggle-option--country {
+  --country-blue: #3f7cd6;
+  --country-blue-bright: #5c94ea;
+  background: linear-gradient(135deg, rgba(63, 124, 214, 0.18), rgba(20, 33, 61, 0.6));
+  border-color: var(--country-blue);
+  color: #bcd4f5;
+}
+
+.toggle-option--country:hover {
+  background: linear-gradient(135deg, rgba(63, 124, 214, 0.3), rgba(20, 33, 61, 0.7));
+}
+
+.toggle-option--country.toggle-option--active {
+  background: var(--country-blue);
+  color: #f2efe6;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.toggle-option--country.toggle-option--active:hover {
+  background: var(--country-blue-bright);
+}
+
+/* --- Country picker modal --- */
+.country-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 16, 30, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.country-picker-modal {
+  width: min(360px, 90vw);
+  background: var(--ink);
+  border: 1px solid var(--brass);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.country-picker-title {
+  margin: 0;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--brass-bright);
+  text-align: center;
+}
+
+.country-picker-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  background: var(--parchment);
+  color: var(--text);
+  border: 1px solid var(--brass);
+  border-radius: 6px;
+}
+
+.country-picker-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.country-picker-cancel,
+.country-picker-confirm {
+  flex: 1 1 0;
+  padding: 0.6rem 0;
+  border-radius: 8px;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.country-picker-cancel {
+  background: transparent;
+  color: var(--brass-bright);
+  border: 2px solid var(--brass);
+}
+
+.country-picker-cancel:hover {
+  background: rgba(201, 162, 75, 0.15);
+}
+
+.country-picker-confirm {
+  background: #3f7cd6;
+  color: #f2efe6;
+  border: none;
+}
+
+.country-picker-confirm:hover:not(:disabled) {
+  background: #5c94ea;
+}
+
+.country-picker-confirm:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.country-picker-cancel:active,
+.country-picker-confirm:active:not(:disabled) {
+  transform: scale(0.97);
 }

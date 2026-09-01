@@ -8,15 +8,21 @@
 } */
 
 body {
-  background-image: 
-    url('../public/map_texture_2.jpg'),
-    url('../public/bg.jpg');
-  background-color: #460000;
-  background-size: cover, cover;
-  background-position: center, center;
-  background-repeat: no-repeat, no-repeat;
-  background-attachment: fixed, fixed;
-  background-blend-mode: soft-light, normal;
+  position: relative;
+  background: 
+    url('../public/bg.jpg') center / cover no-repeat fixed,
+    #460000;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url('../public/map_texture_2.jpg') center / cover no-repeat;
+  opacity: 0.5; /* tune this up/down for visibility */
+  mix-blend-mode: soft-light; /* or overlay/screen — experiment */
+  pointer-events: none;
+  z-index: 0;
 }
 
 table {

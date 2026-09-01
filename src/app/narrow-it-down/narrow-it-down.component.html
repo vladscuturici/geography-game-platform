@@ -19,13 +19,14 @@
   <div class="range-picker">
     <div class="range-tile">
       <div class="range-inputs">
-        <mat-form-field appearance="fill">
+       <mat-form-field appearance="fill">
           <mat-label>Min</mat-label>
           <input
             matInput
             type="text"
             inputmode="numeric"
             [value]="minDisplay"
+            [readonly]="hasGuessed"
             (focus)="onMinFocus()"
             (input)="onMinInput($any($event.target).value)"
             (blur)="onMinBlur()"
@@ -41,6 +42,7 @@
             type="text"
             inputmode="numeric"
             [value]="maxDisplay"
+            [readonly]="hasGuessed"
             (focus)="onMaxFocus()"
             (input)="onMaxInput($any($event.target).value)"
             (blur)="onMaxBlur()"
@@ -49,24 +51,12 @@
       </div>
 
       <div class="range-slider-wrap">
-        <mat-slider
-            class="range-slider"
-            [min]="sliderMin"
-            [max]="sliderMax"
-            [step]="sliderStep"
-            [displayWith]="sliderLabelFormat"
-            [discrete]="true"
-        >
-            <input
-              matSliderStartThumb
-              [formControl]="sliderMinControl"
-              (input)="onSliderMinChanged($any($event.target).value)"
-            />
-            <input
-              matSliderEndThumb
-              [formControl]="sliderMaxControl"
-              (input)="onSliderMaxChanged($any($event.target).value)"
-            />
+        <mat-slider class="range-slider" [min]="sliderMin" [max]="sliderMax" [step]="sliderStep"
+          [displayWith]="sliderLabelFormat" [discrete]="true">
+          <input matSliderStartThumb [formControl]="sliderMinControl"
+            (input)="onSliderMinChanged($any($event.target).value)" />
+          <input matSliderEndThumb [formControl]="sliderMaxControl"
+            (input)="onSliderMaxChanged($any($event.target).value)" />
         </mat-slider>
       </div>
     </div>
@@ -76,23 +66,16 @@
         Lock in range
       </button>
 
-      <button
-        mat-raised-button
-        class="next-country-tile"
-        [disabled]="!hasGuessed"
-        (click)="hasGuessed && nextCountry()"
-      >
+      <button mat-raised-button class="next-country-tile" [disabled]="!hasGuessed"
+        (click)="hasGuessed && nextCountry()">
         Next country →
       </button>
 
-      <div
-        class="result-label"
-        [class.result-label--filled]="hasGuessed && currentCountry"
-        [class.result-label--zero]="hasGuessed && currentScore === 0"
-      >
+      <div class="result-label" [class.result-label--filled]="hasGuessed && currentCountry"
+        [class.result-label--zero]="hasGuessed && currentScore === 0">
         @if (hasGuessed && currentCountry) {
-          <span class="result-label__score">{{ currentScore }} pts</span>
-          <span class="result-label__detail">Actual population: {{ formatDots(currentCountry.population) }}</span>
+        <span class="result-label__score">{{ currentScore }} pts</span>
+        <span class="result-label__detail">Actual population: {{ formatDots(currentCountry.population) }}</span>
         }
       </div>
     </div>
@@ -100,26 +83,26 @@
 </div>
 
 @if (guessHistory.length > 0) {
-  <aside class="history-sidebar">
-    <h3 class="history-title">Session History</h3>
-    <table class="history-table">
-      <thead>
-        <tr>
-          <th>Country</th>
-          <th>Points</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (entry of guessHistory; track entry.gameNumber) {
-          <tr [style.background-color]="toGreenSaturation(entry.points)">
-            <td>{{ entry.countryName }}</td>
-            <td class="score-cell">{{ entry.points }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-    <div class="history-average">
-      Average: <strong>{{ averageScore }}</strong> pts/guess
-    </div>
-  </aside>
+<aside class="history-sidebar">
+  <h3 class="history-title">Session History</h3>
+  <table class="history-table">
+    <thead>
+      <tr>
+        <th>Country</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (entry of guessHistory; track entry.gameNumber) {
+      <tr [style.background-color]="toGreenSaturation(entry.points)">
+        <td>{{ entry.countryName }}</td>
+        <td class="score-cell">{{ entry.points }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="history-average">
+    Average: <strong>{{ averageScore }}</strong> pts/guess
+  </div>
+</aside>
 }

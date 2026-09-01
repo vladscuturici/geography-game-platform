@@ -11,6 +11,7 @@
   --line: #ddd6c4;
   --match: #6fae5e;
   --match-bg: #d9ecd0;
+  --maroon_brighter: #c51838; 
 
   display: block;
   width: 300px;
@@ -40,12 +41,75 @@
 
 .brand {
   display: flex;
-  align-items: center;
-  gap: 0.85rem;
+  justify-content: center;
   text-decoration: none;
   margin-bottom: 1.75rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid rgba(201, 162, 75, 0.3);
+}
+
+.brand__tile {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background:
+    linear-gradient(155deg, var(--parchment) 0%, var(--parchment-dim) 50%, #e2c98a 100%);
+  border: 1px solid rgba(124, 36, 52, 0.35);
+  box-shadow:
+    0 3px 0 rgba(124, 36, 52, 0.25),
+    0 12px 22px -6px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 3px rgba(124, 36, 52, 0.1);
+  isolation: isolate;
+}
+
+.brand__tile-grain {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background-image: url('../../../public/map_texture.jpg');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: multiply;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.brand__rivet {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--brass-bright) 0%, var(--brass) 55%, #8a6b2c 100%);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5), inset 0 0 1px rgba(255, 255, 255, 0.6);
+  z-index: 2;
+  pointer-events: none;
+}
+.brand__rivet--tl { top: 6px; left: 6px; }
+.brand__rivet--tr { top: 6px; right: 6px; }
+.brand__rivet--bl { bottom: 6px; left: 6px; }
+.brand__rivet--br { bottom: 6px; right: 6px; }
+
+.brand__logo {
+  position: relative;
+  z-index: 3;
+  height: 42px;
+  width: auto;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+}
+
+.brand__tile::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(201, 162, 75, 0.55);
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .brand__seal {
@@ -58,7 +122,7 @@
 
 .brand__wordmark {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* was column */
   line-height: 1.18;
 }
 
@@ -78,6 +142,10 @@
   color: var(--brass-bright);
   letter-spacing: 0.01em;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.brand__name--accent {
+  color: var(--maroon_brighter);
 }
 
 /* ---------- Legend key (nav) ---------- */
@@ -281,6 +349,14 @@
     border-bottom: none;
     border-right: 1px solid rgba(201, 162, 75, 0.3);
     flex-shrink: 0;
+  }
+
+  .brand__tile {
+    padding: 6px 12px;
+  }
+
+  .brand__logo {
+    height: 26px;
   }
 
   .brand__seal {

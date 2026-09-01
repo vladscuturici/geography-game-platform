@@ -15,6 +15,18 @@ import {
     portugueseSpeakingCountries,
     russianSpeakingCountries,
     spanishSpeakingCountries,
+    leftLaneCountries,
+    independentAfter1Jan90Countries,
+    primeMeridianCountries,
+    arcticCircleCountries,
+    landlockedCountries,
+    above3KmCountries,
+    monarchyCountries,
+    republicCountries,
+    danubeCountries,
+    saharaCountries,
+    mediterraneanCountries,
+    northAmericaCountries
 } from './country-data';
 
 /**
@@ -85,6 +97,10 @@ export class FromSubregionCondition extends Condition {
     }
 
     public check(country: Country): boolean {
+        if (this.subregion === "North America") {
+            return northAmericaCountries.includes(country.alpha2Code);
+        }
+
         return country.subregion === this.subregion;
     }
 
@@ -96,77 +112,64 @@ export class FromSubregionCondition extends Condition {
 // ---------------------------------------------------------------------
 export class SpeaksSpanishCondition extends Condition {
     public check(country: Country): boolean {
-        return spanishSpeakingCountries.includes(country.name);
+        return spanishSpeakingCountries.includes(country.alpha2Code);
     }
-
     public toString(): string {
-        return 'Speaks Spanish';
+        return 'Spanish is an official language';
     }
 }
 
-// ---------------------------------------------------------------------
 export class SpeaksFrenchCondition extends Condition {
     public check(country: Country): boolean {
-        return frenchSpeakingCountries.includes(country.name);
+        return frenchSpeakingCountries.includes(country.alpha2Code);
     }
-
     public toString(): string {
-        return 'Speaks French';
+        return 'French is an official language';
     }
 }
 
-// ---------------------------------------------------------------------
 export class SpeaksGermanCondition extends Condition {
     public check(country: Country): boolean {
-        return germanSpeakingCountries.includes(country.name);
+        return germanSpeakingCountries.includes(country.alpha2Code);
     }
-
     public toString(): string {
-        return 'Speaks German';
+        return 'German is an official language';
     }
 }
 
-// ---------------------------------------------------------------------
 export class SpeaksPortugueseCondition extends Condition {
     public check(country: Country): boolean {
-        return portugueseSpeakingCountries.includes(country.name);
+        return portugueseSpeakingCountries.includes(country.alpha2Code);
     }
-
     public toString(): string {
-        return 'Speaks Portuguese';
+        return 'Portuguese is an official language';
     }
 }
 
-// ---------------------------------------------------------------------
 export class SpeaksRussianCondition extends Condition {
     public check(country: Country): boolean {
-        return russianSpeakingCountries.includes(country.name);
+        return russianSpeakingCountries.includes(country.alpha2Code);
     }
-
     public toString(): string {
-        return 'Speaks Russian';
+        return 'Russian is an official language';
     }
 }
 
-// ---------------------------------------------------------------------
 export class SpeaksEnglishCondition extends Condition {
     public check(country: Country): boolean {
-        return englishSpeakingCountries.includes(country.name);
+        return englishSpeakingCountries.includes(country.alpha2Code);
     }
-
     public toString(): string {
-        return 'Speaks English';
+        return 'English is an official language';
     }
 }
 
-// ---------------------------------------------------------------------
 export class SpeaksArabicCondition extends Condition {
     public check(country: Country): boolean {
-        return arabicSpeakingCountries.includes(country.name);
+        return arabicSpeakingCountries.includes(country.alpha2Code);
     }
-
     public toString(): string {
-        return 'Speaks Arabic';
+        return 'Arabic is an official language';
     }
 }
 
@@ -341,6 +344,139 @@ export class IsSouthernHemisphereCondition extends Condition {
     }
 }
 
+// ---------------------------------------------------------------------
+export class DrivesOnTheLeftLaneCondition extends Condition {
+    public check(country: Country): boolean {
+        return (leftLaneCountries.includes(country.alpha2Code));
+    }
+
+    public toString(): string {
+        return 'Left-Hand Traffic';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class DeclaredIndependenceAfterDateCondition extends Condition {
+    public check(country: Country): boolean {
+        return (independentAfter1Jan90Countries.includes(country.alpha2Code));
+    }
+
+    public toString(): string {
+        return 'Independence declared after 1/1/1990';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class IsCrossedByPrimeMeridianCondition extends Condition {
+    public check(country: Country): boolean {
+        return (primeMeridianCountries.includes(country.alpha2Code));
+    }
+
+    public toString(): string {
+        return 'Crossed by Prime Meridian';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class IsCrossedByArcticCircleCondition extends Condition {
+    public check(country: Country): boolean {
+        return (arcticCircleCountries.includes(country.alpha2Code));
+    }
+
+    public toString(): string {
+        return 'Crossed by Arctic Circle';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class IsLandlockedCondition extends Condition {
+    public check(country: Country): boolean {
+        return landlockedCountries.includes(country.alpha2Code);
+    }
+
+    public toString(): string {
+        return 'is Landlocked';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class HasASingleLandBorderCondition extends Condition {
+
+    public check(country: Country): boolean {
+        return (country.borders?.length ?? 0) == 1;
+    }
+
+    public toString(): string {
+        return `Has a single land neighbor`;
+    }
+}
+
+// ---------------------------------------------------------------------
+export class hasAPointAbove3KmCondition extends Condition {
+    public check(country: Country): boolean {
+        return above3KmCountries.includes(country.alpha2Code);
+    }
+
+    public toString(): string {
+        return 'Has A Point Above 3.000m';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class IsMonarchyCondition extends Condition {
+    public check(country: Country): boolean {
+        return monarchyCountries.includes(country.alpha2Code);
+    }
+
+    public toString(): string {
+        return 'is Monarchy';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class IsRepublicCondition extends Condition {
+    public check(country: Country): boolean {
+        return republicCountries.includes(country.alpha2Code);
+    }
+
+    public toString(): string {
+        return 'is Republic';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class CrossedByDanubeCondition extends Condition {
+    public check(country: Country): boolean {
+        return danubeCountries.includes(country.alpha2Code);
+    }
+
+    public toString(): string {
+        return 'Crossed by Danube river';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class IsPartOfSaharaCondition extends Condition {
+    public check(country: Country): boolean {
+        return saharaCountries.includes(country.alpha2Code);
+    }
+
+    public toString(): string {
+        return 'Part of the Sahara Desert';
+    }
+}
+
+// ---------------------------------------------------------------------
+export class BordersMediterraneanSeaCondition extends Condition {
+    public check(country: Country): boolean {
+        return mediterraneanCountries.includes(country.alpha2Code);
+    }
+
+    public toString(): string {
+        return 'Borders the Mediterranean Sea';
+    }
+}
+
 export const ConditionLabels: readonly string[] = [
   //population
   "Population above 100,000,000", //Symbol should be >100M
@@ -357,55 +493,42 @@ export const ConditionLabels: readonly string[] = [
   "From Europe",
   "From Oceania",
 
-  //subregion
-  "From Caribbean", //same as regions
+  //subregion (board only exposes these 4 — see CONDITION_RECORDS)
+  "From Caribbean",
   "From Central America",
-  "From Central Asia",
-  "From Central Europe",
-  "From Eastern Africa",
-  "From Eastern Asia",
-  "From Eastern Europe",
-  "From Melanesia",
-  "From Micronesia",
-  "From Middle Africa",
   "From North America",
-  "From Northern Africa",
-  "From Northern America",
-  "From Northern Europe",
-  "From Polynesia",
   "From South America",
-  "From South-Eastern Asia",
-  "From Southern Africa",
-  "From Southern Asia",
-  "From Southern Europe",
-  "From Western Africa",
-  "From Western Asia",
-  "From Western Europe",
   "Crossed by the Equator",
   "Crossed by a Tropic",
   "Northern Hemisphere",
   "Southern Hemisphere",
-  
+  "Crossed by Prime Meridian",
+  "Crossed by Arctic Circle",
+  "Crossed by Danube river",
+  "Part of the Sahara Desert",
+
   //borders
-  "Borders Russian Federation", //russia flag
+  "Borders Russia", //russia flag
   "Borders China", //china flag etc...
   "Borders Brazil",
   "Borders France",
   "Has at least 6 neighbors",
   "Has no land borders",
+  "Has a single land neighbor",
+  "Borders the Mediterranean Sea",
 
   //language
-  "Speaks Arabic", //'arabic' in arabic
-  "Speaks English", //'english' in english etc
-  "Speaks French",
-  "Speaks German",
-  "Speaks Portuguese",
-  "Speaks Russian",
-  "Speaks Spanish",
+  "Arabic is an official language",
+  "English is an official language",
+  "French is an official language",
+  "German is an official language",
+  "Portuguese is an official language",
+  "Russian is an official language",
+  "Spanish is an official language",
   "Uses Cyrillic script", //'cyrillic' in cyrillic (russian)
   "Uses Latin script", //'latin'
   "Uses Arabic script", //'arabic' in arabic script
-  
+
   //wildcards
   'Capital starts with "B"', //letter 'B' etc...
   'Capital starts with "S"',
@@ -413,4 +536,10 @@ export const ConditionLabels: readonly string[] = [
   "EU member", //EU flag
   "NATO member", //NATO flag
   "Uses the Euro", //euro currency
+  "Left-Hand Traffic",
+  "Independence declared after 1/1/1990",
+  "is Landlocked",
+  "Has A Point Above 3.000m",
+  "is Monarchy",
+  "is Republic",
 ];

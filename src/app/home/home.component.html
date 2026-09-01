@@ -1,13 +1,9 @@
 <div class="home">
   <header class="home__header">
-    <div class="home__brand">
-      <img class="home__logo" src="128.png" alt="" />
-      <div class="home__wordmark">
-        <span class="home__eyebrow">According to the</span>
-        <h1 class="home__name">Legend</h1>
-      </div>
+    <div class="home__brand-tile">
+      <img class="home__logo" src="logoandtext.png" alt="CompassLegend" />
     </div>
-    <p class="home__tagline">Pick from the games down below.</p>
+    <p class="home__tagline">A Geography Game Platform that tests how well you know the world. Play by yourself or invite a friend.</p>
   </header>
 
   <div class="home__map-wrap">
@@ -36,6 +32,15 @@
           </div>
           <div class="game-tile__name">{{ game.title }}</div>
           <div class="game-tile__desc">{{ game.description }}</div>
+
+          @if (game.tags.length) {
+            <div class="game-tile__tags">
+              @for (tag of game.tags; track tag) {
+                <span class="tag" [class]="'tag--' + tag">{{ tagLabel(tag) }}</span>
+              }
+            </div>
+          }
+
           @if (!game.route) {
             <div class="game-tile__badge">Coming soon</div>
           }

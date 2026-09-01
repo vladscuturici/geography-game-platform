@@ -1,6 +1,7 @@
 <div class="app-layout" [class.app-layout--no-sidebar]="isHomePage()">
   @if (!isHomePage()) {
     <app-sidebar></app-sidebar>
+    <app-right-menu></app-right-menu>
   }
   <main class="app-content">
     <router-outlet />

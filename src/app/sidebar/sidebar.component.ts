@@ -53,12 +53,6 @@ export class SidebarComponent {
       glyph: 'book',
       hint: 'VI',
     },
-    // {
-    //   label: 'Country Silhouette',
-    //   route: '/country-silhouette',
-    //   glyph: 'outline',
-    //   hint: 'VII',
-    // },
     {
       label: 'Higher Lower',
       route: 'higher-lower',
@@ -77,11 +71,5 @@ export class SidebarComponent {
       glyph: 'wavelength',
       hint: 'IX',
     },
-    // {
-    //   label: 'Guess the Language',
-    //   route: '/guess-the-language',
-    //   glyph: 'language',
-    //   hint: 'X',
-    // },
   ];
 }

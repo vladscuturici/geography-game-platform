@@ -285,6 +285,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  /* no overflow rule — nothing should need clipping if labels are sized correctly */
 }
 
 /* --- Wheel tile header: round counter + psychic/guesser roles --- */
@@ -340,33 +341,36 @@
 .wheel-labels {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0 0.25rem;
+  gap: clamp(0.35rem, 2vw, 0.75rem);   /* gap itself shrinks on narrow screens instead of staying fixed */
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .wheel-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68rem;
+  font-size: clamp(0.55rem, 2.2vw, 0.68rem);   /* shrinks with viewport instead of a fixed breakpoint jump */
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--brass-bright);
   background: var(--ink);
   border: 1px solid rgba(232, 200, 118, 0.35);
   border-radius: 10px;
-  padding: 0.5rem 0.75rem;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-  white-space: normal;        /* allow wrapping instead of truncating */
-  line-height: 1.35;
-  flex: 1 1 0;                 /* both labels share space evenly */
+  padding: clamp(0.35rem, 1.5vw, 0.5rem) clamp(0.4rem, 2vw, 0.75rem);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);  /* reduced blur so it can't visually bleed past the tile edge */
+  white-space: normal;
+  line-height: 1.25;
+  flex: 1 1 0;
+  min-width: 0;
   width: auto;
-  max-width: 44%;
   text-align: center;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.6rem;
+  min-height: 2.2rem;
+  overflow-wrap: break-word;   /* lets long words like "INCREDIBLY DIFFICULT" break if truly necessary */
 }
 
 .wheel-instruction {
@@ -623,51 +627,13 @@
   text-overflow: ellipsis;
 }
 
-@media (max-width: 700px) {
-  :host {
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
-    padding: 1.5rem 1.5rem 3rem;
-  }
-  .game-card {
-    height: auto;
-  }
-  .game-body {
-    flex: 0 0 auto;
-  }
-  .mode-buttons {
-    flex-direction: column;
-  }
-  .action-row {
-    flex-direction: column;
-    height: auto;
-  }
-  .guess-button,
-  .next-country-tile {
-    width: 100%;
-  }
-  .result-label {
-    height: auto;
-    padding: 0.9rem 1.25rem;
-  }
-  .wheel-tile__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.4rem;
-  }
-  .wheel-tile__roles {
-    align-items: flex-start;
-  }
-}
-
 /* --- Session history sidebar (shared style) --- */
 .history-sidebar {
   position: fixed;
   top: 50%;
-  right: 2rem;
+  right: 1rem;
   transform: translateY(-50%);
-  width: 220px;
+  width: clamp(160px, 22vw, 220px);
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -683,6 +649,10 @@
 
 .history-title {
   flex: 0 0 auto;
+  margin: 0 0 0.75rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1rem;
+  color: var(--brass-bright);
 }
 
 .history-table {
@@ -693,7 +663,7 @@
   min-height: 0;
   border-collapse: collapse;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
 .history-table thead {
@@ -716,6 +686,12 @@
   width: 100%;
 }
 
+.history-table th,
+.history-table td {
+  padding: 0.4rem 0.35rem;
+  white-space: nowrap;
+}
+
 .history-table th:nth-child(1),
 .history-table td:nth-child(1) {
   flex: 1 1 auto;
@@ -724,13 +700,17 @@
   overflow-wrap: break-word;
   word-break: normal;
   line-height: 1.3;
+  text-align: left;
 }
 
 .history-table th:nth-child(2),
 .history-table td:nth-child(2) {
   flex: 0 0 42px;
   text-align: right;
-  white-space: nowrap !important;
+}
+
+.history-table th {
+  letter-spacing: 0.02em;
 }
 
 .history-average {
@@ -840,10 +820,6 @@
 ::ng-deep .guess-form .mat-mdc-floating-label { font-family: 'Spectral', Georgia, serif; color: var(--text); }
 ::ng-deep .guess-form .mat-mdc-input-element { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text); }
 
-@media (max-width: 700px) {
-  .guess-form { flex-direction: column; }
-  .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
-}
 
 @media (max-width: 1100px) {
   .history-sidebar {
@@ -857,4 +833,49 @@
     padding: 0.4rem 0.55rem;
     min-height: 2.2rem;
   }
+}
+
+@media (max-width: 700px) {
+  :host {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 1.5rem 1.5rem 3rem;
+  }
+
+  .title { font-size: 1.5rem; }
+  .subtitle { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .header { padding: 0.85rem 1rem; }
+
+  .game-card { height: auto; padding: 1.25rem 1.25rem; }
+  .game-body { flex: 0 0 auto; gap: 0.85rem; }
+  .mode-buttons { flex-direction: column; }
+  .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
+
+  /* --- category tile: was overflowing to 3 lines at 1.9rem --- */
+  .country-tile {
+    flex: 0 1 auto;  
+    padding: 0.55rem 1.25rem;
+    min-height: 0;
+  }
+  .country-tile__label { font-size: 0.6rem; letter-spacing: 0.14em; }
+  .country-tile__name { font-size: 1.2rem; line-height: 1.05; }
+
+  /* --- wheel tile: shrink header/round/roles/instruction --- */
+  .wheel-tile { padding: 0.75rem 1rem 0.4rem; gap: 0.5rem; }
+  .wheel-tile__round { font-size: 0.62rem; padding: 0.3rem 0.65rem; }
+  .wheel-tile__role { font-size: 0.72rem; }
+  .wheel-instruction { font-size: 0.88rem; }
+  .wheel-label { font-size: 0.6rem; padding: 0.4rem 0.55rem; min-height: 2.1rem; }
+
+  .guess-form { flex-direction: column; }
+  .guess-tile { height: auto; padding: 0.75rem 1rem; }
+
+  .action-row { flex-direction: column; height: auto; }
+  .guess-button, .next-country-tile { width: 100%; height: 48px; font-size: 0.95rem; }
+
+  .result-label { height: auto; padding: 0.9rem 1.25rem; }
+
+  .wheel-tile__header { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+  .wheel-tile__roles { align-items: flex-start; }
 }

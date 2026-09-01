@@ -7,3 +7,12 @@
   flex: 1;
   min-width: 0;
 }
+
+/* Below 900px app-sidebar collapses into a horizontal icon-only top bar
+   (see sidebar.component.css) and needs to sit above the page content
+   rather than beside it, so the layout itself has to stop being a row. */
+@media (max-width: 900px) {
+  .app-layout {
+    flex-direction: column;
+  }
+}

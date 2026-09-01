@@ -30,6 +30,18 @@ import {
     UsesCyrillicScriptCondition,
     UsesEuroCondition,
     UsesLatinScriptCondition,
+    BordersMediterraneanSeaCondition,
+    CrossedByDanubeCondition,
+    DeclaredIndependenceAfterDateCondition,
+    DrivesOnTheLeftLaneCondition,
+    hasAPointAbove3KmCondition,
+    HasASingleLandBorderCondition,
+    IsCrossedByArcticCircleCondition,
+    IsCrossedByPrimeMeridianCondition,
+    IsLandlockedCondition,
+    IsMonarchyCondition,
+    IsPartOfSaharaCondition,
+    IsRepublicCondition,
 } from '../conditions/conditions';
 import { regions, subregions } from '../conditions/country-data';
 import { CountriesService } from './countries.service';
@@ -101,7 +113,7 @@ export class GameService {
     public narrowItDownScore(correct: number, range_a: number, range_b: number): number {
         if (correct < range_a || correct > range_b) return 0;
 
-        const k = 2.2; 
+        const k = 3; 
         const logWidth = Math.log10(range_b) - Math.log10(range_a);
         const score = 100 * (1 / (1 + k * logWidth));
 
@@ -118,13 +130,14 @@ export class GameService {
         correctLat: number,
         correctLong: number,
         guessLat: number,
-        guessLong: number
+        guessLong: number,
+        scoreDistanceScaleKm: number = 2000,
+        k: number = 3
         ): Observable<LocateCityScoreDetails> {
         return this.getDistance(correctLat, correctLong, guessLat, guessLong).pipe(
             map((result) => {
                 const distance = result.distanceKm;
-                const k = 3; 
-                const score = distance > 2000 ? 0 : (Math.floor(100 * Math.exp(-k * (distance / 2000))));
+                const score = distance > scoreDistanceScaleKm ? 0 : (Math.floor(100 * Math.exp(-k * (distance / scoreDistanceScaleKm))));
 
                 return {
                     distance,
@@ -177,6 +190,9 @@ export class GameService {
                     throw new Error('Could not resolve one or more reference countries (RU/CN/BR/FR).');
                 }
 
+                // Subset of subregions actually exposed as board tiles (see CONDITION_RECORDS).
+                const boardSubregions = ['Caribbean', 'Central America', 'North America', 'South America'];
+
                 const conditions: Condition[] = [
                     new AboveXPopulationCondition(100_000_000),
                     new AboveXPopulationCondition(50_000_000),
@@ -186,30 +202,26 @@ export class GameService {
                     new UnderXPopulationCondition(5_000_000),
                     new UnderXPopulationCondition(1_000_000),
 
+                    ...regions.map(region => new FromRegionCondition(region)),
+                    ...boardSubregions.map(subregion => new FromSubregionCondition(subregion)),
+
+                    new IsCrossedByEquatorCondition(),
+                    new IsCrossedByTropicsCondition(),
+                    new IsNorthernHemisphereCondition(),
+                    new IsSouthernHemisphereCondition(),
+                    new IsCrossedByPrimeMeridianCondition(),
+                    new IsCrossedByArcticCircleCondition(),
+                    new CrossedByDanubeCondition(),
+                    new IsPartOfSaharaCondition(),
+
                     new BordersXCondition(russia),
                     new BordersXCondition(china),
                     new BordersXCondition(brazil),
                     new BordersXCondition(france),
-
-                    new CapitalStartsWithCondition('B'),
-                    new CapitalStartsWithCondition('S'),
-                    new CapitalStartsWithCondition('M'),
-
-                    ...regions.map(region => new FromRegionCondition(region)),
-                    ...subregions.map(subregion => new FromSubregionCondition(subregion)),
-
                     new HasMinNeighborsCondition(6),
                     new HasNoLandBordersCondition(),
-
-                    new IsCrossedByEquatorCondition(),
-                    new IsCrossedByTropicsCondition(),
-
-                    new IsNorthernHemisphereCondition(),
-                    new IsSouthernHemisphereCondition(),
-
-                    new IsEuCondition(),
-                    new IsNatoCondition(),
-                    new UsesEuroCondition(),
+                    new HasASingleLandBorderCondition(),
+                    new BordersMediterraneanSeaCondition(),
 
                     new SpeaksArabicCondition(),
                     new SpeaksEnglishCondition(),
@@ -218,16 +230,26 @@ export class GameService {
                     new SpeaksPortugueseCondition(),
                     new SpeaksRussianCondition(),
                     new SpeaksSpanishCondition(),
-
                     new UsesCyrillicScriptCondition(),
                     new UsesLatinScriptCondition(),
                     new UsesArabicScriptCondition(),
+
+                    new CapitalStartsWithCondition('B'),
+                    new CapitalStartsWithCondition('S'),
+                    new CapitalStartsWithCondition('M'),
+                    new IsEuCondition(),
+                    new IsNatoCondition(),
+                    new UsesEuroCondition(),
+                    new DrivesOnTheLeftLaneCondition(),
+                    new DeclaredIndependenceAfterDateCondition(),
+                    new IsLandlockedCondition(),
+                    new hasAPointAbove3KmCondition(),
+                    new IsMonarchyCondition(),
+                    new IsRepublicCondition(),
                 ];
 
                 const n = conditions.length;
 
-                // Pre-filter, per condition, the list of countries that satisfy it,
-                // so each cell is just an intersection instead of a full re-scan.
                 const matchesPerCondition: Country[][] = conditions.map(condition =>
                     allCountries.filter(country => condition.check(country))
                 );
@@ -245,11 +267,9 @@ export class GameService {
                         const rowMatches = matchesPerCondition[row];
                         const colMatchesSet = new Set(matchesPerCondition[col].map(c => c.alpha2Code));
 
-                        const validCountries = rowMatches
+                        matrix[row][col] = rowMatches
                             .filter(country => colMatchesSet.has(country.alpha2Code))
                             .map(country => country.alpha2Code);
-
-                        matrix[row][col] = validCountries;
                     }
                 }
 

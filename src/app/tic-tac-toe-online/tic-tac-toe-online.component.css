@@ -1174,10 +1174,25 @@ app-condition-picker {
   .corner__player-label { font-size: 0.55rem; }
   .corner__player-number { font-size: 2.6rem; }
   .corner__countdown { font-size: 2.6rem; }
+  .action-row {
+    flex-direction: column;
+    height: auto;
+    gap: 0.85rem;
+  }
 
-  .action-row { flex-direction: column; height: auto; }
-  .guess-button, .next-country-tile { width: 100%; height: 52px; }
+  .guess-button {
+    width: 100%;
+    height: 72px;
+    font-size: 1.3rem;
+    order: 1;
+  }
 
+  .next-country-tile {
+    width: 100%;
+    height: 72px;
+    font-size: 1.3rem;
+    order: 2;
+  }
   .mode-option { padding: 0.5rem 0.5rem; font-size: 0.85rem; }
 
   .guess-form { flex-direction: column; height: auto; }
@@ -1202,14 +1217,7 @@ app-condition-picker {
   .cell-btn__flag {
     width: clamp(18px, 13cqw, 42px);             /* was 24px–56px range */
   }
-  .action-row { flex-direction: column; height: auto; }
-  .action-row .guess-button,
-  .guess-button,
-  .next-country-tile {
-    width: 100% !important;
-    height: 52px !important;
-    flex: 0 0 auto !important;
-  }
+
 }
 
 /* Extra-narrow phones (e.g. iPhone SE, small Android widths ~360-390px):

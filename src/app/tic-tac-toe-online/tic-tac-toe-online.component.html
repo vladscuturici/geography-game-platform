@@ -101,8 +101,9 @@
               <img class="condition-btn__symbol" [src]="col.symbol" alt="" />
               <span class="condition-btn__label">{{ col.label }}</span>
               } @else {
-              <span class="condition-btn__label">{{ isLoadingPicker ? 'Checking…' : 'Add condition' }}</span>
-              <span class="condition-btn__icon">✛</span>
+              <span class="condition-btn__label">
+                {{ !isMyTurn ? 'The opponent is picking…' : (isLoadingPicker ? 'Checking…' : 'Add condition') }}
+              </span>
               }
             </button>
           </div>
@@ -116,8 +117,9 @@
               <img class="condition-btn__symbol" [src]="row.symbol" alt="" />
               <span class="condition-btn__label">{{ row.label }}</span>
               } @else {
-              <span class="condition-btn__label">{{ isLoadingPicker ? 'Checking…' : 'Add condition' }}</span>
-              <span class="condition-btn__icon">✛</span>
+              <span class="condition-btn__label">
+                {{ !isMyTurn ? 'The opponent is picking…' : (isLoadingPicker ? 'Checking…' : 'Add condition') }}
+              </span>
               }
             </button>
           </div>

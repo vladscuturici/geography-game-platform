@@ -52,10 +52,8 @@ interface RoomState {
   player2Name: string;
 }
 
-// const WS_BASE = 'wss://wavelength-server.vladscuturici.workers.dev';
-// const API_BASE = 'https://wavelength-server.vladscuturici.workers.dev';
-const WS_BASE = 'ws://127.0.0.1:8787';
-const API_BASE = 'http://127.0.0.1:8787';
+const WS_BASE = 'wss://wavelength-server.vladscuturici.workers.dev';
+const API_BASE = 'https://wavelength-server.vladscuturici.workers.dev';
 export const MAX_USERNAME_LENGTH = 10;
 
 @Component({

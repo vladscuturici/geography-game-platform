@@ -590,8 +590,9 @@
 
 ::ng-deep .actual-city-marker-icon {
   filter: hue-rotate(150deg) saturate(4);
+  z-index: 3000;
+  position: relative; /* z-index only applies to positioned elements */
 }
-
 ::ng-deep .article-marker-icon {
   display: flex;
   align-items: center;
@@ -659,6 +660,7 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(232, 200, 118, 0.15);
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
   pointer-events: none;
+  z-index: 2000;
 }
 
 ::ng-deep .city-reveal-tooltip::before {

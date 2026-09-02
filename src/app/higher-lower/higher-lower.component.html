@@ -58,8 +58,8 @@
 
     @if (!isGameOver) {
       <div class="action-row">
-        <button type="button" class="guess-btn guess-btn--lower" [disabled]="isFlashing" (click)="onGuess('lower')">▼ Lower</button>
         <button type="button" class="guess-btn guess-btn--higher" [disabled]="isFlashing" (click)="onGuess('higher')">▲ Higher</button>
+        <button type="button" class="guess-btn guess-btn--lower" [disabled]="isFlashing" (click)="onGuess('lower')">▼ Lower</button>
       </div>
     } @else {
       <div class="action-row">

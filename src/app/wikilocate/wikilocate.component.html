@@ -12,8 +12,10 @@
         <div class="guess-form">
             <mat-form-field appearance="fill">
                 <mat-label>Type the city name…</mat-label>
-                    <input type="text" matInput [formControl]="guessControl" [matAutocomplete]="auto"
-                        [disabled]="isRoundOver || !currentCity || isGuessSubmitting" (keydown.enter)="onEnterKey()" />
+                <input type="text" matInput [formControl]="guessControl" [matAutocomplete]="auto"
+                    [readonly]="isRoundOver"
+                    [disabled]="!currentCity || isGuessSubmitting"
+                    (keydown.enter)="onEnterKey()" />
                 <mat-autocomplete #auto="matAutocomplete">
                     <mat-option *ngFor="let name of (filteredCityNames$ | async)" [value]="name">
                         {{ name }}

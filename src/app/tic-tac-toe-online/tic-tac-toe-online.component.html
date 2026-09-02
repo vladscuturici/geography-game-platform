@@ -104,6 +104,9 @@
               <span class="condition-btn__label">
                 {{ !isMyTurn ? 'The opponent is picking…' : (isLoadingPicker ? 'Checking…' : 'Add condition') }}
               </span>
+              @if (isMyTurn) {
+              <span class="condition-btn__icon">✛</span>
+              }
               }
             </button>
           </div>
@@ -120,6 +123,9 @@
               <span class="condition-btn__label">
                 {{ !isMyTurn ? 'The opponent is picking…' : (isLoadingPicker ? 'Checking…' : 'Add condition') }}
               </span>
+              @if (isMyTurn) {
+              <span class="condition-btn__icon">✛</span>
+              }
               }
             </button>
           </div>

@@ -142,9 +142,12 @@ app-condition-picker {
 
 .board-tile {
   width: 100%;
-  flex: 1 1 auto;
+  flex: 0 0 auto;               /* was: flex: 1 1 auto */
   min-height: 0;
   min-width: 0;
+  aspect-ratio: 1 / 1;          /* tile height now derives from its width */
+  max-width: min(100%, 60vh);   /* cap so it can't grow huge on wide/short viewports */
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,21 +159,7 @@ app-condition-picker {
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
-  max-height: 100%;
-  /* container-type: size (both axes) requires a definite height to be
-     handed down from outside — it strips content from contributing to
-     size at all. On desktop that height comes from the flex/height:100vh
-     chain rooted at :host, so it worked. On mobile, :host switches to
-     height: auto and this tile becomes flex: 0 0 auto — nothing outside
-     hands it a height anymore, and containment won't let the board's
-     own content define one either, so the tile collapsed to near-zero
-     height, squashing the whole grid into a sliver.
-     Using container-type: size (both axes) lets .board-wrap measure
-     both cqw and cqh so it can size itself to a true square via
-     min(100cqw, 100cqh) — this only works because .board-tile now has
-     a real height on mobile too (see the mobile block below), so it
-     never collapses. */
-  container-type: size;
+  container-type: inline-size;  /* only needs a definite width now */
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
@@ -196,8 +185,7 @@ app-condition-picker {
 }
 
 .board-wrap {
-  width: min(100cqw, 100cqh);
-  height: min(100cqw, 100cqh);
+  width: 100cqw;
   aspect-ratio: 1 / 1;
   margin: auto;
 }
@@ -1082,7 +1070,7 @@ app-condition-picker {
 .phase-hint {
   font-family: 'Spectral', Georgia, serif;
   font-size: 0.95rem;
-  color: var(--parchment);
+  color: var(--brass-bright);
   margin: 0;
   text-align: center;
   font-weight: 600;
@@ -1158,6 +1146,7 @@ app-condition-picker {
                               the grid, instead of stretching to fill the
                               whole card vertically */
     max-height: none;     /* was 100% from the base rule — no longer needed */
+    max-width: none;
   }
 
   .header {

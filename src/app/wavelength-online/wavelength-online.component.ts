@@ -62,7 +62,8 @@ interface RoomState {
 
 const WS_BASE = 'wss://wavelength-server.vladscuturici.workers.dev';
 const API_BASE = 'https://wavelength-server.vladscuturici.workers.dev';
-export const MAX_USERNAME_LENGTH = 10;
+export const MAX_USERNAME_LENGTH = 12;
+export const MIN_USERNAME_LENGTH = 3;
 
 @Component({
   selector: 'app-wavelength-online',
@@ -148,7 +149,7 @@ export class WavelengthOnlineComponent implements OnInit {
 
   public confirmUsername(): void {
     const trimmed = this.username.trim();
-    if (!trimmed) return;
+    if (trimmed.length < MIN_USERNAME_LENGTH) return;
     this.username = trimmed;
     if (this.joinCodeInput) {
       this.joinRoom();
@@ -159,6 +160,10 @@ export class WavelengthOnlineComponent implements OnInit {
 
   public get usernameTooLong(): boolean {
     return this.username.trim().length > MAX_USERNAME_LENGTH;
+  }
+
+  public get usernameTooShort(): boolean {
+    return this.username.trim().length > 0 && this.username.trim().length < MIN_USERNAME_LENGTH;
   }
 
   public get usernameRemaining(): number {

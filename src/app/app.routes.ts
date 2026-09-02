@@ -20,7 +20,8 @@ export const routes: Routes = [
     },
     {
         path: 'home',
-        component: HomeComponent
+        component: HomeComponent,
+        title: 'CompassLegend'
     },
     {
         path: 'guess-the-country',
@@ -32,33 +33,34 @@ export const routes: Routes = [
             },
             {
                 path: 'daily-country',
-                component: DailyCountryComponent
+                component: DailyCountryComponent,
+                title: 'Guess the Country - CompassLegend'
             },
             {
                 path: 'unlimited',
-                component: UnlimitedComponent
+                component: UnlimitedComponent,
+                title: 'Guess the Country - CompassLegend'
             }
         ]
     },
     {
         path: 'narrow-it-down',
-        component: NarrowItDownComponent
+        component: NarrowItDownComponent,
+        title: 'Narrow It Down - CompassLegend'
     },
     {   path: 'locate-the-city', 
         redirectTo: 'locate-the-city/world', 
         pathMatch: 'full' 
     },
     {   path: 'locate-the-city/:region', 
-        component: LocateTheCityComponent 
+        component: LocateTheCityComponent,
+        title: 'Locate the City - CompassLegend'
     },
     { 
         path: 'locate-the-city/country/:countryCode', 
-        component: LocateTheCityComponent 
+        component: LocateTheCityComponent,
+        title: 'Locate the City - CompassLegend'
     },    
-    // {
-    //     path: 'guess-the-language',
-    //     component: GuessTheLanguageComponent
-    // },
         {
         path: 'tic-tac-toe',
         redirectTo: 'tic-tac-toe/single-player',
@@ -67,38 +69,40 @@ export const routes: Routes = [
     {
         path: 'tic-tac-toe/online-pvp',
         component: TicTacToeOnlineComponent,
+        title: 'TicTacToe - CompassLegend'
     },
     {
         path: 'tic-tac-toe/online-pvp/room/:code',
         component: TicTacToeOnlineComponent,
+        title: 'TicTacToe - CompassLegend'
     },
     {
         path: 'tic-tac-toe/:mode',
         component: TicTacToeComponent,
+        title: 'TicTacToe - CompassLegend'
     },
-    // {
-    //     path: 'country-silhouette',
-    //     component: GuessCountryByOutlineComponent
-    // },,
     {
         path: 'higher-lower',
-        component: HigherLowerComponent
+        component: HigherLowerComponent,
+        title: 'Higher or Lower - CompassLegend'
     },
     {
         path: 'sort-it-out',
-        component: SortItOutComponent
+        component: SortItOutComponent,
+        title: 'Sort It Out - CompassLegend'
     },
     {
         path: 'wiki-locate',
-        component: WikilocateComponent
+        component: WikilocateComponent,
+        title: 'WikiLocate - CompassLegend'
     },
     {
         path: 'wavelength',
         children: [
             { path: '', redirectTo: 'local', pathMatch: 'full' },
-            { path: 'local', component: WavelengthComponent },
-            { path: 'online', component: WavelengthOnlineComponent },
-            { path: 'online/room/:code', component: WavelengthOnlineComponent },
+            { path: 'local', component: WavelengthComponent, title: 'Wavelength - CompassLegend' },
+            { path: 'online', component: WavelengthOnlineComponent, title: 'Wavelength - CompassLegend' },
+            { path: 'online/room/:code', component: WavelengthOnlineComponent, title: 'Wavelength - CompassLegend' },
         ]
     }
 ];

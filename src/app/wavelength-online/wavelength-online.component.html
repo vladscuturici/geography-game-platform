@@ -13,13 +13,13 @@
     @if (screen === 'username') {
     <div class="guess-tile">
       <div class="guess-form">
-        <mat-form-field appearance="fill">
-          <mat-label>Your name</mat-label>
-          <input matInput [(ngModel)]="username" maxlength="10" (keydown.enter)="confirmUsername()" />
-          <mat-hint align="end">{{ username.length }}/10</mat-hint>
-        </mat-form-field>
-        <button class="guess-button" mat-raised-button [disabled]="!username.trim()"
-          (click)="confirmUsername()">Continue</button>
+      <mat-form-field appearance="fill">
+        <mat-label>Your name</mat-label>
+        <input matInput [(ngModel)]="username" maxlength="12" (keydown.enter)="confirmUsername()" />
+        <mat-hint align="end">{{ username.trim().length }}/12</mat-hint>
+      </mat-form-field>
+      <button class="guess-button" mat-raised-button [disabled]="username.trim().length < 3"
+        (click)="confirmUsername()">Continue</button>
       </div>
     </div>
     }

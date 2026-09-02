@@ -142,34 +142,24 @@ app-condition-picker {
 
 .board-tile {
   width: 100%;
-  flex: 1 1 auto;
+  flex: 0 0 auto;              /* was: flex: 1 1 auto — don't grow/fill leftover space */
   min-height: 0;
   min-width: 0;
+  aspect-ratio: 1 / 1;         /* size derives from width instead of being handed a height */
+  max-width: min(100%, 60vh);  /* cap so it doesn't get huge on wide/short viewports */
+  margin: 0 auto;              /* center it since it's no longer full-width-driven */
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, rgba(201, 162, 75, 0.16), rgba(20, 33, 61, 0.6));
   border: 1px solid var(--brass);
   border-radius: 8px;
-  padding: 0.5rem; 
+  padding: 0.5rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(232, 200, 118, 0.1);
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
-  max-height: 100%;
-  /* container-type: size (both axes) requires a definite height to be
-     handed down from outside — it strips content from contributing to
-     size at all. On desktop that height comes from the flex/height:100vh
-     chain rooted at :host, so it worked. On mobile, :host switches to
-     height: auto and this tile becomes flex: 0 0 auto — nothing outside
-     hands it a height anymore, and containment won't let the board's
-     own content define one either, so the tile collapsed to near-zero
-     height, squashing the whole grid into a sliver.
-     inline-size containment only needs a definite WIDTH (which this
-     tile always has, at 100%), and that's all .corner__player-line's
-     cqw-based font-size actually needs — so this avoids the collapse
-     entirely while keeping that responsive text sizing working. */
-  container-type: size; 
+  container-type: inline-size; /* only need definite WIDTH now, which aspect-ratio guarantees */
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
@@ -195,9 +185,8 @@ app-condition-picker {
 }
 
 .board-wrap {
-  width: min(100cqw, 100cqh);
-  height: min(100cqw, 100cqh);
-  aspect-ratio: 1 / 1;
+  width: 100cqw;
+  aspect-ratio: 1 / 1;   /* height now comes from aspect-ratio instead of 100cqh */
   margin: auto;
 }
 
@@ -1142,6 +1131,7 @@ app-condition-picker {
     min-height: 100dvh;
     overflow: hidden;
     padding: 0.5rem 1.5rem 3rem;
+    max-width: none;
   }
 
   .game-card {

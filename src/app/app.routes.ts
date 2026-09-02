@@ -21,7 +21,7 @@ export const routes: Routes = [
     {
         path: 'home',
         component: HomeComponent,
-        title: 'CompassLegend'
+        title: 'CompassLegend - A Geography Game Platform'
     },
     {
         path: 'guess-the-country',
@@ -104,5 +104,9 @@ export const routes: Routes = [
             { path: 'online', component: WavelengthOnlineComponent, title: 'Wavelength - CompassLegend' },
             { path: 'online/room/:code', component: WavelengthOnlineComponent, title: 'Wavelength - CompassLegend' },
         ]
+    },
+    {
+        path: '**',
+        redirectTo: 'home'
     }
 ];

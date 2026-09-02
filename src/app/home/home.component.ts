@@ -48,14 +48,14 @@ export class HomeComponent {
   private _sanitizer = inject(DomSanitizer);
 
   public games: GameTile[] = [
-    { title: 'Guess the Country', description: 'Can you guess the daily/unlimited country based on clues?', route: '/guess-the-country/daily-country', glyph: 'globe', tags: ['singleplayer', 'daily'] },
-    { title: 'Wavelength', description: 'The classic Wavelength game with a geographic twist...', route: '/wavelength', glyph: 'wavelength', tags: ['local-mp', 'online-mp'] },
     { title: 'TicTacToe', description: 'The classic TicTacToe game with a geographic twist...', route: '/tic-tac-toe', glyph: 'grid', tags: ['singleplayer', 'local-mp', 'online-mp'] },
+    { title: 'Wavelength', description: 'The classic Wavelength game with a geographic twist...', route: '/wavelength', glyph: 'wavelength', tags: ['local-mp', 'online-mp'] },
     { title: 'Locate the City', description: 'Drop a pin where you think a city is and see how close you got.', route: '/locate-the-city', glyph: 'pin', tags: ['singleplayer'] },
+    { title: 'Guess the Country', description: 'Can you guess the daily/unlimited country based on clues?', route: '/guess-the-country/daily-country', glyph: 'globe', tags: ['singleplayer', 'daily'] },
+    { title: 'WikiLocate', description: 'Identify the city based on the Wikipedia pages displayed.', route: '/wiki-locate', glyph: 'book', tags: ['singleplayer'] },
     { title: 'Sort it out', description: 'Order 5 countries based on the given criteria.', route: '/sort-it-out', glyph: 'sort', tags: ['singleplayer'] },
     { title: 'Narrow it Down', description: 'Bracket a hidden number with a shrinking range for points.', route: '/narrow-it-down', glyph: 'target', tags: ['singleplayer'] },
     { title: 'Higher Lower', description: 'Which country has the bigger population?', route: '/higher-lower', glyph: 'updown', tags: ['singleplayer'] },
-    { title: 'WikiLocate', description: 'Identify the city based on the Wikipedia pages displayed.', route: '/wiki-locate', glyph: 'book', tags: ['singleplayer'] },
   ];
 
   public tagLabel(tag: TagKey): string {

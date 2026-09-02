@@ -8,8 +8,13 @@
       <span class="brand__rivet brand__rivet--bl"></span>
       <span class="brand__rivet brand__rivet--br"></span>
       <img
-        class="brand__logo"
+        class="brand__logo brand__logo--desktop"
         src="./logoandtext.png"
+        alt="CompassLegend"
+      />
+      <img
+        class="brand__logo brand__logo--mobile"
+        src="./128.png"
         alt="CompassLegend"
       />
     </div>
@@ -22,6 +27,7 @@
       @for (entry of entries; track entry.route) {
         <li class="legend-key__row">
           <a
+            #navLink
             [routerLink]="entry.route"
             routerLinkActive="legend-key__link--active"
             class="legend-key__link"

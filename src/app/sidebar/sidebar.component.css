@@ -102,6 +102,10 @@
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
 }
 
+.brand__logo--mobile {
+  display: none;
+}
+
 .brand__tile::before {
   content: '';
   position: absolute;
@@ -355,8 +359,14 @@
     padding: 6px 12px;
   }
 
-  .brand__logo {
-    height: 26px;
+  .brand__logo--desktop {
+    display: none;
+  }
+
+  .brand__logo--mobile {
+    display: block;
+    height: 34px;
+    width: auto;
   }
 
   .brand__seal {

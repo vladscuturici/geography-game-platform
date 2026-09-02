@@ -62,7 +62,7 @@
     </div>
 
     <div class="action-row">
-      <button mat-raised-button class="guess-button" (click)="onGuess()" [disabled]="hasGuessed">
+      <button mat-raised-button class="guess-button" (click)="onGuessAndScroll(resultLabel)" [disabled]="hasGuessed">
         Lock in range
       </button>
 
@@ -71,7 +71,7 @@
         Next country →
       </button>
 
-      <div class="result-label" [class.result-label--filled]="hasGuessed && currentCountry"
+      <div #resultLabel class="result-label" [class.result-label--filled]="hasGuessed && currentCountry"
         [class.result-label--zero]="hasGuessed && currentScore === 0">
         @if (hasGuessed && currentCountry) {
         <span class="result-label__score">{{ currentScore }} pts</span>

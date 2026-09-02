@@ -33,8 +33,6 @@
               (drop)="onDrop(i)"
               (dragend)="onDragEnd()"
             >
-              <span class="tile__position">{{ i + 1 }}</span>
-
               <div class="tile__top">
                 <img class="tile__flag" [src]="tile.country.flags.svg" alt="" />
                 <span class="tile__name">{{ tile.country.name }}</span>
@@ -44,22 +42,27 @@
                 @if (isRevealed) {
                   <span class="tile__value">{{ formatValue(tile.value) }}</span>
                 } @else {
-                  <span class="tile__handle">⠿</span>
                   <div class="tile__move-btns">
-                    <button
-                      type="button"
-                      class="tile__move-btn"
-                      [disabled]="i === 0"
-                      (click)="onMoveLeft(i)"
-                      aria-label="Move left"
-                    >‹</button>
-                    <button
-                      type="button"
-                      class="tile__move-btn"
-                      [disabled]="i === tiles.length - 1"
-                      (click)="onMoveRight(i)"
-                      aria-label="Move right"
-                    >›</button>
+                   <button
+                    type="button"
+                    class="tile__move-btn"
+                    [disabled]="i === 0"
+                    (click)="onMoveLeft(i)"
+                    aria-label="Move up"
+                  >
+                    <span class="arrow-desktop">‹</span>
+                    <span class="arrow-mobile">▲</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="tile__move-btn"
+                    [disabled]="i === tiles.length - 1"
+                    (click)="onMoveRight(i)"
+                    aria-label="Move down"
+                  >
+                    <span class="arrow-desktop">›</span>
+                    <span class="arrow-mobile">▼</span>
+                  </button>
                   </div>
                 }
               </div>
@@ -84,9 +87,9 @@
         </button>
         <div class="result-label" [class.result-label--filled]="isCorrect" [class.result-label--zero]="!isCorrect">
           @if (isCorrect) {
-            <span class="result-label__score">Correct order!</span>
+            <span class="result-label__score label-desktop">Correct order!</span>
           } @else {
-            <span class="result-label__score">Not quite</span>
+            <span class="result-label__score label-desktop">Not quite</span>
             <span class="result-label__detail">Correct order highlighted below</span>
           }
         </div>
@@ -96,9 +99,10 @@
         <div class="answer-key">
           @for (tile of correctOrder; track tile.country.name; let i = $index) {
             <div class="answer-key__item">
-              <span class="answer-key__rank">{{ i + 1 }}</span>
-              <img class="answer-key__flag" [src]="tile.country.flags.svg" alt="" />
-              <span class="answer-key__name">{{ tile.country.name }}</span>
+              <div class="answer-key__top">
+                <img class="answer-key__flag" [src]="tile.country.flags.svg" alt="" />
+                <span class="answer-key__name">{{ tile.country.name }}</span>
+              </div>
               <span class="answer-key__value">{{ formatValue(tile.value) }}</span>
             </div>
           }

@@ -307,6 +307,16 @@ export class WikilocateComponent implements OnInit, AfterViewInit {
       this.map.resize();
       this.map.setMaxBounds(this.WORLD_BOUNDS);
 
+      // Mobile: pinch-zoom is hard to control precisely and there's no
+      // scroll wheel, so surface +/- buttons. Desktop keeps mouse wheel
+      // + drag as the only zoom affordance, matching the existing design.
+      if (window.matchMedia('(max-width: 700px)').matches) {
+        this.map.addControl(
+          new maplibregl.NavigationControl({ showZoom: true, showCompass: false }),
+          'bottom-right'
+        );
+      }
+
       if (this.pendingCity) {
         this.loadArticlesForCurrentCity();
       } else if (this.currentCity) {

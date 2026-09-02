@@ -101,10 +101,14 @@
 }
 
 /* ---------- Responsive (mobile, untouched) ---------- */
-@media (max-width: 640px) {
+/* @media (max-width: 640px) {
   :host {
-    top: 0.6rem;
+    top: calc(1rem + 66px);
     right: 0.6rem;
+  }
+
+  .right-menu {
+    flex-direction: column;
   }
 
   .right-menu__item span {
@@ -120,5 +124,10 @@
   .right-menu__icon {
     width: 16px;
     height: 16px;
+  }
+} */
+@media (max-width: 640px) {
+  :host {
+    display: none;
   }
 }

@@ -277,4 +277,16 @@ export class NarrowItDownComponent implements OnInit {
     this.sliderMinControl.disable({ emitEvent: false });
     this.sliderMaxControl.disable({ emitEvent: false });
   }
+
+  onGuessAndScroll(resultLabelEl: HTMLElement): void {
+    this.onGuess();
+
+    // wait a tick so *ngIf/@if content inside the result label has rendered
+    // before we measure its position to scroll to
+    requestAnimationFrame(() => {
+      if (window.innerWidth <= 700) {
+        resultLabelEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }
 }

@@ -5,114 +5,59 @@
   </header>
 
   <div class="top-row">
-    <div class="country-tile" *ngIf="randomCity$ | async as randomCity">
-      <div class="country-tile__info">
-        <span class="country-tile__label">Point on the map</span>
-        <span class="country-tile__name">{{ randomCity.name }}</span>
-      </div>
-    </div>
-
-    <div class="toggle-stack">
-      <div class="toggle-row">
-        <button
-          type="button"
-          class="toggle-option"
-          [class.toggle-option--active]="borderMode === 'none'"
-          [disabled]="borderModeLocked || hasGuessed || isCountryMode"
-          (click)="setBorderMode('none')"
-        >
-          No borders
-        </button>
-        <button
-          type="button"
-          class="toggle-option"
-          [class.toggle-option--active]="borderMode === 'shown'"
-          [disabled]="borderMode === 'shown' || hasGuessed || isCountryMode"
-          (click)="setBorderMode('shown')"
-        >
-          Show borders <span class="toggle-option__hint">(25% penalty)</span>
-        </button>
-      </div>
-
-      <div class="toggle-row toggle-row--regions">
-        <button
-          type="button"
-          class="toggle-option"
-          [class.toggle-option--active]="selectedRegion === 'world'"
-          (click)="setRegion('world')"
-        >
-          World
-        </button>
-        <button
-          type="button"
-          class="toggle-option"
-          [class.toggle-option--active]="selectedRegion === 'europe'"
-          (click)="setRegion('europe')"
-        >
-          Europe
-        </button>
-        <button
-          type="button"
-          class="toggle-option"
-          [class.toggle-option--active]="selectedRegion === 'americas'"
-          (click)="setRegion('americas')"
-        >
-          Americas
-        </button>
-        <button
-          type="button"
-          class="toggle-option"
-          [class.toggle-option--active]="selectedRegion === 'asia'"
-          (click)="setRegion('asia')"
-        >
-          Asia
-        </button>
-        <button
-          type="button"
-          class="toggle-option"
-          [class.toggle-option--active]="selectedRegion === 'africa'"
-          (click)="setRegion('africa')"
-        >
-          Africa
-        </button>
-        <button
-          type="button"
-          class="toggle-option"
-          [class.toggle-option--active]="selectedRegion === 'oceania'"
-          (click)="setRegion('oceania')"
-        >
-          Oceania
-        </button>
-      </div>
-
-      <div class="toggle-row toggle-row--country">
-        <button
-          type="button"
-          class="toggle-option toggle-option--country"
-          [class.toggle-option--active]="isCountryMode"
-          (click)="openCountryPicker()"
-        >
-          @if (isCountryMode && selectedCountryName) {
-            {{ selectedCountryName }} <span class="toggle-option__hint">(click to change)</span>
-          } @else {
-            Select a Country
-          }
-        </button>
-      </div>
+  <div class="country-tile" *ngIf="randomCity$ | async as randomCity">
+    <div class="country-tile__info">
+      <span class="country-tile__label">Point on the map</span>
+      <span class="country-tile__name">{{ randomCity.name }}</span>
     </div>
   </div>
+
+  <div class="toggle-row toggle-row--border">
+    <button type="button" class="toggle-option"
+      [class.toggle-option--active]="borderMode === 'none'"
+      [disabled]="borderModeLocked || hasGuessed || isCountryMode"
+      (click)="setBorderMode('none')">
+      No borders
+    </button>
+    <button type="button" class="toggle-option"
+      [class.toggle-option--active]="borderMode === 'shown'"
+      [disabled]="borderMode === 'shown' || hasGuessed || isCountryMode"
+      (click)="setBorderMode('shown')">
+      Show borders <span class="toggle-option__hint">(-25%)</span>
+    </button>
+  </div>
+
+  <button type="button" class="mode-trigger" (click)="openRegionPicker()">
+    {{ isCountryMode ? selectedCountryName : regionLabels[selectedRegion] }} mode: click to change
+  </button>
+
+  <div class="toggle-row toggle-row--regions">
+    <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'world'" (click)="setRegion('world')">World</button>
+    <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'europe'" (click)="setRegion('europe')">Europe</button>
+    <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'americas'" (click)="setRegion('americas')">Americas</button>
+    <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'asia'" (click)="setRegion('asia')">Asia</button>
+    <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'africa'" (click)="setRegion('africa')">Africa</button>
+    <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'oceania'" (click)="setRegion('oceania')">Oceania</button>
+  </div>
+
+  <div class="toggle-row toggle-row--country">
+    <button type="button" class="toggle-option toggle-option--country"
+      [class.toggle-option--active]="isCountryMode" (click)="openCountryPicker()">
+      @if (isCountryMode && selectedCountryName) {
+        {{ selectedCountryName }} <span class="toggle-option__hint">(click to change)</span>
+      } @else {
+        Select a Country
+      }
+    </button>
+  </div>
+</div>
 
   <div class="map-tile">
     <div #mapContainer class="map"></div>
   </div>
 
   <div class="action-row">
-    <button
-      mat-raised-button
-      class="guess-button"
-      (click)="onLockInGuess()"
-      [disabled]="hasGuessed || !currentCity"
-    >
+    <button mat-raised-button class="guess-button" (click)="onLockInGuess()" [disabled]="hasGuessed || !currentCity">
       Lock in guess
     </button>
 
@@ -120,67 +65,101 @@
       Next city →
     </button>
 
-    <div class="result-label" [class.result-label--filled]="hasGuessed" [class.result-label--zero]="hasGuessed && currentScore === 0">
+    <div class="result-label" [class.result-label--filled]="hasGuessed"
+      [class.result-label--zero]="hasGuessed && currentScore === 0">
       @if (hasGuessed) {
-        <span class="result-label__score">
-          {{ currentScore }} pts
-          @if (scoreWasHalved) {
-            <span class="result-label__raw-score">{{ rawScore }} pts</span>
-          }
-        </span>
-        <span class="result-label__detail">{{ currentDistance | number: '1.0-1' }} km away</span>
+      <span class="result-label__score">
+        {{ currentScore }} pts
+        @if (scoreWasHalved) {
+        <span class="result-label__raw-score">{{ rawScore }} pts</span>
+        }
+      </span>
+      <span class="result-label__detail">{{ currentDistance | number: '1.0-1' }} km away</span>
       }
     </div>
   </div>
 </div>
 
 @if (guessHistory.length > 0) {
-  <aside class="history-sidebar">
-    <h3 class="history-title">Session History</h3>
-    <table class="history-table">
-      <thead>
-        <tr>
-          <th>City</th>
-          <th>Points</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (entry of guessHistory; track entry.gameNumber) {
-          <tr [style.background-color]="toGreenSaturation(entry.points)">
-            <td>{{ entry.cityName }}</td>
-            <td class="score-cell">{{ entry.points }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-    <div class="history-average">
-      Average: <strong>{{ averageScore }}</strong> pts/guess
+<aside class="history-sidebar">
+  <h3 class="history-title">Session History</h3>
+  <table class="history-table">
+    <thead>
+      <tr>
+        <th>City</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (entry of guessHistory; track entry.gameNumber) {
+      <tr [style.background-color]="toGreenSaturation(entry.points)">
+        <td>{{ entry.cityName }}</td>
+        <td class="score-cell">{{ entry.points }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="history-average">
+    Average: <strong>{{ averageScore }}</strong> pts/guess
+  </div>
+</aside>
+}
+@if (showRegionPicker) {
+<div class="country-picker-backdrop" (click)="closeRegionPicker()">
+  <div class="country-picker-modal" (click)="$event.stopPropagation()">
+    <h3 class="country-picker-title">Choose a region</h3>
+
+    <div class="toggle-row toggle-row--regions">
+      <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'world'"
+        (click)="setRegion('world'); closeRegionPicker()">World</button>
+      <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'europe'"
+        (click)="setRegion('europe'); closeRegionPicker()">Europe</button>
+      <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'americas'"
+        (click)="setRegion('americas'); closeRegionPicker()">Americas</button>
+      <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'asia'"
+        (click)="setRegion('asia'); closeRegionPicker()">Asia</button>
+      <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'africa'"
+        (click)="setRegion('africa'); closeRegionPicker()">Africa</button>
+      <button type="button" class="toggle-option" [class.toggle-option--active]="selectedRegion === 'oceania'"
+        (click)="setRegion('oceania'); closeRegionPicker()">Oceania</button>
     </div>
-  </aside>
+
+    <div class="toggle-row toggle-row--country">
+      <button type="button" class="toggle-option toggle-option--country" [class.toggle-option--active]="isCountryMode"
+        (click)="closeRegionPicker(); openCountryPicker()">
+        @if (isCountryMode && selectedCountryName) {
+        {{ selectedCountryName }} <span class="toggle-option__hint">(click to change)</span>
+        } @else {
+        Select a Country
+        }
+      </button>
+    </div>
+
+    <div class="country-picker-actions">
+      <button type="button" class="country-picker-cancel" (click)="closeRegionPicker()">Close</button>
+    </div>
+  </div>
+</div>
 }
 
 @if (showCountryPicker) {
-  <div class="country-picker-backdrop" (click)="closeCountryPicker()">
-    <div class="country-picker-modal" (click)="$event.stopPropagation()">
-      <h3 class="country-picker-title">Choose a country</h3>
-      <select class="country-picker-select" [(ngModel)]="pickerSelectedCode">
-        @for (country of pickerCountries; track country.code) {
-          <option [value]="country.code">{{ country.name }}</option>
-        }
-      </select>
-      <div class="country-picker-actions">
-        <button type="button" class="country-picker-cancel" (click)="closeCountryPicker()">
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="country-picker-confirm"
-          [disabled]="!pickerSelectedCode"
-          (click)="confirmCountryPicker()"
-        >
-          Confirm
-        </button>
-      </div>
+<div class="country-picker-backdrop" (click)="closeCountryPicker()">
+  <div class="country-picker-modal" (click)="$event.stopPropagation()">
+    <h3 class="country-picker-title">Choose a country</h3>
+    <select class="country-picker-select" [(ngModel)]="pickerSelectedCode">
+      @for (country of pickerCountries; track country.code) {
+      <option [value]="country.code">{{ country.name }}</option>
+      }
+    </select>
+    <div class="country-picker-actions">
+      <button type="button" class="country-picker-cancel" (click)="closeCountryPicker()">
+        Cancel
+      </button>
+      <button type="button" class="country-picker-confirm" [disabled]="!pickerSelectedCode"
+        (click)="confirmCountryPicker()">
+        Confirm
+      </button>
     </div>
   </div>
+</div>
 }

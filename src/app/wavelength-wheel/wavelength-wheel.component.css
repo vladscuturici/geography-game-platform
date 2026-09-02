@@ -146,4 +146,6 @@
     padding: clamp(0.25rem, 1.2cqh, 0.4rem) clamp(0.3rem, 2cqw, 0.55rem);
     min-height: clamp(1rem, 5cqh, 2.2rem);
   }
+
+  
 }

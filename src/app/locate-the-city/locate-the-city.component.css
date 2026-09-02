@@ -163,9 +163,12 @@
   color: var(--brass-bright);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
   line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* --- Map tile: echoes .country-tile / .range-tile treatment --- */
+/* --- Map tile --- */
 .map-tile {
   width: 100%;
   align-self: stretch;
@@ -189,7 +192,7 @@
   overflow: hidden;
 }
 
-/* --- Action row: Lock in / Next city / result label, all one row --- */
+/* --- Action row --- */
 .action-row {
   display: flex;
   align-items: stretch;
@@ -311,41 +314,24 @@
   text-overflow: ellipsis;
 }
 
-@media (max-width: 700px) {
-  :host {
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
-    padding: 1.5rem 1.5rem 3rem;
-  }
-  .game-card {
-    height: auto;
-  }
-  .map {
-    min-height: 320px;
-  }
-  .action-row {
-    flex-direction: column;
-    height: auto;
-  }
-  .guess-button,
-  .next-country-tile {
-    width: 100%;
-    height: 64px;
-  }
-  .result-label {
-    height: auto;
-    padding: 0.9rem 1.25rem;
-  }
+.result-label__raw-score {
+  margin-left: 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--muted);
+  text-decoration: line-through;
+  opacity: 0.75;
+  white-space: nowrap;
 }
 
 /* --- Session history sidebar --- */
 .history-sidebar {
   position: fixed;
   top: 50%;
-  right: 2rem;
+  right: 0.5rem;
   transform: translateY(-50%);
-  width: 220px;
+  width: clamp(140px, 18vw, 190px);
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -422,66 +408,49 @@
   color: var(--parchment);
 }
 
-/* --- Top row: prompt tile + toggle controls, same combined height --- */
+/* --- Top row: grid so we can reposition per breakpoint without re-nesting DOM --- */
 .top-row {
-  width: 100%;
+  display: grid;
+  width: calc(100% + 2.5rem);
   align-self: stretch;
   flex: 0 1 140px;
   min-height: 100px;
-  display: flex;
-  gap: 1rem;
+  gap: 0.5rem 1rem;
   box-sizing: border-box;
-  /* only cancel the DIFFERENCE between game-card's padding and header's padding,
-     so top-row's content aligns with header's content, not the outer border */
   margin-left: -1.25rem;
   margin-right: -1.25rem;
-  width: calc(100% + 2.5rem);
+
+  /* Desktop layout — minmax(0,...) prevents content from forcing tracks wider than their share */
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  grid-template-areas:
+    "tile   border"
+    "tile   regions"
+    "tile   country";
 }
 
 .top-row .country-tile {
-  flex: 1 1 320px;
-  min-height: 0;
-}
-
-.toggle-stack {
-  flex: 1 1 auto;
+  grid-area: tile;
+  width: auto;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-/* Both rows share the same 6-column grid so button edges line up exactly
-   between the border-toggle row (2 buttons, 3 columns each) and the
-   region row (3 buttons per line, 2 columns each). */
-.toggle-row {
-  flex: 1 1 0;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  width: 100%;
-  gap: 0.3rem;
   min-height: 0;
-  box-sizing: border-box;
 }
 
-.toggle-row .toggle-option {
-  grid-column: span 3;
-}
+.toggle-row--border  { grid-area: border; min-width: 0; }
+.toggle-row--regions { grid-area: regions; min-width: 0; }
+.toggle-row--country { grid-area: country; min-width: 0; }
+.mode-trigger { display: none; } /* shown only on mobile */
 
+.toggle-row--border,
 .toggle-row--regions {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-template-rows: repeat(2, 1fr);
-  width: 100%;
   gap: 0.3rem;
-  box-sizing: border-box;
-  flex: 2 1 0;      /* was flex: 1 1 0 — now takes 2x the share vs .toggle-row's 1x,
-                        since it needs to fit 2 stacked rows in the same toggle-stack */
 }
+.toggle-row--border .toggle-option { grid-column: span 3; }
+.toggle-row--regions { grid-template-rows: repeat(2, 1fr); }
+.toggle-row--regions .toggle-option { grid-column: span 2; font-size: 0.85rem; padding: 0 0.35rem; }
 
-.toggle-row--regions .toggle-option {
-  grid-column: span 2;
-}
+.toggle-row--country { display: grid; grid-template-columns: 1fr; }
 
 .toggle-option {
   min-width: 0;
@@ -508,11 +477,6 @@
   text-overflow: ellipsis;
 }
 
-.toggle-row--regions .toggle-option {
-  font-size: 0.85rem;   /* was 0.72rem */
-  padding: 0 0.35rem;
-}
-
 .toggle-option:hover {
   background: linear-gradient(135deg, rgba(201, 162, 75, 0.26), rgba(20, 33, 61, 0.7));
 }
@@ -534,7 +498,7 @@
 }
 
 .toggle-row--regions .toggle-option--active:hover {
-  background: #1c2d54; /* slightly lighter ink for hover feedback */
+  background: #1c2d54;
 }
 
 .toggle-option__hint {
@@ -544,79 +508,66 @@
   opacity: 0.8;
 }
 
-@media (max-width: 900px) {
-  .top-row {
-    flex-direction: column;
-    height: auto;
-    min-height: 0;
-    margin-left: 0;
-    margin-right: 0;
-    width: 100%;
-  }
-  .top-row .country-tile {
-    flex: 1 1 220px;
-  }
-  .toggle-stack {
-    flex: 2 1 auto;
-  }
-  .toggle-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .toggle-row .toggle-option {
-    grid-column: span 1;
-  }
-  .toggle-row--regions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: auto;
-  }
-  .toggle-row--regions .toggle-option {
-    grid-column: span 1;
-  }
+/* --- Mobile mode trigger: blue --- */
+.mode-trigger {
+  display: none;
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(63, 124, 214, 0.18), rgba(20, 33, 61, 0.6));
+  border: 1px solid #3f7cd6;
+  border-radius: 8px;
+  color: #bcd4f5;
+  font-family: 'Spectral', Georgia, serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(92, 148, 234, 0.1);
 }
 
-@media (max-width: 1100px) {
-  .history-sidebar {
-    display: none;
-  }
+.mode-trigger:hover {
+  background: linear-gradient(135deg, rgba(63, 124, 214, 0.3), rgba(20, 33, 61, 0.7));
 }
 
-::ng-deep .actual-city-marker-icon {
-  filter: hue-rotate(150deg) saturate(4);
-}
-
-::ng-deep .distance-label {
-  background: rgba(20, 33, 61, 0.94);
-  color: var(--parchment);
+/* --- Modal picker: all buttons generic/empty by default, only active is blue --- */
+.country-picker-modal .toggle-option {
+  background: transparent;
   border: 1px solid var(--brass);
-  border-radius: 3px;
-  padding: 2px 8px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  color: var(--brass-bright);
+  box-shadow: none;
 }
 
-.result-label__raw-score {
-  margin-left: 0.6rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
-  font-weight: 400;
-  color: var(--muted);
-  text-decoration: line-through;
-  opacity: 0.75;
-  white-space: nowrap;
+.country-picker-modal .toggle-option:hover {
+  background: rgba(201, 162, 75, 0.12);
+}
+
+.country-picker-modal .toggle-option--active,
+.country-picker-modal .toggle-option--country.toggle-option--active {
+  background: #3f7cd6;
+  border-color: #3f7cd6;
+  color: #f2efe6;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.country-picker-modal .toggle-option--active:hover,
+.country-picker-modal .toggle-option--country.toggle-option--active:hover {
+  background: #5c94ea;
+  border-color: #5c94ea;
+}
+
+/* un-themed country option when NOT active — override the always-on blue tint it has by default */
+.country-picker-modal .toggle-option--country:not(.toggle-option--active) {
+  background: transparent;
+  border-color: var(--brass);
+  color: var(--brass-bright);
+}
+
+.country-picker-modal .toggle-option--country:not(.toggle-option--active):hover {
+  background: rgba(201, 162, 75, 0.12);
 }
 
 /* --- Per-country toggle row --- */
-.toggle-row--country {
-  display: grid;
-  grid-template-columns: 1fr;
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .toggle-option--country {
   --country-blue: #3f7cd6;
   --country-blue-bright: #5c94ea;
@@ -648,6 +599,16 @@
   align-items: center;
   justify-content: center;
   z-index: 3000;
+}
+
+/* When country mode is active, region buttons should never show as selected,
+   even if selectedRegion still equals a stale value */
+.country-picker-modal:has(.toggle-option--country.toggle-option--active)
+  .toggle-row--regions .toggle-option--active {
+  background: transparent;
+  border-color: var(--brass);
+  color: var(--brass-bright);
+  box-shadow: none;
 }
 
 .country-picker-modal {
@@ -702,12 +663,12 @@
 
 .country-picker-cancel {
   background: transparent;
-  color: var(--brass-bright);
-  border: 2px solid var(--brass);
+  color: #e08a8a;
+  border: 2px solid #c96a6a;
 }
 
 .country-picker-cancel:hover {
-  background: rgba(201, 162, 75, 0.15);
+  background: rgba(201, 106, 106, 0.15);
 }
 
 .country-picker-confirm {
@@ -728,4 +689,118 @@
 .country-picker-cancel:active,
 .country-picker-confirm:active:not(:disabled) {
   transform: scale(0.97);
+}
+
+/* Inside the mobile picker MODAL, regions/country should be a clean 2-col grid
+   regardless of viewport width, since .country-picker-modal is fixed-width. */
+.country-picker-modal .toggle-row--regions,
+.country-picker-modal .toggle-row--country {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: none;
+  width: 100%;
+  gap: 0.5rem;
+  height: auto;
+  min-height: 0;
+}
+
+.country-picker-modal .toggle-row--regions .toggle-option,
+.country-picker-modal .toggle-row--country .toggle-option {
+  grid-column: span 1;
+  font-size: 0.85rem;
+  padding: 0.65rem 0.5rem;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.country-picker-modal .toggle-row--country {
+  grid-template-columns: 1fr;
+  margin-top: 0.25rem;
+}
+
+::ng-deep .actual-city-marker-icon {
+  filter: hue-rotate(150deg) saturate(4);
+}
+
+::ng-deep .distance-label {
+  background: rgba(20, 33, 61, 0.94);
+  color: var(--parchment);
+  border: 1px solid var(--brass);
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================
+   Mobile breakpoint
+   ============================ */
+@media (max-width: 900px) {
+  :host {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 0.5rem 0.5rem 1.5rem;
+  }
+
+  .game-card {
+    height: auto;
+    gap: 0.5rem;
+    padding: 1rem 0.75rem;
+  }
+
+  .title { font-size: 1.5rem; }
+  .subtitle { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .header { padding: 0.6rem 0.75rem; }
+
+  .map-tile { padding: 0.25rem; }
+  .map { min-height: 340px; }
+
+  /* --- top-row: tile+border side by side, trigger below, regions/country hidden --- */
+  .top-row {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) 90px;
+    grid-template-areas:
+      "tile   border"
+      "trigger trigger";
+  }
+
+  .top-row .country-tile {
+    padding: 0.7rem 1rem;
+  }
+  .country-tile__name {
+    font-size: 1.4rem;
+  }
+
+  .toggle-row--border {
+    grid-template-columns: 1fr;
+  }
+  .toggle-row--border .toggle-option {
+    grid-column: unset;
+    font-size: 0.62rem;
+    padding: 0.3rem 0.3rem;
+    white-space: normal;
+    line-height: 1.15;
+  }
+  .toggle-row--border .toggle-option__hint { display: block; font-size: 0.52rem; }
+
+  .mode-trigger { display: block; grid-area: trigger; }
+  .toggle-row--regions,
+  .toggle-row--country { display: none; }
+
+  .action-row { flex-direction: column; height: auto; gap: 0.5rem; }
+  .guess-button, .next-country-tile { width: 100%; height: 56px; }
+  .result-label { height: auto; padding: 0.7rem 1rem; }
+}
+
+@media (max-width: 1100px) {
+  .history-sidebar {
+    display: none;
+  }
 }

@@ -342,42 +342,13 @@
   text-overflow: ellipsis;
 }
 
-@media (max-width: 700px) {
-  :host {
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
-    padding: 1.5rem 1.5rem 3rem;
-  }
-  .game-card {
-    height: auto;
-  }
-  .map {
-    min-height: 320px;
-  }
-  .action-row {
-    flex-direction: column;
-    height: auto;
-  }
-  .guess-input,
-  .guess-button,
-  .next-country-tile {
-    width: 100%;
-    height: 64px;
-  }
-  .result-label {
-    height: auto;
-    padding: 0.9rem 1.25rem;
-  }
-}
-
 /* --- Session history sidebar --- */
 .history-sidebar {
   position: fixed;
   top: 50%;
-  right: 2rem;
+  right: 0.5rem; /* was 1rem — nudged closer to the edge */
   transform: translateY(-50%);
-  width: 220px;
+  width: clamp(140px, 18vw, 190px); /* was clamp(160px, 22vw, 220px) — thinner */
   max-height: 70vh;
   display: flex;
   flex-direction: column;
@@ -606,29 +577,16 @@
 ::ng-deep .guess-form .mdc-line-ripple::after { border-bottom-color: var(--brass); }
 ::ng-deep .guess-form .mat-mdc-floating-label { font-family: 'Spectral', Georgia, serif; color: var(--text); }
 ::ng-deep .guess-form .mat-mdc-input-element { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text); }
-
-@media (max-width: 900px) {
-  .top-row {
-    flex-direction: column;
-    height: auto;
-    min-height: 0;
-    margin-left: 0;
-    margin-right: 0;
-    width: 100%;
-  }
-  .top-row .country-tile {
-    flex: 0 0 auto;
-  }
-  .toggle-stack {
-    flex: 0 0 auto;
-  }
+::ng-deep .guess-form .mat-mdc-text-field-wrapper {
+  background: var(--parchment);
+  overflow: hidden; /* clips corners so the maroon page bg can't peek through */
 }
 
-@media (max-width: 1100px) {
-  .history-sidebar {
-    display: none;
-  }
+::ng-deep .guess-form .mat-mdc-form-field-subscript-wrapper {
+  display: none; /* removes empty hint/error space that was showing pink */
 }
+
+
 
 ::ng-deep .actual-city-marker-icon {
   filter: hue-rotate(150deg) saturate(4);
@@ -717,4 +675,111 @@
   border-width: 8px 7px 0 7px;
   border-style: solid;
   border-color: var(--brass) transparent transparent transparent;
+}
+
+::ng-deep .maplibregl-ctrl-group {
+  background: rgba(20, 33, 61, 0.94);
+  border: 1px solid var(--brass);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+::ng-deep .maplibregl-ctrl-group button {
+  width: 34px;
+  height: 34px;
+}
+
+::ng-deep .maplibregl-ctrl-group button + button {
+  border-top: 1px solid rgba(201, 162, 75, 0.35);
+}
+
+::ng-deep .maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon,
+::ng-deep .maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {
+  filter: invert(78%) sepia(46%) saturate(500%) hue-rotate(357deg) brightness(101%) contrast(93%); /* recolors the default dark SVG icon to brass-bright */
+}
+
+::ng-deep .maplibregl-ctrl-group button:hover {
+  background-color: rgba(232, 200, 118, 0.12);
+}
+
+@media (max-width: 700px) {
+  :host {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 0.5rem 0.5rem 1.5rem; /* was 0.5rem 1.5rem 3rem — less horizontal padding lets map-tile grow wider, less bottom padding tightens overall page */
+  }
+  .game-card {
+    height: auto;
+    gap: 0.5rem; /* was 1.25rem via base rule — tightens vertical space between header/map/range tiles */
+    padding: 1rem 0.75rem; /* was 1.5rem 2.75rem — less horizontal padding = wider map-tile since it's width:100% of game-card */
+  }
+
+  .title { font-size: 1.5rem; }
+  .subtitle { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .header { padding: 0.6rem 0.75rem; } /* was 0.85rem 1rem, tightened */
+
+  .map-tile {
+    padding: 0.25rem; /* was 0.5rem via base rule — more of the tile is actual map */
+  }
+  .map {
+    min-height: 340px; /* slightly taller since it now has more room */
+  }
+
+  .range-tile {
+    padding: 0.6rem 0.75rem; /* was 0.9rem 1rem, tightened */
+    gap: 0.5rem; /* was 1rem via base rule — tightens gap between guess-form and action-row */
+  }
+
+  .guess-form {
+    flex-direction: column;
+  }
+
+  .action-row {
+    flex-direction: column;
+    height: auto;
+    gap: 0.5rem; /* was 1rem via base rule — tightens gap between buttons and result */
+  }
+  .guess-input,
+  .guess-button,
+  .next-country-tile {
+    width: 100%;
+    height: 56px; /* was 64px, slightly tighter */
+  }
+  .result-label {
+    height: auto;
+    padding: 0.7rem 1rem; /* was 0.9rem 1.25rem, tightened */
+  }
+
+  .country-tile {
+    flex: 0 1 auto;
+    padding: 0.9rem 1.25rem;
+  }
+  .country-tile__name {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .top-row {
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+  }
+  .top-row .country-tile {
+    flex: 0 0 auto;
+  }
+  .toggle-stack {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 1100px) {
+  .history-sidebar {
+    display: none;
+  }
 }

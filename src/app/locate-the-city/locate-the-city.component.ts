@@ -147,6 +147,8 @@ export class LocateTheCityComponent implements OnInit, AfterViewInit {
   private distanceLine: L.Polyline | null = null;
   private distanceLabel: L.Marker | null = null;
 
+  public showRegionPicker = false;
+
   // Latest cities$ emission, kept around so map-fitting logic (which can
   // be triggered from two different places — cities$ itself, and the
   // one-time world-land geojson load callback) always has fresh data
@@ -180,6 +182,13 @@ export class LocateTheCityComponent implements OnInit, AfterViewInit {
     }
   }
 
+  public openRegionPicker(): void {
+    this.showRegionPicker = true;
+  }
+
+  public closeRegionPicker(): void {
+    this.showRegionPicker = false;
+  }
   /**
    * Navigates to /locate-the-city/:region. The actual state update
    * (selectedRegion, cities refetch, history reset) happens reactively in

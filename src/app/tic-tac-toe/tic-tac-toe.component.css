@@ -17,7 +17,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
+  height: 100dvh;
   box-sizing: border-box;
   padding: 1.25rem 1.5rem;
   font-family: 'Spectral', Georgia, serif;
@@ -33,6 +33,10 @@
   }
 }
 
+app-condition-picker {
+  display: contents;
+}
+
 /* --- Game card wrapper --- */
 .game-card {
   width: 100%;
@@ -42,7 +46,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 1.1rem;
+  gap: 0.75rem;
   background: rgba(242, 239, 230, 0.05);
   border: 1px solid rgba(201, 162, 75, 0.4);
   border-radius: 12px;
@@ -147,7 +151,7 @@
   background: linear-gradient(135deg, rgba(201, 162, 75, 0.16), rgba(20, 33, 61, 0.6));
   border: 1px solid var(--brass);
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 0.5rem; 
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(232, 200, 118, 0.1);
   box-sizing: border-box;
   position: relative;
@@ -165,7 +169,7 @@
      tile always has, at 100%), and that's all .corner__player-line's
      cqw-based font-size actually needs — so this avoids the collapse
      entirely while keeping that responsive text sizing working. */
-  container-type: inline-size;
+  container-type: size; 
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
@@ -191,9 +195,8 @@
 }
 
 .board-wrap {
-  width: min(100%, 100%);
-  max-width: 100%;
-  max-height: 100%;
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
   aspect-ratio: 1 / 1;
   margin: auto;
 }
@@ -205,7 +208,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  gap: 0.65rem;
+  gap: 0.4rem;
   box-sizing: border-box;
 }
 
@@ -1135,21 +1138,32 @@
    source order. Consolidating removes that risk here before it bites. */
 @media (max-width: 700px) {
   :host {
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
-    padding: 1.5rem 1.5rem 3rem;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    padding: 0.5rem 1.5rem 3rem;
   }
 
-  .game-card { height: auto; }
-  .board-tile { flex: 0 0 auto; }
-  .board-wrap {
-    width: min(92vw, 480px);
-    max-height: none;
+  .game-card {
+    height: 100%;
+    padding: 1rem;
   }
 
-  .title { font-size: 1.7rem; }
-  .subtitle { font-size: 0.7rem; }
+  .board-tile {
+    flex: 0 0 auto;       /* was: 1 1 auto — stop it from claiming leftover space */
+    width: 100%;
+    aspect-ratio: 1 / 1;  /* height now derives directly from width */
+    max-height: none;     /* was 100% from the base rule — no longer needed */
+  }
+
+  .header {
+    width: auto;
+    display: inline-block;
+    align-self: center;
+    padding: 0.85rem 1rem;
+  }
+  .title { font-size: 1.5rem; }
+  .subtitle { font-size: 0.68rem; letter-spacing: 0.12em; }
 
   .board { gap: 0.3rem; }
   .condition-btn__symbol { width: 28px; height: 28px; object-fit: contain; }
@@ -1164,6 +1178,59 @@
 
   .guess-form { flex-direction: column; height: auto; }
   .guess-tile { height: auto; padding: 1rem; }
+
+  .condition-btn__label {
+    font-size: clamp(0.42rem, 3cqw, 0.58rem);   /* was 0.5rem–0.72rem range */
+  }
+
+  .condition-btn__icon {
+    font-size: clamp(0.9rem, 7cqw, 1.8rem);      /* was 1.1rem–2.5rem range */
+  }
+
+  .cell-btn__hint {
+    font-size: clamp(0.36rem, 2.2cqw, 0.56rem);  /* was 0.42rem–0.68rem range */
+  }
+
+  .cell-btn__mark {
+    font-size: clamp(0.4rem, 2.6cqw, 0.85rem);   /* was 0.5rem–1.05rem range */
+  }
+
+  .cell-btn__flag {
+    width: clamp(18px, 13cqw, 42px);             /* was 24px–56px range */
+  }
+}
+
+@media (max-width: 400px) {
+  .condition-btn {
+    padding: 0.2rem;
+    gap: 0.15rem;
+  }
+
+  .condition-btn__label {
+    font-size: clamp(0.36rem, 2.6cqw, 0.48rem);
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+  }
+
+  .condition-btn__icon {
+    font-size: clamp(0.75rem, 6cqw, 1.4rem);
+  }
+
+  .cell-btn__hint {
+    font-size: clamp(0.3rem, 1.9cqw, 0.44rem);
+    letter-spacing: 0.05em;
+  }
+
+  .cell-btn__mark {
+    font-size: clamp(0.34rem, 2.2cqw, 0.68rem);
+    padding: 0.15rem 0.3rem 0;
+  }
+
+  .cell-btn__flag {
+    width: clamp(14px, 11cqw, 32px);
+  }
+
+  .board { gap: 0.2rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

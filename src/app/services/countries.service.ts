@@ -15,7 +15,7 @@ export class CountriesService {
   private _httpClient = inject(HttpClient);
 
   private _apiUrl = 'https://countries.dev';
-  private _overridesUrl = '/updated_countries.json';
+  private _overridesUrl = 'updated_countries.json';
 
   // Cache the overrides so we don't refetch the static file on every call.
   private _overrides$: Observable<Map<string, CountryOverride>> =

@@ -60,6 +60,11 @@ export interface ConditionsMatrix {
   matrix: string[][][];
 }
 
+export interface RoundOutcome {
+  busted: boolean;
+  score: number; // 0–100, 0 whenever busted
+}
+
 @Service()
 export class GameService {
     private _countriesService = inject(CountriesService);
@@ -168,6 +173,17 @@ export class GameService {
         return this._conditionsMatrix$.pipe(
             map((data) => this._getMatchingCountries(data, condition1, condition2).includes(countryCode))
         );
+    }
+
+    public scoreRound(currentSum: number, threshold: number): RoundOutcome {
+        if (currentSum > threshold) {
+        return { busted: true, score: 0 };
+        }
+        if (threshold <= 0) {
+        return { busted: false, score: 0 };
+        }
+        const score = Math.round(100 * (currentSum / threshold));
+        return { busted: false, score };
     }
 
     // -------------------------------------------------------------------------------------

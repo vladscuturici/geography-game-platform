@@ -230,7 +230,7 @@ export class TicTacToeOnlineComponent implements OnInit {
   }
 
   public copyRoomLink(): void {
-    const link = `${window.location.origin}${window.location.pathname}#/tic-tac-toe/online-pvp/room/${this.roomCode}`;
+    const link = `${window.location.origin}${window.location.pathname}/room/${this.roomCode}`;
     navigator.clipboard?.writeText(link);
   }
 

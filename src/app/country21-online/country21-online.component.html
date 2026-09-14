@@ -1,0 +1,365 @@
+<div class="game-card">
+  <header class="header">
+    <h1 class="title">Country21</h1>
+    <p class="subtitle">Get as close as you can to the target population, without going over</p>
+  </header>
+
+  <div class="mode-tile">
+    <a class="mode-option" routerLink="/country21/local">Local</a>
+    <a class="mode-option mode-option--active" routerLink="/country21/online">Online</a>
+  </div>
+
+  <div class="game-body" [class.game-body--top]="screen !== 'room' || state?.phase !== 'playing'">
+
+    @if (screen === 'username') {
+    <div class="guess-tile">
+      <div class="guess-form">
+        <div class="field">
+          <div class="field__label-row">
+            <label class="field__label">Your name</label>
+            <span class="field__hint">{{ username.trim().length }}/12</span>
+          </div>
+          <input class="field__input" [(ngModel)]="username" maxlength="12" (keydown.enter)="confirmUsername()" />
+        </div>
+        <button class="guess-button" [disabled]="username.trim().length < 3" (click)="confirmUsername()">Continue</button>
+      </div>
+    </div>
+    }
+
+    @if (screen === 'menu') {
+    <div class="menu-tile">
+      <button class="guess-button guess-button--full" (click)="chooseCreate()">Create room</button>
+      <button class="guess-button guess-button--full guess-button--outline" (click)="chooseJoin()">Join room</button>
+    </div>
+    }
+
+    @if (screen === 'join-code') {
+    <div class="guess-tile">
+      <div class="guess-form">
+        <div class="field">
+          <div class="field__label-row">
+            <label class="field__label">Room code</label>
+          </div>
+          <input class="field__input field__input--code" [(ngModel)]="joinCodeInput" (keydown.enter)="joinRoom()" />
+        </div>
+        <button class="guess-button" (click)="joinRoom()">Join</button>
+      </div>
+    </div>
+    }
+
+    @if (screen === 'connecting') {
+    <div class="phase-tile">
+      <p class="phase-hint">Connecting…</p>
+    </div>
+    }
+
+    @if (screen === 'error') {
+    <p class="phase-hint">{{ errorMessage }}</p>
+    <div class="action-row">
+      <button class="guess-button" (click)="screen = 'menu'">Back</button>
+    </div>
+    }
+
+    @if (screen === 'room' && !state) {
+    <div class="phase-tile">
+      <p class="phase-hint">Joining room…</p>
+    </div>
+    }
+
+    @if (screen === 'room' && state) {
+
+      <!-- LOBBY: not enough players, or waiting to start a fresh game -->
+      @if (state.phase === 'waiting') {
+      <div class="country-tile">
+        <div class="country-tile__info">
+          <span class="country-tile__label">Room code</span>
+          <span class="country-tile__name">{{ roomCode }}</span>
+          <button class="next-country-tile copy-link-btn" (click)="copyRoomLink()">Copy invite link</button>
+        </div>
+        <div class="country-tile__info country-tile__info--right">
+          <span class="country-tile__label">Players</span>
+          <span class="country-tile__name">{{ state.connected }}/{{ maxPlayers }}</span>
+        </div>
+      </div>
+
+      <div class="lobby-tile">
+        <span class="lobby-tile__label">Seated at the table</span>
+        <ul class="lobby-list">
+          @for (seat of allSeats; track seat.playerNum) {
+          <li class="lobby-list__item">
+            <span class="lobby-list__dot"></span>
+            <span class="lobby-list__name">{{ seat.name }}</span>
+            @if (seat.isYou) { <span class="lobby-list__tag">you</span> }
+          </li>
+          }
+          @for (i of emptySeats(); track i) {
+          <li class="lobby-list__item lobby-list__item--empty">
+            <span class="lobby-list__dot lobby-list__dot--empty"></span>
+            <span class="lobby-list__name">Waiting for player…</span>
+          </li>
+          }
+        </ul>
+      </div>
+
+      <div class="action-row action-row--stacked">
+        <button
+          class="guess-button guess-button--full"
+          [class.guess-button--outline]="!state.youReady"
+          [disabled]="!canReady"
+          (click)="toggleReady()"
+        >
+          @if (state.youReady) {
+          Ready ({{ state.readyCount }}/{{ state.connected }}) · Tap to cancel
+          } @else {
+          Ready up ({{ state.readyCount }}/{{ state.connected }})
+          }
+        </button>
+        @if (state.connected < minPlayers) {
+        <p class="phase-hint phase-hint--warning">Need at least {{ minPlayers }} players to start.</p>
+        }
+      </div>
+      }
+
+      <!-- PLAYING + FINISHED share one persistent table so the hand cards
+           never get destroyed/recreated across the phase switch — that's
+           what lets the flip transition actually animate. -->
+      @if (state.phase === 'playing' || state.phase === 'finished') {
+      <div class="table-tile">
+        <div class="table-stats">
+          <div class="table-stat table-stat--target">
+            <span class="table-stat__label">Your target</span>
+            <span class="table-stat__value">{{ formatPopulation(state.you_threshold) }}</span>
+          </div>
+          <div class="table-stat table-stat--round">
+            <span class="table-stat__label">Round</span>
+            <span class="table-stat__value table-stat__value--small">{{ state.roundNumber }}/{{ state.totalRounds }}</span>
+          </div>
+        </div>
+
+        <div class="table-area">
+          <div class="table-columns">
+
+            <!-- Small in-round log: inferred take/pass/discard/lock-in lines. -->
+           <div class="game-log">
+            <span class="game-log__label">Game Log</span>
+            <ul class="game-log__list" #gameLogList>
+              @if (gameLog.length === 0) {
+              <li class="game-log__item game-log__item--empty">No moves yet</li>
+              }
+              @for (entry of gameLog; track $index) {
+              <li class="game-log__item">{{ entry }}</li>
+              }
+            </ul>
+          </div>
+
+            <div class="dealer-and-hand">
+              <div class="dealer-row">
+
+                @if (state.phase === 'playing') {
+                <span class="dealer-row__label">
+                  @if (state.currentOffer) {
+                  {{ state.cardsRemainingInOffer }} card(s) left in the deck
+                  } @else {
+                  Waiting for next card…
+                  }
+                </span>
+
+                <div class="dealer-play-row">
+                  <div class="action-stack">
+                    <button type="button" class="side-btn side-btn--take" [disabled]="!isMyTurn || state.you_locked" (click)="take()">
+                      <span class="side-btn__label">Take<br />card</span>
+                    </button>
+                    <button type="button" class="side-btn side-btn--pass" [disabled]="!isMyTurn || state.you_locked" (click)="pass()">
+                      <span class="side-btn__label">Pass</span>
+                    </button>
+                  </div>
+
+                  <div class="pcard-offer-slot">
+                    @if (offerLeavingCard) {
+                    <div
+                      class="pcard pcard--offer pcard--offer-leaving"
+                      [class.pcard--offer-leaving-down]="offerLeavingDirection === 'down'"
+                      [class.pcard--offer-leaving-right]="offerLeavingDirection === 'right'"
+                    >
+                      <div class="pcard__inner">
+                        <div class="pcard__flag-wrap">
+                          <img class="pcard__flag is-loaded" [src]="offerLeavingCard.flagSvg" [alt]="offerLeavingCard.name + ' flag'" />
+                        </div>
+                        <div class="pcard__name">{{ offerLeavingCard.name }}</div>
+                      </div>
+                    </div>
+                    }
+
+                    @if (state.currentOffer) {
+                    <div class="pcard pcard--offer">
+                      <div class="pcard__inner">
+                        <div class="pcard__flag-wrap">
+                          <img class="pcard__flag is-loaded" [src]="state.currentOffer.flagSvg" [alt]="state.currentOffer.name + ' flag'" />
+                        </div>
+                        <div class="pcard__name">{{ state.currentOffer.name }}</div>
+                      </div>
+                    </div>
+                    } @else if (!offerLeavingCard) {
+                    <div class="pcard pcard--empty">
+                      <span class="pcard__empty-label">—</span>
+                    </div>
+                    }
+                  </div>
+
+                  <button type="button" class="side-btn side-btn--lock" [disabled]="state.you_locked" (click)="lockIn()">
+                    <span class="side-btn__label">Lock<br />in</span>
+                  </button>
+                </div>
+                } @else {
+                <!-- FINISHED: only your own result, single-player style -->
+                <span class="dealer-row__label">Round Result</span>
+
+                <div class="dealer-play-row">
+                  <div class="result-panel">
+                    <div class="score-card" [class.score-card--zero]="youBusted">
+                      <div
+                        class="score-card__fill"
+                        [class.score-card__fill--danger]="youBusted"
+                        [style.width.%]="youBusted ? 100 : resultFillPercent"
+                      ></div>
+                      <div class="score-card__content">
+                        <div class="score-card__main">
+                          @if (youBusted) {
+                          <span class="score-card__label">Result</span>
+                          <span class="score-card__title score-card__title--zero">Busted</span>
+                          } @else {
+                          <span class="score-card__label">Score</span>
+                          <span class="score-card__title">{{ youScore }}</span>
+                          }
+                        </div>
+                        <span class="score-card__detail">{{ state.you_sum | number }} / {{ displayedThreshold | number }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                }
+              </div>
+
+              <!-- Hand row is rendered continuously across playing → finished,
+                   only the pcard--revealed class toggles, so the flip transition fires. -->
+              <div class="hand-row">
+                <span class="hand-row__label">Your hand</span>
+                <div class="hand-row__cards" #handCardsList>
+                  @for (c of state.you_hand; track c.name) {
+                  <div
+                    class="pcard pcard--kept"
+                    [class.pcard--flip-in]="c.name === justTakenName"
+                    [class.pcard--revealed]="state.phase === 'finished'"
+                  >
+                    <div class="pcard__flip-inner">
+                      <div class="pcard__face pcard__face--front">
+                        <div class="pcard__pip pcard__pip--tl">{{ c.alpha3Code }}</div>
+                        <div class="pcard__pip pcard__pip--br">{{ c.alpha3Code }}</div>
+                        <div class="pcard__inner pcard__inner--compact">
+                          <div class="pcard__flag-wrap pcard__flag-wrap--center">
+                            <img class="pcard__flag is-loaded" [src]="c.flagSvg" [alt]="c.name + ' flag'" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="pcard__face pcard__face--back">
+                        <div class="pcard__back-flag-bg" [style.background-image]="'url(' + c.flagSvg + ')'" [attr.aria-label]="c.name + ' flag'" role="img"></div>
+                        <div class="pcard__back-scrim"></div>
+                        <div class="pcard__back-frame">
+                          <div class="pcard__back-plaque">
+                            <span class="pcard__back-label">population</span>
+                            <span class="pcard__back-value">{{ formatPopulation(c.population) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shared bottom slot (fix #5): while the round is live it shows the
+           turn indicator; once the round finishes it becomes the ready
+           button. Only one of the two is ever present at a time. -->
+      @if (state.phase === 'playing') {
+      <div class="turn-status-bar">
+        @if (state.you_locked) {
+        <span class="turn-status-bar__text turn-status-bar__text--locked">You're locked in</span>
+        } @else if (isMyTurn) {
+        <span class="turn-status-bar__text turn-status-bar__text--you">Your turn</span>
+        } @else if (state.currentDecider) {
+        <span class="turn-status-bar__text">{{ nameForPlayer(state.currentDecider) }}'s turn</span>
+        } @else {
+        <span class="turn-status-bar__text">—</span>
+        }
+      </div>
+      }
+
+      @if (state.phase === 'finished') {
+      <div class="action-row action-row--stacked">
+        <button
+          class="guess-button guess-button--full"
+          [class.guess-button--outline]="!state.youReady"
+          [disabled]="!canReady"
+          (click)="toggleReady()"
+        >
+          @if (state.gameOver) {
+            @if (state.youReady) {
+            Ready ({{ state.readyCount }}/{{ state.connected }}) · Back to lobby
+            } @else {
+            Ready for a new game ({{ state.readyCount }}/{{ state.connected }})
+            }
+          } @else {
+            @if (state.youReady) {
+            Ready ({{ state.readyCount }}/{{ state.connected }}) · Tap to cancel
+            } @else {
+            Ready for next round ({{ state.readyCount }}/{{ state.connected }})
+            }
+          }
+        </button>
+      </div>
+      }
+      }
+    }
+  </div>
+</div>
+
+<!-- SIDEBAR: purely phase-driven.
+     - 'waiting' (the lobby — brand new room, or right after everyone readies
+       past the final round) → overall games-won leaderboard, all players.
+     - 'playing' / 'finished' (anytime a match is underway) → a constant,
+       live-updating current-game table: name, this round's points, total. -->
+@if (state) {
+<aside class="history-sidebar">
+  @if (state.phase === 'waiting') {
+    <h3 class="history-title">Overall Leaderboard · Games Won</h3>
+    <ul class="reveal-list reveal-list--sidebar">
+      @for (s of overallStandings; track s.playerNum) {
+      <li class="reveal-list__item" [style.background-color]="toGreenSaturationRatio(s.wins, maxSessionWins)">
+        <span class="reveal-list__name">{{ nameForPlayer(s.playerNum) }}</span>
+        <span class="reveal-list__score">{{ s.wins }}</span>
+      </li>
+      }
+    </ul>
+  } @else {
+    <h3 class="history-title">Current Game · Round {{ state.roundNumber }}/{{ state.totalRounds }}</h3>
+    <ul class="game-table">
+      <li class="game-table__row game-table__row--header">
+        <span class="game-table__name">Player</span>
+        <span class="game-table__round">Rnd</span>
+        <span class="game-table__total">Total</span>
+      </li>
+      @for (s of currentGameTable; track s.playerNum) {
+      <li class="game-table__row" [style.background-color]="toGreenSaturationRatio(s.total, state.roundNumber * 100)">
+        <span class="game-table__name">{{ nameForPlayer(s.playerNum) }}</span>
+        <span class="game-table__round">{{ s.roundLabel }}</span>
+        <span class="game-table__total">{{ s.total }}</span>
+      </li>
+      }
+    </ul>
+  }
+</aside>
+}

@@ -11,6 +11,8 @@ import { WikilocateComponent } from './wikilocate/wikilocate.component';
 import { WavelengthComponent } from './wavelength/wavelength.component';
 import { WavelengthOnlineComponent } from './wavelength-online/wavelength-online.component';
 import { TicTacToeOnlineComponent } from './tic-tac-toe-online/tic-tac-toe-online.component';
+import { Country21Component } from './country21/country21.component';
+import { Country21OnlineComponent } from './country21-online/country21-online.component';
 
 export const routes: Routes = [
     {
@@ -95,6 +97,15 @@ export const routes: Routes = [
         path: 'wiki-locate',
         component: WikilocateComponent,
         title: 'WikiLocate - CompassLegend'
+    },
+    {
+        path: 'country21',
+        children: [
+            { path: '', redirectTo: 'local', pathMatch: 'full' },
+            { path: 'local', component: Country21Component, title: 'Country21 - CompassLegend' },
+            { path: 'online', component: Country21OnlineComponent, title: 'Country21 - CompassLegend' },
+            { path: 'online/room/:code', component: Country21OnlineComponent, title: 'Country21 - CompassLegend' },
+        ]
     },
     {
         path: 'wavelength',

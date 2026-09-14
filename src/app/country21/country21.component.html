@@ -1,0 +1,141 @@
+<div class="game-card">
+    <header class="header">
+        <h1 class="title">Country21</h1>
+        <p class="subtitle">Get as close as you can to the target total population, without going over</p>
+    </header>
+
+    @if (isLoading) {
+    <p class="loading-msg">Loading countries…</p>
+    } @else {
+    <div class="table-tile">
+        <div class="table-stats">
+            <div class="table-stat table-stat--target">
+                <span class="table-stat__label">Target</span>
+                <span class="table-stat__value">{{ formatStat(threshold) }}</span>
+            </div>
+        </div>
+
+        <div class="table-area">
+            <div class="dealer-row">
+                <span class="dealer-row__label">
+                    @if (phase === 'playing' && currentOffer) {
+                    Card {{ offerPosition.current }} of {{ offerPosition.total }}
+                    } @else {
+                    Round Result
+                    }
+                </span>
+
+                <div class="dealer-play-row">
+                    @if (phase === 'playing') {
+                    <button type="button" class="side-btn side-btn--take" [disabled]="isFlashing || !currentOffer"
+                        (click)="onTake()">
+                        <span class="side-btn__label">Take<br />card</span>
+                    </button>
+
+                    @if (currentOffer) {
+                    <div class="pcard pcard--offer"
+                        [class.is-flashing]="isFlashing"
+                        [class.is-dealing]="isDealing"
+                        [class.is-taken]="isFlashing">
+                        <div class="pcard__inner">
+                            <div class="pcard__flag-wrap">
+                                <img class="pcard__flag" [class.is-loaded]="isFlagLoaded(currentOffer.name)"
+                                    [src]="currentOffer.flags.svg" [alt]="currentOffer.name + ' flag'"
+                                    (load)="onFlagLoad(currentOffer.name)" />
+                            </div>
+                            <div class="pcard__name">{{ currentOffer.name }}</div>
+                        </div>
+                    </div>
+                    }
+
+                    <button type="button" class="side-btn side-btn--lock" [disabled]="isFlashing" (click)="onLockIn()">
+                        <span class="side-btn__label">Lock<br />in</span>
+                    </button>
+                    } @else {
+                    <div class="result-panel">
+                        <div class="score-card" [class.score-card--zero]="phase === 'busted'">
+                            <div class="score-card__fill"
+                                [class.score-card__fill--danger]="phase === 'busted'"
+                                [style.width.%]="phase === 'busted' ? 100 : resultFillPercent"></div>
+                            <div class="score-card__content">
+                                <div class="score-card__main">
+                                    @if (phase === 'busted') {
+                                    <span class="score-card__label">Result</span>
+                                    <span class="score-card__title score-card__title--zero">Busted</span>
+                                    } @else {
+                                    <span class="score-card__label">Score</span>
+                                    <span class="score-card__title">{{ lastScore }}</span>
+                                    }
+                                </div>
+                                <span class="score-card__detail">{{ formatStat(currentSum) }} / {{ formatStat(threshold) }}</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="next-round-btn" (click)="restart()">
+                            <span class="next-round-btn__icon">↺</span>
+                            <span class="next-round-btn__label">Play again</span>
+                        </button>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="hand-row">
+                <span class="hand-row__label">Your hand</span>
+                <div class="hand-row__cards">
+                    @for (c of hand; track c.name) {
+                    <div class="pcard pcard--kept"
+                        [class.pcard--flip-in]="c.name === justTakenName"
+                        [class.pcard--revealed]="phase !== 'playing'">
+                        <div class="pcard__flip-inner">
+                            <div class="pcard__face pcard__face--front">
+                                <div class="pcard__pip pcard__pip--tl">{{ c.alpha3Code }}</div>
+                                <div class="pcard__pip pcard__pip--br">{{ c.alpha3Code }}</div>
+                                <div class="pcard__inner pcard__inner--compact">
+                                    <div class="pcard__flag-wrap pcard__flag-wrap--center">
+                                        <img class="pcard__flag" [class.is-loaded]="isFlagLoaded(c.name)" [src]="c.flags.svg"
+                                            [alt]="c.name + ' flag'" (load)="onFlagLoad(c.name)" />
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="pcard__face pcard__face--back">
+                                    <div class="pcard__back-flag-bg" [style.background-image]="'url(' + c.flags.svg + ')'" [attr.aria-label]="c.name + ' flag'" role="img"></div>
+                                    <div class="pcard__back-scrim"></div>
+                                    <div class="pcard__back-frame">
+                                        <div class="pcard__back-plaque">
+                                            <span class="pcard__back-label">{{ stat.label }}</span>
+                                            <span class="pcard__back-value">{{ formatStat(stat.extractValue(c)) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+@if (gameHistory.length > 0) {
+<aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Round</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (entry of gameHistory; track entry.gameNumber) {
+            <tr [style.background-color]="entry.busted ? '#f2d9d9' : toGreenSaturation(entry.score)">
+                <td>Round #{{ entry.gameNumber }}</td>
+                <td class="score-cell">{{ entry.busted ? '✗' : entry.score }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</aside>
+}

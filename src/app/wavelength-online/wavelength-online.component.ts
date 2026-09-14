@@ -381,7 +381,7 @@ export class WavelengthOnlineComponent implements OnInit {
   }
 
   public copyRoomLink(): void {
-    const link = `${window.location.origin}${window.location.pathname}#/wavelength/online/room/${this.roomCode}`;
+    const link = `${window.location.origin}${window.location.pathname}/room/${this.roomCode}`;
     navigator.clipboard?.writeText(link);
   }
 

@@ -56,8 +56,10 @@ interface RoomState {
   sessionWins: Record<number, number>;
 }
 
-const WS_BASE = 'ws://127.0.0.1:8787';
-const API_BASE = 'http://127.0.0.1:8787';
+const WS_BASE = 'wss://wavelength-server.vladscuturici.workers.dev';
+const API_BASE = 'https://wavelength-server.vladscuturici.workers.dev';
+// const WS_BASE = 'ws://127.0.0.1:8787';
+// const API_BASE = 'http://127.0.0.1:8787';
 export const MAX_USERNAME_LENGTH = 12;
 export const MIN_USERNAME_LENGTH = 3;
 const MIN_PLAYERS = 2;

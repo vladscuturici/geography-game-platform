@@ -54,6 +54,8 @@ interface RoomState {
   readyCount: number;
   youReady: boolean;
   sessionWins: Record<number, number>;
+  you_passes_used: number; // NEW
+  pass_limit: number; // NEW  
 }
 
 const WS_BASE = 'wss://wavelength-server.vladscuturici.workers.dev';
@@ -64,6 +66,7 @@ export const MAX_USERNAME_LENGTH = 12;
 export const MIN_USERNAME_LENGTH = 3;
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;
+const TOTAL_POOL_SIZE = 7;
 
 @Component({
   selector: 'app-country21-online',
@@ -94,7 +97,7 @@ export class Country21OnlineComponent implements OnInit {
   // Only used to briefly animate the "just taken" card in your own hand.
   public justTakenName: string | null = null;
   private _justTakenTimeout: ReturnType<typeof setTimeout> | null = null;
-
+  public readonly maxHandSize = TOTAL_POOL_SIZE;
   // Small in-round log of "X took Y" / "X passed" / "Y was discarded" lines.
   // The server only ever sends a full state snapshot, not discrete events,
   // so these are inferred by diffing each new snapshot against the last one.
@@ -241,6 +244,8 @@ export class Country21OnlineComponent implements OnInit {
       you_sum: raw.you_sum ?? 0,
       you_threshold: raw.you_threshold ?? 0,
       you_locked: !!raw.you_locked,
+      you_passes_used: raw.you_passes_used ?? 0, 
+      pass_limit: raw.pass_limit ?? 2,
       others: Array.isArray(raw.others) ? raw.others : [],
       matchHistory: Array.isArray(raw.matchHistory) ? raw.matchHistory : [],
       readyCount: raw.readyCount ?? 0,
@@ -346,6 +351,11 @@ export class Country21OnlineComponent implements OnInit {
   private _pushLog(entry: string): void {
     this.gameLog = [...this.gameLog, entry].slice(-40);
     this._scrollLogToBottom();
+  }
+
+  public get passesRemaining(): number {
+    if (!this.state) return 0;
+    return Math.max(this.state.pass_limit - this.state.you_passes_used, 0);
   }
 
   private _scrollLogToBottom(): void {
@@ -594,6 +604,17 @@ export class Country21OnlineComponent implements OnInit {
     if (abs >= 1_000) return Math.round(value / 1_000) + 'K';
     if (abs >= 100) return (value / 1_000).toFixed(1) + 'K';
     return Math.round(value).toString();
+  }
+
+  public totalForPlayer(num: PlayerNum): number {
+    return this.currentGameStandings.find((t) => t.playerNum === num)?.total ?? 0;
+  }
+
+  public fillPercentFor(num: PlayerNum): number {
+    const sum = this.sumForPlayer(num);
+    const threshold = this.thresholdForPlayer(num);
+    if (threshold <= 0) return 0;
+    return Math.min(Math.max(sum / threshold, 0), 1) * 100;
   }
 
   public copyRoomLink(): void {

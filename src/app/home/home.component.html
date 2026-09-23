@@ -22,6 +22,10 @@
           [disabled]="!game.route"
           (click)="onTileClick(game)"
         >
+          @if (game.isNew) {
+            <span class="game-tile__new-badge">New</span>
+          }
+          <span class="game-tile__sheen"></span>
           <span class="game-tile__sheen"></span>
           <span class="game-tile__corner game-tile__corner--tl"></span>
           <span class="game-tile__corner game-tile__corner--br"></span>

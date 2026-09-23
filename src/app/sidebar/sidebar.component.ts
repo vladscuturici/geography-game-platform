@@ -25,14 +25,18 @@ export class SidebarComponent implements AfterViewInit, OnDestroy {
 
   readonly entries: NavEntry[] = [
     // { label: 'Home', route: '/home', glyph: 'compass', hint: 'I' },
-    { label: 'TicTacToe', route: '/tic-tac-toe', glyph: 'grid', hint: 'I' },
-    { label: 'Wavelength', route: 'wavelength', glyph: 'wavelength', hint: 'II' },
-    { label: 'Locate the City', route: '/locate-the-city', glyph: 'pin', hint: 'III' },
-    { label: 'Guess the Country', route: '/guess-the-country', glyph: 'globe', hint: 'IV' },
-    { label: 'WikiLocate', route: '/wiki-locate', glyph: 'book', hint: 'V' },
-    { label: 'Sort it Out', route: 'sort-it-out', glyph: 'sort', hint: 'VI' },
-    { label: 'Narrow It Down', route: '/narrow-it-down', glyph: 'target', hint: 'VII' },
-    { label: 'Higher Lower', route: 'higher-lower', glyph: 'updown', hint: 'VIII' },
+    { label: 'Country21', route: '/country21', glyph: 'cards21', hint: 'I' },
+    { label: 'PopulationMatch', route: '/populationmatch', glyph: 'scale', hint: 'II' },
+    { label: 'Country Bingo', route: '/country-bingo', glyph: 'bingo', hint: 'III' },
+    { label: 'CountryClues', route: '/countryclues', glyph: 'clues', hint: 'IV'},
+    { label: 'TicTacToe', route: '/tic-tac-toe', glyph: 'grid', hint: 'V' },
+    { label: 'Wavelength', route: 'wavelength', glyph: 'wavelength', hint: 'VI' },
+    { label: 'Locate the City', route: '/locate-the-city', glyph: 'pin', hint: 'VII' },
+    { label: 'Guess the Country', route: '/guess-the-country', glyph: 'globe', hint: 'VIII' },
+    { label: 'WikiLocate', route: '/wiki-locate', glyph: 'book', hint: 'IX' },
+    { label: 'Sort it Out', route: 'sort-it-out', glyph: 'sort', hint: 'X' },
+    { label: 'Narrow It Down', route: '/narrow-it-down', glyph: 'target', hint: 'XI' },
+    { label: 'Higher Lower', route: '/higher-lower', glyph: 'updown', hint: 'XII' },
   ];
 
   ngAfterViewInit(): void {

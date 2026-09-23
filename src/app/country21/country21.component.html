@@ -1,8 +1,13 @@
 <div class="game-card">
     <header class="header">
         <h1 class="title">Country21</h1>
-        <p class="subtitle">Get as close as you can to the target total population, without going over</p>
+        <p class="subtitle">Get as close as you can to the target population, without going over</p>
     </header>
+
+    <div class="mode-tile">
+      <a class="mode-option mode-option--active" routerLink="/country21/local">Local</a>
+      <a class="mode-option" routerLink="/country21/online">Online</a>
+    </div>
 
     @if (isLoading) {
     <p class="loading-msg">Loading countries…</p>
@@ -81,7 +86,7 @@
             </div>
 
             <div class="hand-row">
-                <span class="hand-row__label">Your hand</span>
+                <span class="hand-row__label">Your hand ({{ hand.length }} of {{ maxHandSize }} cards)</span>
                 <div class="hand-row__cards">
                     @for (c of hand; track c.name) {
                     <div class="pcard pcard--kept"

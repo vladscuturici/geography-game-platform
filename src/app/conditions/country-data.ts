@@ -157,18 +157,54 @@ export const tropicCountries: string[] = [
 ];
 
 // Countries where Latin script is used officially (may overlap with other scripts)
+// Countries/territories where Latin script has official status.
+// Entries marked "co-official" use Latin alongside another official script.
 export const latinScriptCountries: string[] = [
-    'US', 'GB', 'FR', 'DE', 'ES', 'IT', 'PT', 'NL', 'BE', 'IE',
-    'DK', 'NO', 'SE', 'FI', 'IS', 'PL', 'CZ', 'SK', 'HU', 'RO',
-    'HR', 'SI', 'LT', 'LV', 'EE', 'AT', 'CH', 'LU', 'MT', 'AD',
-    'MC', 'SM', 'VA', 'AL',
-    'ME', // Montenegro — Latin and Cyrillic both official
-    'RS', // Serbia — Latin widely used, though Cyrillic has constitutional priority
-    'BA', // Bosnia and Herzegovina — Latin and Cyrillic both official
-    'BR', 'AR', 'CL', 'CO', 'PE', 'MX',
-    'CA', 'AU', 'NZ', 'ID', 'PH', 'VN', 'TR', 'ZA', 'KE', 'NG',
-    'GH', 'SN', 'CM', 'CI', 'UG', 'TZ', 'ZM', 'ZW', 'AO', 'MZ',
-    'TL', // Timor-Leste — Portuguese (official) uses Latin script
+    'AD', 'AG', 'AI', 'AL', 'AO', 'AR', 'AS', 'AT', 'AU', 'AW', 'AX', 'AZ',
+    'BA', 'BB', 'BE', 'BF', 'BI', 'BJ', 'BL', 'BM', 'BN', 'BO', 'BQ', 'BR',
+    'BS', 'BW', 'BZ',
+    'CA', 'CC', 'CD', 'CF', 'CG', 'CH', 'CI', 'CK', 'CL', 'CM', 'CO', 'CR',
+    'CU', 'CV', 'CW', 'CX',
+    'CY', // co-official: Greek is the other official script
+    'CZ',
+    'DE',
+    'DJ', // co-official: Arabic is the other official script
+    'DK', 'DM', 'DO',
+    'EC', 'EE', 'ES',
+    'FI', 'FJ', 'FK', 'FM', 'FO', 'FR',
+    'GA', 'GB', 'GD', 'GF', 'GG', 'GH', 'GI', 'GL', 'GM', 'GN', 'GP', 'GQ',
+    'GS', 'GT', 'GU', 'GW', 'GY',
+    'HK', // co-official: Chinese is the other official script
+    'HN', 'HR', 'HT', 'HU',
+    'ID', 'IE',
+    'IM',
+    'IN', // co-official: multiple Indic scripts also official
+    'IO', 'IS', 'IT',
+    'JE', 'JM',
+    'KE',
+    'KI',
+    'KM', // co-official: Arabic is the other official script
+    'KN', 'KY',
+    'LC', 'LI', 'LR', 'LS', 'LT', 'LU', 'LV',
+    'MC', 'MD', 'ME', 'MF', 'MG', 'MH', 'ML',
+    'MO', // co-official: Chinese is the other official script
+    'MP', 'MQ', 'MS', 'MT', 'MU', 'MW', 'MX', 'MY', 'MZ',
+    'NA', 'NC', 'NE', 'NF', 'NG', 'NI', 'NL', 'NO', 'NR', 'NU', 'NZ',
+    'PA', 'PE', 'PF', 'PG', 'PH',
+    'PK', // co-official: Urdu (Perso-Arabic script) is the other official language
+    'PL', 'PM', 'PN', 'PR', 'PT', 'PW', 'PY',
+    'RE', 'RO', 'RS', 'RW',
+    'SB', 'SC',
+    'SD', // co-official: Arabic is the other official script
+    'SE', 'SG', 'SH', 'SI', 'SJ', 'SK', 'SL', 'SM', 'SN', 'SO', 'SR', 'SS',
+    'ST', 'SV', 'SX', 'SZ',
+    'TC', 'TD', 'TG', 'TK', 'TL', 'TM', 'TO', 'TR', 'TT', 'TV', 'TZ',
+    'UG', 'UM', 'US', 'UY', 'UZ',
+    'VA', 'VC', 'VE', 'VG', 'VI', 'VN', 'VU',
+    'WF', 'WS',
+    'XK', // co-official: Serbian (Cyrillic) is the other official script
+    'YT',
+    'ZA', 'ZM', 'ZW',
 ];
 
 // Countries where Cyrillic script is used officially (may overlap with other scripts)
@@ -185,7 +221,7 @@ export const cyrillicScriptCountries: string[] = [
 export const arabicScriptCountries: string[] = [
     'SA', 'EG', 'DZ', 'MA', 'TN', 'LY', 'SD', 'IQ', 'SY', 'JO',
     'LB', 'YE', 'OM', 'AE', 'QA', 'BH', 'KW', 'MR', 'IR', 'AF',
-    'PK', 'SO', 'IL', 'DJ', 'KM', 'TD', 'ER', 'PS'
+    'PK', 'SO', 'IL', 'DJ', 'KM', 'TD', 'ER', 'PS', 'EH'
 ];
 
 export const regions = [
@@ -230,8 +266,8 @@ export const russianSpeakingCountries: string[] = [
     'KG', // Kyrgyzstan
     'RU', // Russia
     'TJ', // Tajikistan
-    'TM', // Turkmenistan
-    'UZ', // Uzbekistan
+    // 'TM', // Turkmenistan
+    // 'UZ', // Uzbekistan
 ];
 
 export const spanishSpeakingCountries: string[] = [
@@ -259,6 +295,7 @@ export const spanishSpeakingCountries: string[] = [
     'UY', // Uruguay
     'VE', // Venezuela (Bolivarian Republic of)
     'EH', // Western Sahara
+    'PR'
 ];
 
 export const portugueseSpeakingCountries: string[] = [
@@ -424,6 +461,7 @@ export const englishSpeakingCountries: string[] = [
     'VI', // Virgin Islands (U.S.)
     'ZM', // Zambia
     'ZW', // Zimbabwe
+    'SS', 'BI'
 ];
 
 export const arabicSpeakingCountries: string[] = [
@@ -452,6 +490,7 @@ export const arabicSpeakingCountries: string[] = [
     'TN', // Tunisia
     'AE', // United Arab Emirates
     'YE', // Yemen
+    'EH'
 ];
 
 // ---------------------------------------------------------------------
@@ -595,6 +634,7 @@ export const arcticCircleCountries: string[] = [
     'CA', // Canada
     'IS', // Iceland (Grímsey island)
     'GL', // Greenland
+    'DK', // Denmark
 ];
 
 // Landlocked countries (no direct access to open ocean)
@@ -654,7 +694,8 @@ export const above3KmCountries: string[] = [
     'KG', 'KZ', 'LS', 'MA', 'MM', 'MN', 'MW', 'MX', 'MY', 'NP',
     'NZ', 'OM', 'PE', 'PG', 'PK', 'RU', 'RW', 'SA', 'SD', 'SS',
     'TD', 'TJ', 'TR', 'TW', 'TZ', 'UG', 'US', 'UZ', 'VE', 'VN',
-    'YE', 'ZA', 'LB'
+    'YE', 'ZA', 'LB',
+    'AZ', 'TM', 'DO'
 ];
 
 // Sovereign monarchies (kingdoms, principalities, sultanates, emirates,
@@ -781,11 +822,14 @@ export const mediterraneanCountries: string[] = [
     'TN', // Tunisia
     'DZ', // Algeria
     'MA', // Morocco
+    'GB', // United Kingdom
+    'GI', // Gibraltar
 ];
 
 export const northAmericaCountries: string[] = [
     "AI", "AG", "AW", "BB", "BM", "BQ", "BS", "BZ", "CA", "CR", 
     "CU", "CW", "DM", "DO", "GD", "GL", "GP", "GT", "HN", "HT", 
     "JM", "KN", "KY", "LC", "MF", "MQ", "MS", "MX", "NI", "PA", 
-    "PM", "PR", "SV", "SX", "TC", "TT", "US", "VC", "VG", "VI"
+    "PM", "PR", "SV", "SX", "TC", "TT", "US", "VC", "VG", "VI",
+    'GL'
 ]

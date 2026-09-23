@@ -89,6 +89,7 @@
           <li class="lobby-list__item">
             <span class="lobby-list__dot"></span>
             <span class="lobby-list__name">{{ seat.name }}</span>
+            <span class="lobby-list__wins">{{ state.sessionWins[seat.playerNum] ?? 0 }} win{{ (state.sessionWins[seat.playerNum] ?? 0) === 1 ? '' : 's' }}</span>
             @if (seat.isYou) { <span class="lobby-list__tag">you</span> }
           </li>
           }
@@ -127,7 +128,7 @@
       <div class="table-tile">
         <div class="table-stats">
           <div class="table-stat table-stat--target">
-            <span class="table-stat__label">Your target</span>
+            <span class="table-stat__label">Target</span>
             <span class="table-stat__value">{{ formatPopulation(state.you_threshold) }}</span>
           </div>
           <div class="table-stat table-stat--round">
@@ -169,8 +170,13 @@
                     <button type="button" class="side-btn side-btn--take" [disabled]="!isMyTurn || state.you_locked" (click)="take()">
                       <span class="side-btn__label">Take<br />card</span>
                     </button>
-                    <button type="button" class="side-btn side-btn--pass" [disabled]="!isMyTurn || state.you_locked" (click)="pass()">
-                      <span class="side-btn__label">Pass</span>
+                    <button
+                      type="button"
+                      class="side-btn side-btn--pass"
+                      [disabled]="!isMyTurn || state.you_locked || passesRemaining <= 0"
+                      (click)="pass()"
+                    >
+                      <span class="side-btn__label">Pass<br />({{ passesRemaining }} left)</span>
                     </button>
                   </div>
 
@@ -223,17 +229,48 @@
                         [style.width.%]="youBusted ? 100 : resultFillPercent"
                       ></div>
                       <div class="score-card__content">
-                        <div class="score-card__main">
-                          @if (youBusted) {
-                          <span class="score-card__label">Result</span>
-                          <span class="score-card__title score-card__title--zero">Busted</span>
-                          } @else {
-                          <span class="score-card__label">Score</span>
-                          <span class="score-card__title">{{ youScore }}</span>
-                          }
+                        <div class="score-card__row">
+                          <div class="score-card__main">
+                            @if (youBusted) {
+                            <span class="score-card__label">Result</span>
+                            <span class="score-card__title score-card__title--zero">Busted</span>
+                            } @else {
+                            <span class="score-card__label">Score</span>
+                            <span class="score-card__title">{{ youScore }}</span>
+                            }
+                          </div>
+                          <span class="score-card__detail">{{ formatPopulation(state.you_sum) }} / {{ formatPopulation(state.you_threshold) }}</span>
                         </div>
-                        <span class="score-card__detail">{{ state.you_sum | number }} / {{ displayedThreshold | number }}</span>
+                        <div class="score-card__total-row">
+                          <span class="score-card__total-label">Total</span>
+                          <span class="score-card__total-value">{{ totalForPlayer(state.you) }}</span>
+                        </div>
                       </div>
+                    </div>
+
+                    <div
+                      class="mini-score-row"
+                      [class.mini-score-row--few]="latestStandings.length - 1 < 3"
+                    >
+                      @for (s of latestStandings; track s.playerNum) {
+                      @if (s.playerNum !== state.you) {
+                      <div class="mini-score-tile" [class.mini-score-tile--busted]="s.busted">
+                        <div
+                          class="mini-score-tile__fill"
+                          [class.mini-score-tile__fill--danger]="s.busted"
+                          [style.width.%]="s.busted ? 100 : fillPercentFor(s.playerNum)"
+                        ></div>
+                        <div class="mini-score-tile__content">
+                          <div class="mini-score-tile__top">
+                            <span class="mini-score-tile__name">{{ nameForPlayer(s.playerNum) }}</span>
+                            <span class="mini-score-tile__value">{{ s.score }}</span>
+                          </div>
+                          <span class="mini-score-tile__detail">{{ formatPopulation(sumForPlayer(s.playerNum)) }} / {{ formatPopulation(thresholdForPlayer(s.playerNum)) }}</span>
+                          <span class="mini-score-tile__total">Total {{ totalForPlayer(s.playerNum) }}</span>
+                        </div>
+                      </div>
+                      }
+                      }
                     </div>
                   </div>
                 </div>
@@ -243,7 +280,7 @@
               <!-- Hand row is rendered continuously across playing → finished,
                    only the pcard--revealed class toggles, so the flip transition fires. -->
               <div class="hand-row">
-                <span class="hand-row__label">Your hand</span>
+                <span class="hand-row__label">Your hand ({{ state.you_hand.length }} of {{ maxHandSize }} cards)</span>
                 <div class="hand-row__cards" #handCardsList>
                   @for (c of state.you_hand; track c.name) {
                   <div

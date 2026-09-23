@@ -13,6 +13,10 @@ import { WavelengthOnlineComponent } from './wavelength-online/wavelength-online
 import { TicTacToeOnlineComponent } from './tic-tac-toe-online/tic-tac-toe-online.component';
 import { Country21Component } from './country21/country21.component';
 import { Country21OnlineComponent } from './country21-online/country21-online.component';
+import { PopulationmatchComponent } from './populationmatch/populationmatch.component';
+import { CountrybingoComponent } from './countrybingo/countrybingo.component';
+import { CountrybingoOnlineComponent } from './countrybingo-online/countrybingo-online.component';
+import { CountrycluesComponent } from './countryclues/countryclues.component';
 
 export const routes: Routes = [
     {
@@ -97,6 +101,25 @@ export const routes: Routes = [
         path: 'wiki-locate',
         component: WikilocateComponent,
         title: 'WikiLocate - CompassLegend'
+    },
+    {
+        path: 'populationmatch',
+        component: PopulationmatchComponent,
+        title: 'PopulationMatch - CompassLegend'
+    },
+    {
+        path: 'countryclues',
+        component: CountrycluesComponent,
+        title: 'CountryClues - CompassLegend'
+    },
+    {
+        path: 'country-bingo',
+        children: [
+            { path: '', redirectTo: 'local', pathMatch: 'full' },
+            { path: 'local', component: CountrybingoComponent, title: 'CountryBingo - CompassLegend' },
+            { path: 'online', component: CountrybingoOnlineComponent, title: 'CountryBingo - CompassLegend' },
+            { path: 'online/room/:code', component: CountrybingoOnlineComponent, title: 'CountryBingo - CompassLegend' },
+        ]
     },
     {
         path: 'country21',

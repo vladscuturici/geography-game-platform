@@ -249,6 +249,9 @@ export class IsCrossedByTropicsCondition extends Condition {
 // ---------------------------------------------------------------------
 export class HasNoLandBordersCondition extends Condition {
     public check(country: Country): boolean {
+        //Czechia has no borders in the API
+        if(country.alpha2Code == 'CZ')
+            return false;
         return !country.borders || country.borders.length === 0;
     }
 

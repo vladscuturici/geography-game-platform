@@ -1,0 +1,155 @@
+<div class="game-card">
+    <header class="header">
+        <h1 class="title">Country Clues</h1>
+        <p class="subtitle">Guess wrong and a new clue appears</p>
+    </header>
+
+    <!-- Loading -->
+    @if (phase === 'loading') {
+    <div class="deal-tile">
+        <p class="deal-status">Picking a mystery country…</p>
+    </div>
+    }
+
+    <!-- Playing: guess input -->
+    @if (phase === 'playing') {
+    <div class="deal-tile deal-tile--input">
+        <div class="deal-row">
+            <div class="guess-input-wrap">
+                <input class="guess-input" type="text" placeholder="Type a country…" autocomplete="off"
+                    autocapitalize="off" spellcheck="false" [value]="query"
+                    (input)="onQueryInput($any($event.target).value)" (keydown)="onKeydown($event)" />
+
+                @if (suggestions.length > 0) {
+                <ul class="suggestions">
+                    @for (country of suggestions; track country.alpha2Code; let i = $index) {
+                    <li>
+                        <button type="button" class="suggestion" [class.is-active]="i === highlightIndex"
+                            (mouseenter)="highlightIndex = i" (click)="onGuess(country)">
+                            <img class="suggestion__flag" [src]="country.flags.svg" alt="" />
+                            <span class="suggestion__name">{{ country.name }}</span>
+                        </button>
+                    </li>
+                    }
+                </ul>
+                }
+            </div>
+
+            <button type="button" class="guess-button guess-button--compact" [disabled]="suggestions.length === 0"
+                (click)="onSubmit()">
+                Guess
+            </button>
+
+            <button type="button" class="next-country-tile" (click)="onGiveUp()">
+                Give up
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Ended: reveal answer + play again -->
+    @if (phase === 'ended' && target) {
+    <div class="deal-tile">
+        <div class="deal-row">
+            <div class="current-country-card current-country-card--mini"
+                [class.is-win]="won" [class.is-loss]="!won">
+                <img class="current-country-card__flag" [src]="target.flags.svg" alt="" />
+                <div class="current-country-card__info">
+                    <span class="current-country-card__name">{{ target.name }}</span>
+                </div>
+            </div>
+            <button type="button" class="guess-button guess-button--compact" (click)="onPlayAgain()">
+                Play again
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Status strip: clue counter, wrong guesses, result -->
+    @if (phase !== 'loading') {
+    <div class="status-strip">
+        @if (phase === 'playing') {
+        <span class="status-strip__text">Clue {{ revealedCount }} / {{ totalClues }}</span>
+        } @else {
+        <span class="status-strip__text" [class.is-win]="won" [class.is-loss]="!won">
+            {{ won ? 'Solved in ' + guessCount + (guessCount === 1 ? ' guess' : ' guesses') : 'Out of clues' }}
+        </span>
+        }
+
+        <div class="status-strip__chips">
+            @for (wrong of wrongGuesses; track wrong.alpha2Code) {
+            <span class="chip">
+                <img class="chip__flag" [src]="wrong.flags.svg" alt="" />
+                <span class="chip__code">{{ wrong.alpha3Code }}</span>
+            </span>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Clues -->
+    <div class="clues-tile">
+        <div class="clues">
+            @for (clue of clues; track clue.condition.id; let i = $index) {
+            <div class="clue"
+                [class.is-revealed]="i < revealedCount"
+                [class.is-new]="phase === 'playing' && i === revealedCount - 1 && i > 0">
+                <span class="clue__number">{{ i + 1 }}</span>
+
+                @if (i < revealedCount) {
+                <img class="clue__symbol" [src]="clue.condition.symbol" alt="" />
+                <div class="clue__text">
+                    <span class="clue__label">{{ clue.condition.label }}</span>
+                </div>
+                } @else {
+                <span class="clue__locked">?</span>
+                <div class="clue__text">
+                    <span class="clue__label clue__label--hidden">Locked</span>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Result popup -->
+@if (phase === 'ended' && showResult && target) {
+<div class="result-backdrop" (click)="onCloseResult()">
+    <div class="result-modal" [class.is-win]="won" [class.is-loss]="!won" role="dialog" aria-modal="true"
+        (click)="$event.stopPropagation()">
+        <p class="result-modal__eyebrow">{{ won ? 'Correct!' : 'Out of clues' }}</p>
+        <img class="result-modal__flag" [src]="target.flags.svg" alt="" />
+        <h2 class="result-modal__name">{{ target.name }}</h2>
+        <p class="result-modal__detail">
+            {{ won ? 'Solved in ' + guessCount + (guessCount === 1 ? ' guess' : ' guesses') : 'This was the mystery country' }}
+        </p>
+        <div class="result-modal__actions">
+            <button type="button" class="next-country-tile" (click)="onCloseResult()">Review clues</button>
+            <button type="button" class="guess-button" (click)="onPlayAgain()">Play again</button>
+        </div>
+    </div>
+</div>
+}
+
+@if (gameHistory.length > 0) {
+<aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Round</th>
+                <th>Guesses</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (entry of gameHistory; track entry.roundNumber) {
+            <tr [style.background-color]="historyColor(entry)">
+                <td>Round #{{ entry.roundNumber }}</td>
+                <td class="score-cell">{{ entry.guesses === null ? '✗' : entry.guesses }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</aside>
+}

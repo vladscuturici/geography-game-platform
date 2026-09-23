@@ -5,6 +5,7 @@ import { shareReplay } from 'rxjs';
 import { CountriesService } from '../services/countries.service';
 import { GameService } from '../services/game.service';
 import { Country } from '../models/countries.model';
+import { RouterModule } from '@angular/router';
 
 interface StatDefinition {
   id: string;
@@ -60,7 +61,7 @@ type RoundPhase = 'playing' | 'locked' | 'busted';
 
 @Component({
   selector: 'app-country21',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule], 
   templateUrl: './country21.component.html',
   styleUrl: './country21.component.css',
 })
@@ -227,6 +228,10 @@ export class Country21Component implements OnInit {
 
   public get cardsRemaining(): number {
     return this._offerPool.length - this.offerIndex;
+  }
+
+  public get maxHandSize(): number {
+      return TOTAL_POOL_SIZE;
   }
 
   public get offerPosition(): { current: number; total: number } {

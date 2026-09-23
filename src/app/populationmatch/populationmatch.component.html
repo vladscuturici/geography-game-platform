@@ -1,0 +1,116 @@
+<div class="game-card">
+    <header class="header">
+        <h1 class="title">PopulationMatch</h1>
+        <p class="subtitle">Select the cards that add up closest to the target population</p>
+    </header>
+
+    @if (isLoading) {
+    <p class="loading-msg">Loading countries…</p>
+    } @else {
+    <div class="table-tile">
+        <div class="table-stats table-stats--single">
+            <div class="table-stat table-stat--target">
+                <span class="table-stat__label">Target</span>
+                <span class="table-stat__value">{{ formatStat(target) }}</span>
+            </div>
+        </div>
+
+        <div class="table-area">
+            <div class="action-slot">
+                @if (phase === 'selecting') {
+                <button type="button" class="next-round-btn" [disabled]="selected.size === 0" (click)="onLockIn()">
+                    <span class="next-round-btn__label">Lock in selection</span>
+                </button>
+                } @else {
+                <div class="result-panel">
+                    <div class="score-card">
+                        <div class="score-card__fill" [style.width.%]="resultFillPercent"></div>
+                        <div class="score-card__content">
+                            <div class="score-card__main">
+                                <span class="score-card__label">Score</span>
+                                <span class="score-card__title">{{ lastScore }}</span>
+                            </div>
+                            <span class="score-card__detail">{{ formatStat(currentSum) }} / {{ formatStat(target) }}</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="next-round-btn" (click)="onNextRound()">
+                        <span class="next-round-btn__icon">↺</span>
+                        <span class="next-round-btn__label">Next round</span>
+                    </button>
+                </div>
+                }
+            </div>
+
+            <div class="hand-row">
+                <span class="hand-row__label">
+                    @if (phase === 'selecting') {
+                    Tap to select ({{ selected.size }} picked)
+                    } @else {
+                    Round Result
+                    }
+                </span>
+
+                <div class="hand-row__cards population-grid">
+                    @for (slot of board; track slot.country.name + $index; let i = $index) {
+                    <div class="pcard pcard--kept pcard--selectable"
+                        [class.pcard--picked]="isSelected(i)"
+                        [class.pcard--flip-in]="dealingIndices.has(i)"
+                        [class.pcard--revealed]="phase === 'locked' && isSelected(i)"
+                        [class.pcard--disabled]="phase === 'locked'"
+                        (click)="toggleSelect(i)">
+                        <div class="pcard__flip-inner">
+                            <div class="pcard__face pcard__face--front">
+                                <div class="pcard__pip pcard__pip--tl">{{ slot.country.alpha3Code }}</div>
+                                <div class="pcard__pip pcard__pip--br">{{ slot.country.alpha3Code }}</div>
+                                @if (isSelected(i) && phase === 'selecting') {
+                                <div class="pcard__check" [class.pcard__check--visible]="isSelected(i) && phase === 'selecting'">✓</div>
+                                }
+                                <div class="pcard__inner pcard__inner--compact">
+                                    <div class="pcard__flag-wrap pcard__flag-wrap--center">
+                                        <img class="pcard__flag" [class.is-loaded]="isFlagLoaded(slot.country.name)" [src]="slot.country.flags.svg"
+                                            [alt]="slot.country.name + ' flag'" (load)="onFlagLoad(slot.country.name)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pcard__face pcard__face--back">
+                                <div class="pcard__back-flag-bg" [style.background-image]="'url(' + slot.country.flags.svg + ')'" [attr.aria-label]="slot.country.name + ' flag'" role="img"></div>
+                                <div class="pcard__back-scrim"></div>
+                                <div class="pcard__back-frame">
+                                    <div class="pcard__back-plaque">
+                                        <span class="pcard__back-label">{{ stat.label }}</span>
+                                        <span class="pcard__back-value">{{ formatStat(stat.extractValue(slot.country)) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+@if (gameHistory.length > 0) {
+<aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Round</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (entry of gameHistory; track entry.roundNumber) {
+            <tr [style.background-color]="toGreenSaturation(entry.score)">
+                <td>Round #{{ entry.roundNumber }}</td>
+                <td class="score-cell">{{ entry.score }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</aside>
+}

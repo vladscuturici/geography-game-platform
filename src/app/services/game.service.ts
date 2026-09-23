@@ -56,13 +56,18 @@ import { CountriesService } from './countries.service';
 // languages -> will be wrong unless you choose a country that share a languages with the answer (green - exact match, unsaturated green - shared language/languages)
 
 export interface ConditionsMatrix {
-  conditions: string[];
-  matrix: string[][][];
+    conditions: string[];
+    matrix: string[][][];
+}
+
+export interface BingoConditionMatrix {
+    conditions: string[];
+    matches: string[][]; // matches[i] = alpha2Codes of countries that satisfy conditions[i]
 }
 
 export interface RoundOutcome {
-  busted: boolean;
-  score: number; // 0–100, 0 whenever busted
+    busted: boolean;
+    score: number; // 0–100, 0 whenever busted
 }
 
 @Service()
@@ -72,18 +77,57 @@ export class GameService {
     private _httpClient = inject(HttpClient);
 
     private _tictactoeConditionMatrixPath = './tictactoe_condition_matrix.json';
+    private _bingoConditionMatrixPath = './bingo_condition_matrix.json';
+
     private _apiUrl = 'https://countries.dev';
 
     private _conditionsMatrix$ = this._httpClient
-    .get<ConditionsMatrix>(this._tictactoeConditionMatrixPath)
-    .pipe(
-        tap(data => console.log('✅ matrix loaded', data.conditions.length, 'conditions')),
-        catchError(err => {
-        console.error('❌ matrix HTTP request failed:', err);
-        throw err;
-        }),
-        shareReplay(1)
-    );
+        .get<ConditionsMatrix>(this._tictactoeConditionMatrixPath)
+        .pipe(
+            tap(data => console.log('✅ matrix loaded', data.conditions.length, 'conditions')),
+            catchError(err => {
+                console.error('❌ matrix HTTP request failed:', err);
+                throw err;
+            }),
+            shareReplay(1)
+        );
+
+    private _bingoConditionMatrix$ = this._httpClient
+        .get<BingoConditionMatrix>(this._bingoConditionMatrixPath)
+        .pipe(
+            tap(data => console.log('✅ bingo matrix loaded', data.conditions.length, 'conditions')),
+            catchError(err => {
+                console.error('❌ bingo matrix HTTP request failed:', err);
+                throw err;
+            }),
+            shareReplay(1)
+        );
+
+    public getBingoConditionMatrix(): Observable<BingoConditionMatrix> {
+        return this._bingoConditionMatrix$;
+    }
+
+    private _matchesForBingoCondition(data: BingoConditionMatrix, conditionLabel: string): string[] {
+        const i = data.conditions.indexOf(conditionLabel);
+        if (i === -1) {
+            throw new Error(`Unknown bingo condition: ${conditionLabel}`);
+        }
+        return data.matches[i] ?? [];
+    }
+
+    /** All alpha2 codes that satisfy a single board condition. */
+    public getBingoMatches(conditionLabel: string): Observable<string[]> {
+        return this._bingoConditionMatrix$.pipe(
+            map(data => this._matchesForBingoCondition(data, conditionLabel))
+        );
+    }
+
+    /** Whether a specific country satisfies a single board condition. */
+    public isCorrectCountryBingo(countryCode: string, conditionLabel: string): Observable<boolean> {
+        return this._bingoConditionMatrix$.pipe(
+            map(data => this._matchesForBingoCondition(data, conditionLabel).includes(countryCode))
+        );
+    }
 
     private getPopulationScore(population_correct: number, population_compared: number): number {
         const difference = Math.abs(population_correct - population_compared);
@@ -97,7 +141,7 @@ export class GameService {
             languagesCompared.some(comparedLang => comparedLang.iso639_1 === correctLang.iso639_1)
         ).length;
 
-        if (sharedCount === 0) 
+        if (sharedCount === 0)
             return 0;
 
         const isExactMatch = sharedCount === languagesCorrect.length && sharedCount === languagesCompared.length;
@@ -106,7 +150,7 @@ export class GameService {
     }
 
     public compareCountryGuess(country_correct: Country, country_compared: Country): CountryGuessColors {
-        return { 
+        return {
             name: (country_correct.name === country_compared.name) ? 100 : 0,
             region: (country_correct.region === country_compared.region) ? 100 : 0,
             subregion: (country_correct.subregion === country_compared.subregion) ? 100 : 0,
@@ -118,7 +162,7 @@ export class GameService {
     public narrowItDownScore(correct: number, range_a: number, range_b: number): number {
         if (correct < range_a || correct > range_b) return 0;
 
-        const k = 3; 
+        const k = 3;
         const logWidth = Math.log10(range_b) - Math.log10(range_a);
         const score = 100 * (1 / (1 + k * logWidth));
 
@@ -138,7 +182,7 @@ export class GameService {
         guessLong: number,
         scoreDistanceScaleKm: number = 2000,
         k: number = 3
-        ): Observable<LocateCityScoreDetails> {
+    ): Observable<LocateCityScoreDetails> {
         return this.getDistance(correctLat, correctLong, guessLat, guessLong).pipe(
             map((result) => {
                 const distance = result.distanceKm;
@@ -177,18 +221,111 @@ export class GameService {
 
     public scoreRound(currentSum: number, threshold: number): RoundOutcome {
         if (currentSum > threshold) {
-        return { busted: true, score: 0 };
+            return { busted: true, score: 0 };
         }
         if (threshold <= 0) {
-        return { busted: false, score: 0 };
+            return { busted: false, score: 0 };
         }
         const score = Math.round(100 * (currentSum / threshold));
+        return { busted: false, score };
+    }
+
+    public scorePopulationMatch(currentSum: number, target: number): RoundOutcome {
+        if (target <= 0) {
+            return { busted: false, score: 0 };
+        }
+        const relativeError = Math.abs(currentSum - target) / target;
+        const score = Math.max(0, Math.round(100 * (1 - relativeError)));
         return { busted: false, score };
     }
 
     // -------------------------------------------------------------------------------------
     // File Generation
     // -------------------------------------------------------------------------------------
+
+    // Shared by both the tic-tac-toe and bingo generators so the condition set can't drift apart.
+    private _buildBoardConditions(reference: {
+        russia: Country;
+        china: Country;
+        brazil: Country;
+        france: Country;
+    }): Condition[] {
+        const { russia, china, brazil, france } = reference;
+
+        // Subset of subregions actually exposed as board tiles (see CONDITION_RECORDS).
+        const boardSubregions = ['Caribbean', 'Central America', 'North America', 'South America'];
+
+        return [
+            new AboveXPopulationCondition(100_000_000),
+            new AboveXPopulationCondition(50_000_000),
+            new AboveXPopulationCondition(10_000_000),
+
+            new UnderXPopulationCondition(10_000_000),
+            new UnderXPopulationCondition(5_000_000),
+            new UnderXPopulationCondition(1_000_000),
+
+            ...regions.map(region => new FromRegionCondition(region)),
+            ...boardSubregions.map(subregion => new FromSubregionCondition(subregion)),
+
+            new IsCrossedByEquatorCondition(),
+            new IsCrossedByTropicsCondition(),
+            new IsNorthernHemisphereCondition(),
+            new IsSouthernHemisphereCondition(),
+            new IsCrossedByPrimeMeridianCondition(),
+            new IsCrossedByArcticCircleCondition(),
+            new CrossedByDanubeCondition(),
+            new IsPartOfSaharaCondition(),
+
+            new BordersXCondition(russia),
+            new BordersXCondition(china),
+            new BordersXCondition(brazil),
+            new BordersXCondition(france),
+            new HasMinNeighborsCondition(6),
+            new HasNoLandBordersCondition(),
+            new HasASingleLandBorderCondition(),
+            new BordersMediterraneanSeaCondition(),
+
+            new SpeaksArabicCondition(),
+            new SpeaksEnglishCondition(),
+            new SpeaksFrenchCondition(),
+            new SpeaksGermanCondition(),
+            new SpeaksPortugueseCondition(),
+            new SpeaksRussianCondition(),
+            new SpeaksSpanishCondition(),
+            new UsesCyrillicScriptCondition(),
+            new UsesLatinScriptCondition(),
+            new UsesArabicScriptCondition(),
+
+            new CapitalStartsWithCondition('B'),
+            new CapitalStartsWithCondition('S'),
+            new CapitalStartsWithCondition('M'),
+            new IsEuCondition(),
+            new IsNatoCondition(),
+            new UsesEuroCondition(),
+            new DrivesOnTheLeftLaneCondition(),
+            new DeclaredIndependenceAfterDateCondition(),
+            new IsLandlockedCondition(),
+            new hasAPointAbove3KmCondition(),
+            new IsMonarchyCondition(),
+            new IsRepublicCondition(),
+        ];
+    }
+
+    private _resolveReferenceCountries(allCountries: Country[]): {
+        russia: Country; china: Country; brazil: Country; france: Country;
+    } {
+        const russia = allCountries.find(c => c.alpha2Code === 'RU');
+        const china = allCountries.find(c => c.alpha2Code === 'CN');
+        const brazil = allCountries.find(c => c.alpha2Code === 'BR');
+        const france = allCountries.find(c => c.alpha2Code === 'FR');
+
+        if (!russia || !china || !brazil || !france) {
+            throw new Error('Could not resolve one or more reference countries (RU/CN/BR/FR).');
+        }
+
+        return { russia, china, brazil, france };
+    }
+
     public createTicTacToeConditionMatrix(): Observable<string[][][]> {
         const countries$ = this._countriesService.getAllCountries().pipe(
             shareReplay(1)
@@ -206,64 +343,7 @@ export class GameService {
                     throw new Error('Could not resolve one or more reference countries (RU/CN/BR/FR).');
                 }
 
-                // Subset of subregions actually exposed as board tiles (see CONDITION_RECORDS).
-                const boardSubregions = ['Caribbean', 'Central America', 'North America', 'South America'];
-
-                const conditions: Condition[] = [
-                    new AboveXPopulationCondition(100_000_000),
-                    new AboveXPopulationCondition(50_000_000),
-                    new AboveXPopulationCondition(10_000_000),
-
-                    new UnderXPopulationCondition(10_000_000),
-                    new UnderXPopulationCondition(5_000_000),
-                    new UnderXPopulationCondition(1_000_000),
-
-                    ...regions.map(region => new FromRegionCondition(region)),
-                    ...boardSubregions.map(subregion => new FromSubregionCondition(subregion)),
-
-                    new IsCrossedByEquatorCondition(),
-                    new IsCrossedByTropicsCondition(),
-                    new IsNorthernHemisphereCondition(),
-                    new IsSouthernHemisphereCondition(),
-                    new IsCrossedByPrimeMeridianCondition(),
-                    new IsCrossedByArcticCircleCondition(),
-                    new CrossedByDanubeCondition(),
-                    new IsPartOfSaharaCondition(),
-
-                    new BordersXCondition(russia),
-                    new BordersXCondition(china),
-                    new BordersXCondition(brazil),
-                    new BordersXCondition(france),
-                    new HasMinNeighborsCondition(6),
-                    new HasNoLandBordersCondition(),
-                    new HasASingleLandBorderCondition(),
-                    new BordersMediterraneanSeaCondition(),
-
-                    new SpeaksArabicCondition(),
-                    new SpeaksEnglishCondition(),
-                    new SpeaksFrenchCondition(),
-                    new SpeaksGermanCondition(),
-                    new SpeaksPortugueseCondition(),
-                    new SpeaksRussianCondition(),
-                    new SpeaksSpanishCondition(),
-                    new UsesCyrillicScriptCondition(),
-                    new UsesLatinScriptCondition(),
-                    new UsesArabicScriptCondition(),
-
-                    new CapitalStartsWithCondition('B'),
-                    new CapitalStartsWithCondition('S'),
-                    new CapitalStartsWithCondition('M'),
-                    new IsEuCondition(),
-                    new IsNatoCondition(),
-                    new UsesEuroCondition(),
-                    new DrivesOnTheLeftLaneCondition(),
-                    new DeclaredIndependenceAfterDateCondition(),
-                    new IsLandlockedCondition(),
-                    new hasAPointAbove3KmCondition(),
-                    new IsMonarchyCondition(),
-                    new IsRepublicCondition(),
-                ];
-
+                const conditions = this._buildBoardConditions({ russia, china, brazil, france });
                 const n = conditions.length;
 
                 const matchesPerCondition: Country[][] = conditions.map(condition =>
@@ -298,6 +378,37 @@ export class GameService {
                 );
 
                 return matrix;
+            })
+        );
+    }
+
+    // Bingo only needs single-condition membership per cell (no row/column intersection like
+    // tic-tac-toe), so this stores conditions[i] -> alpha2Codes[] of countries satisfying it.
+    public createBingoConditionMatrix(): Observable<string[][]> {
+        const countries$ = this._countriesService.getAllCountries().pipe(
+            shareReplay(1)
+        );
+
+        return countries$.pipe(
+            map(allCountries => {
+                const reference = this._resolveReferenceCountries(allCountries);
+                const conditions = this._buildBoardConditions(reference);
+
+                const matches: string[][] = conditions.map(condition =>
+                    allCountries
+                        .filter(country => condition.check(country))
+                        .map(country => country.alpha2Code)
+                );
+
+                this._downloadAsJson(
+                    {
+                        conditions: conditions.map(c => c.toString()),
+                        matches,
+                    } as BingoConditionMatrix,
+                    'bingo_condition_matrix.json'
+                );
+
+                return matches;
             })
         );
     }

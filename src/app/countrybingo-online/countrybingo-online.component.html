@@ -1,0 +1,215 @@
+<div class="game-card">
+  <header class="header">
+    <h1 class="title">Country Bingo</h1>
+    <p class="subtitle">Place or skip each country as it's dealt</p>
+  </header>
+
+    <div class="mode-tile">
+    <a class="mode-option" routerLink="/country-bingo/local">Local</a>
+    <a class="mode-option mode-option--active" routerLink="/country-bingo/online">Online</a>
+    </div>
+
+  <div class="game-body">
+
+    @if (screen === 'username') {
+    <div class="guess-tile">
+      <div class="guess-form">
+        <div class="field">
+          <div class="field__label-row">
+            <label class="field__label">Your name</label>
+            <span class="field__hint">{{ username.trim().length }}/12</span>
+          </div>
+          <input class="field__input" [(ngModel)]="username" maxlength="12" (keydown.enter)="confirmUsername()" />
+        </div>
+        <button class="guess-button" [disabled]="username.trim().length < 3" (click)="confirmUsername()">Continue</button>
+      </div>
+    </div>
+    }
+
+    @if (screen === 'menu') {
+    <div class="menu-tile">
+      <button class="guess-button guess-button--full" (click)="chooseCreate()">Create room</button>
+      <button class="guess-button guess-button--full guess-button--outline" (click)="chooseJoin()">Join room</button>
+    </div>
+    }
+
+    @if (screen === 'join-code') {
+    <div class="guess-tile">
+      <div class="guess-form">
+        <div class="field">
+          <div class="field__label-row"><label class="field__label">Room code</label></div>
+          <input class="field__input field__input--code" [(ngModel)]="joinCodeInput" (keydown.enter)="joinRoom()" />
+        </div>
+        <button class="guess-button" (click)="joinRoom()">Join</button>
+      </div>
+    </div>
+    }
+
+    @if (screen === 'connecting') {
+    <div class="phase-tile"><p class="phase-hint">Connecting…</p></div>
+    }
+
+    @if (screen === 'error') {
+    <p class="phase-hint">{{ errorMessage }}</p>
+    <div class="action-row"><button class="guess-button" (click)="screen = 'menu'">Back</button></div>
+    }
+
+    @if (screen === 'room' && !state) {
+    <div class="phase-tile"><p class="phase-hint">Joining room…</p></div>
+    }
+
+    @if (screen === 'room' && state) {
+
+      <!-- LOBBY: before round 1 has ever started -->
+      @if (localPhase === 'idle') {
+      <div class="country-tile">
+        <div class="country-tile__info">
+          <span class="country-tile__label">Room code</span>
+          <span class="country-tile__name">{{ roomCode }}</span>
+          <button class="next-country-tile copy-link-btn" (click)="copyRoomLink()">Copy invite link</button>
+        </div>
+        <div class="country-tile__info country-tile__info--right">
+          <span class="country-tile__label">Players</span>
+          <span class="country-tile__name">{{ state.connected }}/{{ maxPlayers }}</span>
+        </div>
+      </div>
+
+      <div class="lobby-tile">
+        <span class="lobby-tile__label">Seated at the table</span>
+        <ul class="lobby-list">
+          @for (seat of allSeats; track seat.playerNum) {
+          <li class="lobby-list__item">
+            <span class="lobby-list__dot"></span>
+            <span class="lobby-list__name">{{ seat.name }}</span>
+            @if (seat.isYou) { <span class="lobby-list__tag">you</span> }
+          </li>
+          }
+          @for (i of emptySeats(); track i) {
+          <li class="lobby-list__item lobby-list__item--empty">
+            <span class="lobby-list__dot lobby-list__dot--empty"></span>
+            <span class="lobby-list__name">Waiting for player…</span>
+          </li>
+          }
+        </ul>
+      </div>
+
+      <div class="action-row action-row--stacked">
+        <button class="guess-button guess-button--full" [class.guess-button--outline]="!state.youReady"
+          [disabled]="!canReady" (click)="toggleReady()">
+          @if (state.youReady) {
+          Ready ({{ state.readyCount }}/{{ state.connected }}) · Tap to cancel
+          } @else {
+          Ready up ({{ state.readyCount }}/{{ state.connected }})
+          }
+        </button>
+        @if (state.connected < minPlayers) {
+        <p class="phase-hint phase-hint--warning">Need at least {{ minPlayers }} players to start.</p>
+        }
+      </div>
+      }
+
+      <!-- DEALING -->
+      @if (localPhase === 'dealing') {
+      <div class="deal-tile">
+        <p class="deal-status">Shuffling in a solvable deck of countries…</p>
+      </div>
+      <div class="board-tile board-tile--dim"></div>
+      }
+
+      <!-- PLAYING -->
+      @if (localPhase === 'playing' && currentCountry) {
+      <div class="deal-tile">
+        <div class="deal-row">
+          <div class="current-country-card current-country-card--mini">
+            <img class="current-country-card__flag" [src]="currentCountry.flagSvg" alt="" />
+            <div class="current-country-card__info">
+              <span class="current-country-card__name">{{ currentCountry.name }}</span>
+            </div>
+          </div>
+          <button type="button" class="next-country-tile" (click)="onSkipCurrent()">Skip</button>
+          <div class="cards-left-tile">
+            <span class="cards-left-tile__value">{{ cardsRemaining }}</span>
+            <span class="cards-left-tile__label">left</span>
+          </div>
+          <div class="timer-tile"><span class="timer-tile__value">{{ timeRemaining }}s</span></div>
+        </div>
+      </div>
+      }
+
+      <!-- REVEAL: your board with correct/wrong -->
+      @if (localPhase === 'ended' && !viewingLeaderboard) {
+      <div class="deal-tile">
+        <div class="end-row">
+          <div class="end-summary">
+            <h2 class="end-summary__title">{{ correctCount }} / {{ totalCells }} correct</h2>
+          </div>
+          <button type="button" class="guess-button" (click)="onSeeLeaderboard()">See leaderboard</button>
+        </div>
+      </div>
+      }
+
+      @if (localPhase === 'playing' || (localPhase === 'ended' && !viewingLeaderboard)) {
+      <div class="board-tile">
+        <div class="board-wrap">
+          <div class="board board--flat">
+            @for (cell of grid; track cell.condition.id; let i = $index) {
+            <div class="cell" [class.is-filled]="cell.locked"
+              [class.is-correct]="cell.result === 'correct'" [class.is-wrong-result]="cell.result === 'wrong'">
+              <div class="cell-condition">
+                @if (cell.placed; as placed) {
+                <div class="cell-condition__placed">
+                  <img class="cell-condition__flag" [src]="placed.flagSvg" alt="" />
+                  <span class="cell-condition__code">{{ placed.alpha3Code }}</span>
+                </div>
+                } @else {
+                <img class="cell-condition__symbol" [src]="cell.condition.symbol" alt="" />
+                }
+                <span class="cell-condition__label">{{ cell.condition.label }}</span>
+              </div>
+              <button type="button" class="cell-btn"
+                [disabled]="cell.locked || localPhase !== 'playing' || !currentCountry"
+                (click)="onPlaceCurrent(i)"></button>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- LEADERBOARD / LOBBY: after clicking "See leaderboard" -->
+      @if (localPhase === 'ended' && viewingLeaderboard) {
+      <div class="reveal-tile">
+        <span class="reveal-tile__label">Leaderboard</span>
+        <div class="leaderboard-table">
+          <div class="leaderboard-table__row leaderboard-table__row--header">
+            <span class="leaderboard-table__name">Player</span>
+            <span class="leaderboard-table__round">This round</span>
+            <span class="leaderboard-table__wins">Wins</span>
+          </div>
+          @for (row of leaderboardRows; track row.playerNum) {
+          <div class="leaderboard-table__row" [style.background-color]="toGreenSaturation(row.wins, 5)">
+            <span class="leaderboard-table__name">{{ row.name }}</span>
+            <span class="leaderboard-table__round">{{ row.roundLabel }}</span>
+            <span class="leaderboard-table__wins">{{ row.wins }}</span>
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="action-row action-row--stacked">
+        <button class="guess-button guess-button--full" [class.guess-button--outline]="!state.youReady"
+          [disabled]="!canReady || !readyActionable" (click)="toggleReady()">
+          @if (state.youReady) {
+          Ready ({{ state.readyCount }}/{{ state.connected }}) · Tap to cancel
+          } @else {
+          Ready for next round ({{ state.readyCount }}/{{ state.connected }})
+          }
+        </button>
+        @if (!readyActionable) {
+        <p class="phase-hint phase-hint--warning">Waiting for other players to finish…</p>
+        }
+      </div>
+      }
+    }
+  </div>
+</div>

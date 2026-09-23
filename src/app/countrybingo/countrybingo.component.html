@@ -1,0 +1,127 @@
+<div class="game-card">
+    <header class="header">
+        <h1 class="title">Country Bingo</h1>
+        <p class="subtitle">Place or skip each country as it's dealt</p>
+    </header>
+
+    <div class="mode-tile">
+        <a class="mode-option mode-option--active" routerLink="/country-bingo/local">Local</a>
+        <a class="mode-option" routerLink="/country-bingo/online">Online</a>
+    </div>
+
+    <!-- Loading the condition matrix + country list -->
+    @if (phase === 'loading-matrix') {
+    <div class="deal-tile">
+        <p class="deal-status">Setting up board…</p>
+    </div>
+    }
+
+    <!-- Setup: conditions rolled, waiting to start -->
+    @if (phase === 'setup') {
+    <div class="deal-tile">
+        <button type="button" class="guess-button guess-button--full" [disabled]="!allConditionsSet"
+            (click)="onStartGame()">
+            Start dealing
+        </button>
+    </div>
+    }
+
+    <!-- Deck being assembled -->
+    @if (phase === 'dealing-deck') {
+    <div class="deal-tile">
+        <p class="deal-status">Shuffling in a solvable deck of countries…</p>
+    </div>
+    }
+
+    <!-- Actively playing: current dealt country, cards left, timer, skip -->
+    @if (phase === 'playing' && currentCountry) {
+    <div class="deal-tile">
+        <div class="deal-row">
+            <div class="current-country-card current-country-card--mini">
+                <img class="current-country-card__flag" [src]="currentCountry.flags.svg" alt="" />
+                <div class="current-country-card__info">
+                    <span class="current-country-card__name">{{ currentCountry.name }}</span>
+                </div>
+            </div>
+
+            <button type="button" class="next-country-tile" (click)="onSkipCurrent()">
+                Skip
+            </button>
+
+            <div class="cards-left-tile">
+                <span class="cards-left-tile__value">{{ cardsRemaining }}</span>
+                <span class="cards-left-tile__label">left</span>
+            </div>
+
+            <div class="timer-tile">
+                <span class="timer-tile__value">{{ timeRemaining }}s</span>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Ended: reveal + score -->
+    @if (phase === 'ended') {
+    <div class="deal-tile">
+        <div class="end-row">
+            <div class="end-summary">
+                <h2 class="end-summary__title">{{ correctCount }} / {{ totalCells }} correct</h2>
+            </div>
+            <button type="button" class="guess-button" (click)="onPlayAgain()">Play again</button>
+        </div>
+    </div>
+    }
+
+    <div class="board-tile">
+        <div class="board-wrap">
+            <div class="board board--flat">
+                @for (cell of grid; track cell.condition.id; let i = $index) {
+                <div class="cell"
+                    [class.is-filled]="cell.locked"
+                    [class.is-correct]="cell.result === 'correct'"
+                    [class.is-wrong-result]="cell.result === 'wrong'">
+
+                    <div class="cell-condition">
+                        @if (cell.placed; as placed) {
+                        <div class="cell-condition__placed">
+                            <img class="cell-condition__flag" [src]="placed.flagSvg" alt="" />
+                            <span class="cell-condition__code">{{ placed.alpha3Code }}</span>
+                        </div>
+                        } @else {
+                        <img class="cell-condition__symbol" [src]="cell.condition.symbol" alt="" />
+                        }
+                        <span class="cell-condition__label">{{ cell.condition.label }}</span>
+                    </div>
+
+                    <button type="button" class="cell-btn"
+                        [disabled]="cell.locked || phase !== 'playing' || !currentCountry"
+                        (click)="onPlaceCurrent(i)">
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (gameHistory.length > 0) {
+<aside class="history-sidebar">
+    <h3 class="history-title">Session History</h3>
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Round</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (entry of gameHistory; track entry.roundNumber) {
+            <tr [style.background-color]="toGreenSaturation(entry.score)">
+                <td>Round #{{ entry.roundNumber }}</td>
+                <td class="score-cell">{{ entry.score }} / {{ totalCells }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</aside>
+}
